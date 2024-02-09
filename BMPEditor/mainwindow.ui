@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1172</width>
+    <height>740</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>BMP Editor</string>
+  </property>
+  <widget class="QWidget" name="centralwidget"/>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1172</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="tearOffEnabled">
+     <bool>false</bool>
+    </property>
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionOpen"/>
+    <addaction name="actionSave"/>
+   </widget>
+   <widget class="QMenu" name="menuFilter">
+    <property name="title">
+     <string>Filter</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuTransform">
+    <property name="title">
+     <string>Transform</string>
+    </property>
+    <addaction name="actionRotate_90_plus"/>
+    <addaction name="actionRotate_90_minus"/>
+    <addaction name="actionFlip_horizontally"/>
+    <addaction name="action_Flip_vertically"/>
+   </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>View</string>
+    </property>
+    <addaction name="actionZoom_in"/>
+    <addaction name="actionZoom_out"/>
+    <addaction name="actionReset_scale"/>
+    <addaction name="actionUndo"/>
+    <addaction name="actionRedo"/>
+   </widget>
+   <widget class="QMenu" name="menuSteganography">
+    <property name="title">
+     <string>Steganography</string>
+    </property>
+    <addaction name="actionWrite_message"/>
+    <addaction name="actionRead_message"/>
+    <addaction name="actionClear_message"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionAbout"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuView"/>
+   <addaction name="menuFilter"/>
+   <addaction name="menuTransform"/>
+   <addaction name="menuSteganography"/>
+   <addaction name="menuHelp"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar_2</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>RightToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+  </widget>
+  <action name="actionOpen">
+   <property name="icon">
+    <iconset>
+     <normalon>:/Resources/file_open.svg</normalon>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Open</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actionSave">
+   <property name="icon">
+    <iconset>
+     <normalon>:/Resources/file_save.svg</normalon>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Save</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionRotate_90_plus">
+   <property name="icon">
+    <iconset>
+     <normalon>:/Resources/rotate_plus.svg</normalon>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Rotate +90°</string>
+   </property>
+  </action>
+  <action name="actionRotate_90_minus">
+   <property name="icon">
+    <iconset>
+     <normalon>:/Resources/rotate_minus.svg</normalon>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Rotate -90°</string>
+   </property>
+  </action>
+  <action name="actionFlip_horizontally">
+   <property name="icon">
+    <iconset>
+     <normalon>:/Resources/flip_horizontal.svg</normalon>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Flip horizontally</string>
+   </property>
+  </action>
+  <action name="action_Flip_vertically">
+   <property name="icon">
+    <iconset>
+     <normalon>:/Resources/flip_vertical.svg</normalon>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>
+Flip vertically</string>
+   </property>
+  </action>
+  <action name="actionZoom_in">
+   <property name="icon">
+    <iconset>
+     <normalon>:/Resources/zoom_in.svg</normalon>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Zoom in</string>
+   </property>
+  </action>
+  <action name="actionZoom_out">
+   <property name="icon">
+    <iconset>
+     <normalon>:/Resources/zoom_out.svg</normalon>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Zoom out</string>
+   </property>
+  </action>
+  <action name="actionReset_scale">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/Resources/reset_scale.svg</normaloff>:/Resources/reset_scale.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Reset Scale</string>
+   </property>
+  </action>
+  <action name="actionWrite_message">
+   <property name="text">
+    <string>Write message</string>
+   </property>
+  </action>
+  <action name="actionClear_message">
+   <property name="text">
+    <string>Clear message</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About</string>
+   </property>
+  </action>
+  <action name="actionRead_message">
+   <property name="text">
+    <string>Read message</string>
+   </property>
+  </action>
+  <action name="actionUndo">
+   <property name="icon">
+    <iconset>
+     <normalon>:/Resources/undo.svg</normalon>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Undo</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Z</string>
+   </property>
+  </action>
+  <action name="actionRedo">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/Resources/redo.svg</normaloff>:/Resources/redo.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Redo</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Y</string>
+   </property>
+  </action>
+ </widget>
+ <resources>
+  <include location="resource.qrc"/>
+ </resources>
+ <connections/>
+</ui>
