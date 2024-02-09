@@ -6,6 +6,8 @@
 
 #include "../Base/error.h"
 
+static inline int __findColorIndex(const RGBQUAD *palette, int paletteSize, int red, int green, int blue);
+
 int BMP_IO_loadBMPImage(const QString &path,
                         BitMapFileHeader &fileHeader,
                         BitMapInfoHeader &infoHeader,
@@ -71,18 +73,20 @@ int BMP_IO_loadBMPImage(const QString &path,
     if (stride % 32 != 0)
         stride = (stride | 31) + 1;
     stride /= 8;
+    qDebug() << "BMP LOAD - stride size: " << stride;
 
     // nacteni vsech pixelu obrazku z data bufferu
     uint32_t index = 0;
     uint32_t offset = 0;
     RGBQUAD color;
+    int32_t x;
     unsigned char * buff = new unsigned char[stride];
     for (int32_t y = 0; y < infoHeader.height; ++y) {
         // nacte cely radek z obrazku
         file.read(reinterpret_cast<char*>(buff), stride);
         // precte vsechny pixely v radku obrazku
         offset = 0;
-        for (int32_t x = 0; x < infoHeader.width; ++x) {
+        for (x = 0; x < infoHeader.width; ++x) {
             // ziskani barvy pixelu
             switch (infoHeader.bitCount) {
             case 1:
@@ -147,10 +151,11 @@ int BMP_IO_saveBMPImage(const QString &path,
     qDebug() << "BMP SAVE - headers writing done";
 
     // zapis palety barev
+    int paletteSize = 0;
     if (infoHeader.bitCount <= 8) {
         // vypocet velikosti palety
-        int paletteSize = 1 << infoHeader.bitCount;
-        file.write(reinterpret_cast<const char*>(&palette), paletteSize * sizeof(RGBQUAD));
+        paletteSize = 1 << infoHeader.bitCount;
+        file.write(reinterpret_cast<const char*>(palette), paletteSize * sizeof(RGBQUAD));
         qDebug() << "BMP SAVE - color palette writing done ( " << paletteSize << " )";
     }
 
@@ -159,30 +164,55 @@ int BMP_IO_saveBMPImage(const QString &path,
     if (stride % 32 != 0)
         stride = (stride | 31) + 1;
     stride /= 8;
+    qDebug() << "BMP SAVE - stride size: " << stride;
 
     // zapis dat obrazku (inverzni zpusob jak u cteni)
     uint32_t index = 0;
     uint32_t offset = 0;
+    int8_t colorIndex;
+    int32_t x;
     unsigned char * buff = new unsigned char[stride];
     for (int32_t y = 0; y < infoHeader.height; ++y) {
+        // cely buffer resetuje, prepise 0x0
+        for(int i = 0; i < stride; ++i) {
+            buff[i] = 0x0;
+        }
         // zapis jednoho radku pixelu obrazku do bufferu
         offset = 0;
-        for (int32_t x = 0; x < infoHeader.width; ++x) {
+        for (x = 0; x < infoHeader.width; ++x) {
             // vypocet indexu pixelu
             index = (y * infoHeader.width + x) * 3;
+            // pokud jde o obrazek s color paletou tak si najde v palete index barvy aktualniho pixelu
+            if(infoHeader.bitCount <= 8) {
+                colorIndex = __findColorIndex(palette,
+                                              paletteSize,
+                                              pixels[index],
+                                              pixels[index + 1],
+                                              pixels[index + 2]);
+            }
             // zapis pixelu do bufferu
             switch (infoHeader.bitCount) {
             case 1:
+                // zapis RGB pixelu ve 1b formatu (vyuziva paletu barev)
+                // index barvy
+                buff[offset / 8] |= (colorIndex << (7 - (offset % 8))) & (0b10000000 >> offset % 8);
                 break;
             case 4:
+                // zapis RGB pixelu ve 4b formatu (vyuziva paletu barev)
+                // index barvy
+                buff[offset / 8] |= (colorIndex << ((offset + 4) % 8)) & (0b11110000 >> offset % 8);
                 break;
             case 8:
+                // zapis RGB pixelu ve 8b (1B) formatu (vyuziva paletu barev)
+                // index barvy
+                buff[offset / 8] = colorIndex;
                 break;
             default:
-                // 24b (3B) RGB
-                buff[x] = pixels[index + 2]; // blue
-                buff[x + 1] = pixels[index + 1]; // green
-                buff[x + 2] = pixels[index]; // red
+                // zapis RGB pixelu ve 24b (3B) formatu
+                // pozice f bufferu je dana offsetem, ten se meni po 24b, jelikoz jde o pole uchar (8b) tak po 3 indexech v poli
+                buff[offset / 8] = pixels[index + 2]; // blue
+                buff[offset / 8 + 1] = pixels[index + 1]; // green
+                buff[offset / 8 + 2] = pixels[index]; // red
                 break;
             }
             // offsest v radku obrazku
@@ -192,7 +222,7 @@ int BMP_IO_saveBMPImage(const QString &path,
         file.write(reinterpret_cast<char*>(buff), stride);
     }
     delete[] buff;
-    qDebug() << "BMP image data writing done";
+    qDebug() << "BMP image data writing done (" << infoHeader.width << "; " << infoHeader.height << ")";
 
     // overeni zda data byli spravne zapsany
     if (!file.good()) {
@@ -202,4 +232,19 @@ int BMP_IO_saveBMPImage(const QString &path,
     file.close();
 
     return STATUS_OK;
+}
+
+static inline int __findColorIndex(const RGBQUAD *palette, int paletteSize, int red, int green, int blue) {
+    int closestIndex = 0;
+    int closestDistance = std::numeric_limits<int>::max();
+    for (int i = 0; i < paletteSize; ++i) {
+        int distance = std::abs(palette[i].red - red) +
+                       std::abs(palette[i].green - green) +
+                       std::abs(palette[i].blue - blue);
+        if (distance < closestDistance) {
+            closestIndex = i;
+            closestDistance = distance;
+        }
+    }
+    return closestIndex;
 }
