@@ -52,6 +52,7 @@ QLabel * ImageInfoPanel::createHeader(const QString &name) {
 
 QTableWidget* ImageInfoPanel::createTable() {
     QTableWidget *table = new QTableWidget();
+    table->setEditTriggers(QAbstractItemView::NoEditTriggers);
     table->setColumnCount(2);
     table->horizontalHeader()->setStretchLastSection(true);
     return table;
@@ -137,6 +138,7 @@ void ImageInfoPanel::setImage(Image *img) {
                 colorFrame->setFrameShadow(QFrame::Plain);
                 colorFrame->setLineWidth(1);
                 colorFrame->setFixedSize(22, 22);
+                colorFrame->setToolTip(QString("RGB(%1, %2, %3)").arg(color.red).arg(color.green).arg(color.blue));
                 colorFrame->setStyleSheet(QString("background-color: rgb(%1, %2, %3);").arg(color.red).arg(color.green).arg(color.blue));
                 colorPalette->addWidget(colorFrame, row, col);
                 col++;

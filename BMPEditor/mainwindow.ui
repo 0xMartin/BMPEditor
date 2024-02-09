@@ -13,6 +13,11 @@
   <property name="windowTitle">
    <string>BMP Editor</string>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <normalon>:/Resources/icon.png</normalon>
+   </iconset>
+  </property>
   <widget class="QWidget" name="centralwidget"/>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -32,6 +37,7 @@
     </property>
     <addaction name="actionOpen"/>
     <addaction name="actionSave"/>
+    <addaction name="actionExit"/>
    </widget>
    <widget class="QMenu" name="menuFilter">
     <property name="title">
@@ -229,6 +235,11 @@ Flip vertically</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Y</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="text">
+    <string>Exit</string>
    </property>
   </action>
  </widget>

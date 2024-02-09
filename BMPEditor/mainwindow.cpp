@@ -3,6 +3,7 @@
 
 #include "Image/bmpimage.h"
 #include <QFileDialog>
+#include <QMessageBox>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -84,6 +85,17 @@ QFrame *MainWindow::createToolbarSeparator()
     return separator;
 }
 
+void MainWindow::closeEvent(QCloseEvent *event) {
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, "Close", "Are you sure you want to exit the application?",
+                                  QMessageBox::Yes|QMessageBox::No);
+    if (reply == QMessageBox::Yes) {
+        event->accept();
+    } else {
+        event->ignore();
+    }
+}
+
 void MainWindow::on_actionOpen_triggered()
 {
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open Image"), QDir::homePath(), tr("BMP File (*.bmp)"));
@@ -99,5 +111,22 @@ void MainWindow::on_actionSave_triggered()
     if (!fileName.isEmpty()) {
         qDebug() << "Save file: " << fileName;
     }
+}
+
+
+void MainWindow::on_actionAbout_triggered()
+{
+    dialog.show();
+}
+
+
+void MainWindow::on_actionExit_triggered()
+{
+    QCloseEvent *event = new QCloseEvent();
+    closeEvent(event);
+    if(event->isAccepted()) {
+        exit(0);
+    }
+    delete event;
 }
 

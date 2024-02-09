@@ -7,6 +7,7 @@
 #include "Base/image.h"
 #include "Editor/workspace.h"
 #include "Editor/imageinfopanel.h"
+#include "about.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -31,10 +32,19 @@ protected:
     ImageInfoPanel *imageInfoPanel;
     QLabel *statusLabel;
 
+    // dialogy
+    AboutDialog dialog;
+
+    void closeEvent(QCloseEvent *event);
+
 private slots:
     void on_actionOpen_triggered();
 
     void on_actionSave_triggered();
+
+    void on_actionAbout_triggered();
+
+    void on_actionExit_triggered();
 
 private:
     Ui::MainWindow *ui;

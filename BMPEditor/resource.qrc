@@ -12,5 +12,7 @@
         <file>Resources/zoom_in.svg</file>
         <file>Resources/zoom_out.svg</file>
         <file>Resources/reset_scale.svg</file>
+        <file>Resources/about_graphics.png</file>
+        <file>Resources/icon.png</file>
     </qresource>
 </RCC>
