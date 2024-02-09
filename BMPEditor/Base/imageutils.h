@@ -12,14 +12,14 @@
 class ImageUtils
 {
 protected:
-    Image currentImage;
-    std::vector<Image> imageHistory;
+    Image * currentImage;
+    std::vector<Image*> imageHistory;
 
 public:
-    ImageUtils(Image image);
+    ImageUtils();
 
-    Image getCurrentImage() const;
-    void setCurrentImage(const Image &newCurrentImage);
+    Image * getCurrentImage() const;
+    void setCurrentImage(Image * image);
 };
 
 #endif // IMAGEUTILS_H

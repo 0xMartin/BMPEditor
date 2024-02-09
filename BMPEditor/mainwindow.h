@@ -23,6 +23,8 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+    void setImage(Image *image);
+
 protected:
     // aktualni obrazek
     Image *image;

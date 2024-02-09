@@ -2,6 +2,7 @@
 
 #include "error.h"
 #include <filesystem>
+#include <QDebug>
 
 Image::Image() {
     this->type = IMG_NONE;
@@ -10,13 +11,13 @@ Image::Image() {
     this->dataLen = 0;
     this->width = 0;
     this->height = 0;
-    this->data = NULL;
+    this->pixels = NULL;
     this->imagePreview = NULL;
 }
 
 Image::~Image() {
-    if(this->data != NULL) {
-        delete this->data;
+    if(this->pixels != NULL) {
+        delete this->pixels;
     }
 }
 
@@ -28,19 +29,20 @@ int Image::saveImage(const QString & path) {
     return ERR_NOT_IMPLEMENTED;
 }
 
-int Image::copyImage(Image img) {
-    if(this->data != NULL) return STATUS_OK;
-    if(img.dataLen == 0) return ERR_EMPTY_IMG;
+int Image::copyImage(Image * img) {
+    if(this->pixels != NULL) return STATUS_OK;
+    if(img == NULL) return ERR_NULL_PTR;
+    if(img->dataLen == 0) return ERR_EMPTY_IMG;
 
     // alokace datoveho pole obrazku
-    this->dataLen = img.dataLen;
-    this->data = new unsigned char[this->dataLen];
-    if(this->data == NULL) {
+    this->dataLen = img->dataLen;
+    this->pixels = new unsigned char[this->dataLen];
+    if(this->pixels == NULL) {
         return ERR_ALLOC;
     }
 
     // kopirovani dat
-    if(memcpy(this->data, img.data, img.dataLen * sizeof(unsigned char)) == NULL) return ERR_MEM_CPY;
+    if(memcpy(this->pixels, img->pixels, this->dataLen * sizeof(unsigned char)) == NULL) return ERR_MEM_CPY;
 
     return STATUS_OK;
 }
@@ -63,9 +65,16 @@ int Image::buildImagePreview()
         delete this->imagePreview;
     }
     this->imagePreview = NULL;
-    this->imagePreview = new QImage(data, width, height, QImage::Format_RGB888);
+    this->imagePreview = new QImage(width, height, QImage::Format_RGB888);
     if(this->imagePreview == NULL) {
         return ERR_ALLOC;
+    }
+    for (int y = 0; y < this->height; ++y) {
+        for (int x = 0; x < this->width; ++x) {
+            int index = ((height - y - 1) * width + x) * 3;
+            QRgb rgb = qRgb(pixels[index], pixels[index + 1], pixels[index + 2]);
+            this->imagePreview->setPixel(x, y, rgb);
+        }
     }
     return STATUS_OK;
 }

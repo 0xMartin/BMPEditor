@@ -1,15 +1,15 @@
 #include "imageutils.h"
 
-ImageUtils::ImageUtils(Image image) {
+ImageUtils::ImageUtils() {
 
 }
 
-Image ImageUtils::getCurrentImage() const
+Image * ImageUtils::getCurrentImage() const
 {
-    return currentImage;
+    return this->currentImage;
 }
 
-void ImageUtils::setCurrentImage(const Image &newCurrentImage)
+void ImageUtils::setCurrentImage(Image * image)
 {
-    currentImage = newCurrentImage;
+    this->currentImage = image;
 }

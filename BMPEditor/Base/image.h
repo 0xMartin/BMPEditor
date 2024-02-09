@@ -16,7 +16,7 @@ enum ImageType {
 };
 
 /**
- * @brief Rodicovska trida resteroveho obrazku. Vsechny ostatni tridy obrazku dedi od teto tridy.
+ * @brief Abstraktni trida resteroveho obrazku. Vsechny ostatni tridy obrazku dedi od teto tridy.
  */
 class Image
 {
@@ -37,11 +37,11 @@ public:
     size_t dataLen; /** Delka pole pixelu obrazku */
     size_t width; /** Sirka obrazku v pixelech  */
     size_t height; /** Vyska obrazku v pixelech  */
-    unsigned char * data; /** Pole pixelu obrazu */
+    unsigned char * pixels; /** Pole pixelu obrazu */
 
     // Konstruktor & Destruktor tridy image
     Image();
-    ~Image();
+    virtual ~Image();
 
     /**
      * @brief Virtualni metoda urcena pro nacteni obrazku.
@@ -62,13 +62,18 @@ public:
      * @param img - Obrazek, ze ktereho budou data kopirovany
      * @return Error code
      */
-    virtual int copyImage(Image img);
+    virtual int copyImage(Image * img);
 
     /**
      * @brief Event pro vykresleni obrazku
      * @param painter - QPainter
      */
     virtual void paintEvent(QPainter &painter);
+
+    /**
+     * @brief Univerzalni metoda refresh. Vyuziti pro prepocitani internich atributu tridy, ktery od teto tridy dedi.
+     */
+    virtual void refresh() = 0;
 
     /**
      * @brief Navrati nazev obrazku

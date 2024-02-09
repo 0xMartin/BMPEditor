@@ -11,6 +11,7 @@
 ImageInfoPanel::ImageInfoPanel(QWidget *parent) : QWidget(parent) {
     // vertiklani layout pro prvky
     QVBoxLayout *layout = new QVBoxLayout(this);
+    layout->setSpacing(0);
 
     // tabulka pro BMP file header
     this->fileHeaderTable = createTable();
@@ -45,8 +46,9 @@ QLabel * ImageInfoPanel::createHeader(const QString &name) {
     QLabel * label = new QLabel(name);
     QFont font = label->font();
     font.setBold(true);
-    font.setPointSize(16);
+    font.setPointSize(14);
     label->setFont(font);
+    label->setStyleSheet("background-color: rgb(39, 39, 41); padding: 6px");
     return label;
 }
 
@@ -86,8 +88,12 @@ void ImageInfoPanel::addRow(QTableWidget *table, const QString &fieldName, const
 
 void ImageInfoPanel::setImage(Image *img) {
     // clear
-    this->fileHeaderTable->clearContents();
-    this->infoHeaderTable->clearContents();
+    for (int i = this->infoHeaderTable->rowCount() - 1; i >= 0; --i) {
+        this->infoHeaderTable->removeRow(i);
+    }
+    for (int i = this->fileHeaderTable->rowCount() - 1; i >= 0; --i) {
+        this->fileHeaderTable->removeRow(i);
+    }
     QLayoutItem *item;
     while ((item = colorPalette->takeAt(0)) != nullptr) {
         colorPalette->removeItem(item);
@@ -127,12 +133,12 @@ void ImageInfoPanel::setImage(Image *img) {
         this->addRow(this->infoHeaderTable, "ColorsImportant", QString::number(bmp->bmpInfoHeader.colorsImportant));
 
         // paleta barev
-        this->infoHeaderLabel->setText("Color Palette");
+        this->colorsLabel->setText("Color Palette");
         if(bmp->bmpInfoHeader.bitCount <= 8 && bmp->bmpInfoHeader.bitCount > 0) {
             int row = 0;
             int col = 0;
             for (int i = 0; i < (1 << bmp->bmpInfoHeader.bitCount); ++i) {
-                const RGBQUAD &color = bmp->bmpColors[i];
+                RGBQUAD color = bmp->bmpColors[i];
                 QFrame *colorFrame = new QFrame(this);
                 colorFrame->setFrameShape(QFrame::Box);
                 colorFrame->setFrameShadow(QFrame::Plain);

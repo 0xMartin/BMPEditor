@@ -55,6 +55,11 @@ public:
     void setDefaultScale();
 
     /**
+     * @brief Nastavy defaultni offest workspaceu
+     */
+    void setDefaultOffset();
+
+    /**
      * @brief Nastavi nove meritko pro zobrazovani obrazku
      * @param scale - Meritko
      */

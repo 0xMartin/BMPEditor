@@ -17,8 +17,11 @@ public:
     ~BMPImage();
 
     // funkce pro nacitani a ukladani BMP obrazku
-    virtual int loadImage(const QString & path);
-    virtual int saveImage(const QString & path = "");
+    virtual int loadImage(const QString & path) override;
+    virtual int saveImage(const QString & path = "") override;
+
+    // funkce pro prepocitani informaci v headeru (pri zmene obrazovych dat)
+    virtual void refresh() override;
 };
 
 #endif // BMPIMAGE_H

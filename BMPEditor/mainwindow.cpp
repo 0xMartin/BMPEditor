@@ -2,6 +2,7 @@
 #include "./ui_mainwindow.h"
 
 #include "Image/bmpimage.h"
+#include "Base/error.h"
 #include <QFileDialog>
 #include <QMessageBox>
 
@@ -61,14 +62,6 @@ MainWindow::MainWindow(QWidget *parent)
     this->setCentralWidget(this->splitter_horizontal);
     this->splitter_horizontal->setStretchFactor(0, 1);
     this->splitter_horizontal->setStretchFactor(1, 2);
-
-
-    BMPImage * fake = new BMPImage();
-    fake->type = IMG_BMP;
-    fake->width = 300;
-    fake->height = 200;
-    this->workspace->setImage(fake);
-    this->imageInfoPanel->setImage(fake);
 }
 
 MainWindow::~MainWindow()
@@ -76,6 +69,21 @@ MainWindow::~MainWindow()
     delete ui;
     delete statusLabel;
     delete splitter_horizontal;
+}
+
+void MainWindow::setImage(Image *image)
+{
+    // pokud je aktualne otevren nejaky obrazek tak ho odstrani z pameti
+    if(this->image != NULL) {
+        delete this->image;
+        this->image = NULL;
+    }
+    // nastaveni pointeru obrazku hlavnim prvkum editoru
+    this->image = image;
+    this->workspace->setImage(this->image);
+    this->workspace->setDefaultScale();
+    this->workspace->setDefaultOffset();
+    this->imageInfoPanel->setImage(this->image);
 }
 
 QFrame *MainWindow::createToolbarSeparator()
@@ -101,15 +109,40 @@ void MainWindow::on_actionOpen_triggered()
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open Image"), QDir::homePath(), tr("BMP File (*.bmp)"));
     if (!fileName.isEmpty()) {
         qDebug() << "Open file: " << fileName;
+        BMPImage *bmp = new BMPImage();
+        int errCode = bmp->loadImage(fileName);
+        if(errCode != STATUS_OK) {
+            // nastala chyba pri nacteni souboru
+            QString errorStr;
+            getErrorCodeInfo(errCode, errorStr);
+            QMessageBox::critical(this, tr("Open Error"), QString(tr("Failed to open BMP image. Error: %1")).arg(errorStr));
+        } else {
+            // obrazek uspesne nacten => zobrazeni v editoru
+            this->setImage(bmp);
+            QMessageBox::information(this, "Open Image", "Image opened successfully!");
+        }
     }
 }
 
 
 void MainWindow::on_actionSave_triggered()
 {
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Save Image"), QDir::homePath(), tr("BMP file (*.bmp)"));
-    if (!fileName.isEmpty()) {
-        qDebug() << "Save file: " << fileName;
+    if(this->image == NULL) {
+        QMessageBox::critical(this, tr("Save Error"), tr("It is not possible to save an image because no image is opened!"));
+    } else {
+        QString fileName = QFileDialog::getSaveFileName(this, tr("Save Image"), QDir::homePath(), tr("BMP file (*.bmp)"));
+        if (!fileName.isEmpty()) {
+            qDebug() << "Save file: " << fileName;
+            int errCode = this->image->saveImage(fileName);
+            if(errCode != STATUS_OK) {
+                // nastala chyba pri nacteni souboru
+                QString errorStr;
+                getErrorCodeInfo(errCode, errorStr);
+                QMessageBox::critical(this, tr("Save Error"), QString(tr("Failed to save BMP image. Error: %1")).arg(errorStr));
+            } else {
+                QMessageBox::information(this, "Save Image", "Image saved successfully!");
+            }
+        }
     }
 }
 

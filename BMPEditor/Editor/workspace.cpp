@@ -55,6 +55,11 @@ void Workspace::setDefaultScale()
     this->repaint();
 }
 
+void Workspace::setDefaultOffset()
+{
+    this->globalOffset = QPointF(0.0f, 0.0f);
+}
+
 void Workspace::setScale(float scale)
 {
     // update scale
@@ -318,19 +323,19 @@ void Workspace::paintEvent(QPaintEvent *event) {
         QString buffer = "";
         // jmeno vrstvy
         buffer = this->image->getName();
-        buffer = buffer.leftJustified(20, ' ');
+        buffer = buffer.leftJustified(40, ' ') + " ";
         // zoom
         buffer += QString::number(this->scale * 100, 'f', 0) + "%";
-        buffer = buffer.leftJustified(31, ' ');
+        buffer = buffer.leftJustified(53, ' ') + " ";
         // pozice
         bool b;
         QPointF pos = this->calculateEventOffsetPosition(this->currentPos, b);
         buffer += "X: " + QString::number(pos.x(), 'f', 0) + " Y: " + QString::number(pos.y(), 'f', 0);
-        buffer = buffer.leftJustified(51, ' ');
+        buffer = buffer.leftJustified(75, ' ') + " ";
         // dx & dy
         pos = pos - this->pressPos;
         buffer += "DX: " + QString::number(pos.x(), 'f', 0) + " DY: " + QString::number(pos.y(), 'f', 0);
-        buffer = buffer.leftJustified(73, ' ');
+        buffer = buffer.leftJustified(89, ' ');
         // paint info
         painter.drawText(QPointF(40, this->height() - 9), buffer);
     }
