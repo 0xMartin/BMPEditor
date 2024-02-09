@@ -357,7 +357,7 @@ QPointF Workspace::calculateEventOffsetPosition(const QPointF &pos, bool &outOfR
     offset -= this->globalOffset * this->scale;
 
     // vynasobit inverznim scale
-    // nyni uz finalni pozice prepoctana na soradnice v projektu
+    // nyni uz finalni pozice prepoctena na soradnice v obrazku
     offset *= INV_SCALE(this->scale);
 
     // pokud je mimo kreslici plochu tak zneplatni hodnoty

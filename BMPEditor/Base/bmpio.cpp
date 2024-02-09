@@ -6,6 +6,15 @@
 
 #include "../Base/error.h"
 
+/**
+ * @brief Najde index barvy v palete barev podle predanych argumentu funkce
+ * @param palette - Ukazatel na paletu barev BMP obrazku
+ * @param paletteSize - Velikost palety barev
+ * @param red - Cervena slozka pixelu
+ * @param green - Zelena slozka pixelu
+ * @param blue - Modra slozka pixelu
+ * @return Index barvy pixelu v palete barev (pokud neni barva primo nalezena tak barva s nejblizsi podobnosti)
+ */
 static inline int __findColorIndex(const RGBQUAD *palette, int paletteSize, int red, int green, int blue);
 
 int BMP_IO_loadBMPImage(const QString &path,

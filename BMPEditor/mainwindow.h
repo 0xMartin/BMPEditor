@@ -5,6 +5,7 @@
 #include <QSplitter>
 
 #include "Base/image.h"
+#include "Base/imageutils.h"
 #include "Editor/workspace.h"
 #include "Editor/imageinfopanel.h"
 #include "about.h"
@@ -28,6 +29,9 @@ public:
 protected:
     // aktualni obrazek
     Image *image;
+
+    // nastroj pro modifikace aktualniho obrazku
+    ImageUtils imgUtils;
 
     // hlavni prvky editoru
     Workspace *workspace;

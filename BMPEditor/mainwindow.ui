@@ -77,10 +77,20 @@
     </property>
     <addaction name="actionAbout"/>
    </widget>
+   <widget class="QMenu" name="menuFormat">
+    <property name="title">
+     <string>Format</string>
+    </property>
+    <addaction name="actionConvert_to_1b_BMP"/>
+    <addaction name="actionConvert_to_4b_BMP"/>
+    <addaction name="actionConvert_to_8b_BMP"/>
+    <addaction name="actionConvert_to_24b_BMP"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuView"/>
-   <addaction name="menuFilter"/>
    <addaction name="menuTransform"/>
+   <addaction name="menuFilter"/>
+   <addaction name="menuFormat"/>
    <addaction name="menuSteganography"/>
    <addaction name="menuHelp"/>
   </widget>
@@ -240,6 +250,26 @@ Flip vertically</string>
   <action name="actionExit">
    <property name="text">
     <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionConvert_to_1b_BMP">
+   <property name="text">
+    <string>Convert to 1b BMP</string>
+   </property>
+  </action>
+  <action name="actionConvert_to_4b_BMP">
+   <property name="text">
+    <string>Convert to 4b BMP</string>
+   </property>
+  </action>
+  <action name="actionConvert_to_8b_BMP">
+   <property name="text">
+    <string>Convert to 8b BMP</string>
+   </property>
+  </action>
+  <action name="actionConvert_to_24b_BMP">
+   <property name="text">
+    <string>Convert to 24b BMP</string>
    </property>
   </action>
  </widget>
