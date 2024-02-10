@@ -9,6 +9,8 @@
 #include "Editor/workspace.h"
 #include "Editor/imageinfopanel.h"
 #include "about.h"
+#include "Dialog/blurdialog.h"
+#include "Dialog/brightnessdialog.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -37,9 +39,12 @@ protected:
     Workspace *workspace;
     ImageInfoPanel *imageInfoPanel;
     QLabel *statusLabel;
+    QLabel *pathLabel;
 
     // dialogy
     AboutDialog dialog;
+    BlurDialog blurDialog;
+    BrightnessDialog brightnessDialog;
 
     void closeEvent(QCloseEvent *event);
 
@@ -71,6 +76,18 @@ private slots:
     void on_actionFlip_horizontally_triggered();
 
     void on_action_Flip_vertically_triggered();
+
+    void on_actionGrayscale_triggered();
+
+    void on_actionInvert_triggered();
+
+    void on_actionSepia_triggered();
+
+    void on_actionBlur_triggered();
+
+    void on_actionBrightness_triggered();
+
+    void on_actionContrast_triggered();
 
 private:
     Ui::MainWindow *ui;

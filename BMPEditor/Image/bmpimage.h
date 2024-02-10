@@ -22,6 +22,10 @@ public:
 
     // funkce pro prepocitani informaci v headeru (pri zmene obrazovych dat)
     virtual void refresh() override;
+
+    // funkce pro klonovani
+    virtual int copyImage(Image * img) override;
+    virtual Image * cloneImage() override;
 };
 
 #endif // BMPIMAGE_H

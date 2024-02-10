@@ -12,6 +12,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    // toolbar
     this->ui->toolBar->addAction(this->ui->actionOpen);
     this->ui->toolBar->addAction(this->ui->actionSave);
     this->ui->toolBar->addWidget(this->createToolbarSeparator());
@@ -27,11 +28,29 @@ MainWindow::MainWindow(QWidget *parent)
     this->ui->toolBar->addAction(this->ui->actionFlip_horizontally);
     this->ui->toolBar->addAction(this->ui->action_Flip_vertically);
 
-    // label pro status bar
-    this->statusLabel = new QLabel(this->ui->statusbar);
+    // histori (undo, redo)
+    this->ui->actionUndo->setEnabled(false);
+    this->ui->actionRedo->setEnabled(false);
+
+    // status bar
+    QWidget *statusBarWidget = new QWidget(this->ui->statusbar);
+
+    this->statusLabel = new QLabel(statusBarWidget);
     this->statusLabel->setAlignment(Qt::AlignLeft);
-    this->statusLabel->setText(tr("Status: No image"));
-    this->statusBar()->addPermanentWidget(this->statusLabel, 1);
+    this->statusLabel->setText(tr("<b>Status:</b> No image"));
+
+    this->pathLabel = new QLabel(statusBarWidget);
+    this->pathLabel->setAlignment(Qt::AlignLeft);
+    this->pathLabel->setText(tr("<b>Path:</b> None"));
+
+    QHBoxLayout * statusBarLayour = new QHBoxLayout(statusBarWidget);
+    statusBarLayour->setContentsMargins(6, 2, 2, 2);
+    statusBarWidget->setLayout(statusBarLayour);
+    statusBarLayour->addWidget(this->statusLabel);
+    statusBarLayour->addWidget(this->pathLabel);
+    statusBarLayour->addStretch();
+
+    this->statusBar()->addPermanentWidget(statusBarWidget, 1);
 
     /**********************************************************/
     // init
@@ -71,8 +90,6 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
     delete ui;
-    delete statusLabel;
-    delete splitter_horizontal;
 }
 
 void MainWindow::setImage(Image *image)
@@ -92,7 +109,8 @@ void MainWindow::setImage(Image *image)
     this->imgUtils.setCurrentImage(this->image);
 
     // status bar
-    this->statusLabel->setText(tr("Status: Image loaded"));
+    this->statusLabel->setText(tr("<b>Status:</b> Image loaded"));
+    this->pathLabel->setText(tr("<b>Path:</b> ") + image->imgPath);
 }
 
 QFrame *MainWindow::createToolbarSeparator()
@@ -117,9 +135,17 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 void MainWindow::imageChanged(const QString &message)
 {
     // obrazek byl zmenen nejaky zpusobem
+
+    // repaint request
     this->workspace->repaint();
     this->imageInfoPanel->refresh();
-    this->statusLabel->setText(tr("Status: ") + message);
+
+    // status bar
+    this->statusLabel->setText(tr("<b>Status:</b> ") + message);
+
+    // zmena stavu tlacitek pro rizeni historie (undo, redo)
+    this->ui->actionUndo->setEnabled(this->imgUtils.getHistoryIndex() > 0);
+    this->ui->actionRedo->setEnabled(this->imgUtils.getHistoryIndex() + 1 < this->imgUtils.getImageHistory().size());
 }
 
 void MainWindow::on_actionOpen_triggered()
@@ -129,14 +155,14 @@ void MainWindow::on_actionOpen_triggered()
     if (!fileName.isEmpty()) {
         qDebug() << "Open file: " << fileName;
         BMPImage *bmp = new BMPImage();
-        this->statusLabel->setText(tr("Status: Image loading ..."));
+        this->statusLabel->setText(tr("<b>Status:</b> Image loading ..."));
         int errCode = bmp->loadImage(fileName);
         if(errCode != STATUS_OK) {
             // nastala chyba pri nacteni souboru
             QString errorStr;
             getErrorCodeInfo(errCode, errorStr);
             QMessageBox::critical(this, tr("Open Error"), QString(tr("Failed to open BMP image. Error: %1")).arg(errorStr));
-            this->statusLabel->setText(tr("Status: Failed to load image"));
+            this->statusLabel->setText(tr("<b>Status:</b> Failed to load image"));
         } else {
             // obrazek uspesne nacten => zobrazeni v editoru
             this->setImage(bmp);
@@ -155,17 +181,17 @@ void MainWindow::on_actionSave_triggered()
         QString fileName = QFileDialog::getSaveFileName(this, tr("Save Image"), QDir::homePath(), tr("BMP file (*.bmp)"));
         if (!fileName.isEmpty()) {
             qDebug() << "Save file: " << fileName;
-            this->statusLabel->setText(tr("Status: Image saving ..."));
+            this->statusLabel->setText(tr("<b>Status:</b> Image saving ..."));
             int errCode = this->image->saveImage(fileName);
             if(errCode != STATUS_OK) {
                 // nastala chyba pri nacteni souboru
                 QString errorStr;
                 getErrorCodeInfo(errCode, errorStr);
                 QMessageBox::critical(this, tr("Save Error"), QString(tr("Failed to save BMP image. Error: %1")).arg(errorStr));
-                this->statusLabel->setText(tr("Status: Failed to save image"));
+                this->statusLabel->setText(tr("<b>Status:</b> Failed to save image"));
             } else {
                 QMessageBox::information(this, "Save Image", "Image saved successfully!");
-                this->statusLabel->setText(tr("Status: Image saved"));
+                this->statusLabel->setText(tr("<b>Status:</b> Image saved"));
             }
         }
     }
@@ -224,13 +250,19 @@ void MainWindow::on_actionReset_scale_triggered()
 
 void MainWindow::on_actionUndo_triggered()
 {
-
+    // undo
+    if(this->image != NULL) {
+        this->imgUtils.undo();
+    }
 }
 
 
 void MainWindow::on_actionRedo_triggered()
 {
-
+    // redo
+    if(this->image != NULL) {
+        this->imgUtils.redo();
+    }
 }
 
 
@@ -251,7 +283,6 @@ void MainWindow::on_actionRotate_90_minus_triggered()
     }
 }
 
-
 void MainWindow::on_actionFlip_horizontally_triggered()
 {
     // image traformation : flip H
@@ -260,12 +291,62 @@ void MainWindow::on_actionFlip_horizontally_triggered()
     }
 }
 
-
 void MainWindow::on_action_Flip_vertically_triggered()
 {
     // image traformation : flip V
     if(this->image != NULL) {
         this->imgUtils.flipVertically();
     }
+}
+
+void MainWindow::on_actionGrayscale_triggered()
+{
+    // image filter : grayscale
+    if(this->image != NULL) {
+        this->imgUtils.applyGrayscaleFilter();
+    }
+}
+
+void MainWindow::on_actionInvert_triggered()
+{
+    // image filter : invert
+    if(this->image != NULL) {
+        this->imgUtils.applyInvertFilter();
+    }
+}
+
+void MainWindow::on_actionSepia_triggered()
+{
+    // image filter : sepia
+    if(this->image != NULL) {
+        this->imgUtils.applySepiaFilter();
+    }
+}
+
+void MainWindow::on_actionBlur_triggered()
+{
+    // image filer: bluer
+    if(this->image != NULL) {
+        if (blurDialog.exec() == QDialog::Accepted) {
+            int radius = blurDialog.getBlurRadius();
+            this->imgUtils.applyBlurFilter(radius);
+        }
+    }
+}
+
+void MainWindow::on_actionBrightness_triggered()
+{
+    // image filer: brightness
+    if(this->image != NULL) {
+        if (brightnessDialog.exec() == QDialog::Accepted) {
+            int radius = blurDialog.getBlurRadius();
+            this->imgUtils.applyBrightnessAdjustment(radius);
+        }
+    }
+}
+
+void MainWindow::on_actionContrast_triggered()
+{
+
 }
 

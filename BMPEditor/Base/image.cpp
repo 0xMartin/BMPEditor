@@ -29,24 +29,6 @@ int Image::saveImage(const QString & path) {
     return ERR_NOT_IMPLEMENTED;
 }
 
-int Image::copyImage(Image * img) {
-    if(this->pixels != NULL) return STATUS_OK;
-    if(img == NULL) return ERR_NULL_PTR;
-    if(img->dataLen == 0) return ERR_EMPTY_IMG;
-
-    // alokace datoveho pole obrazku
-    this->dataLen = img->dataLen;
-    this->pixels = new unsigned char[this->dataLen];
-    if(this->pixels == NULL) {
-        return ERR_ALLOC;
-    }
-
-    // kopirovani dat
-    if(memcpy(this->pixels, img->pixels, this->dataLen * sizeof(unsigned char)) == NULL) return ERR_MEM_CPY;
-
-    return STATUS_OK;
-}
-
 void Image::paintEvent(QPainter &painter) {
     if(this->imagePreview != NULL) {
         painter.drawImage(0, 0, *this->imagePreview);

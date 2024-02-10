@@ -59,5 +59,61 @@ int BMPImage::saveImage(const QString & path) {
 
 void BMPImage::refresh()
 {
+    // aktualizace vysky a sirky BMP obrazku
+    bmpInfoHeader.width = (int32_t)(this->width);
+    bmpInfoHeader.height = (int32_t)(this->height);
 
+    // aktualizace pixelu podle color palety
+    if(bmpInfoHeader.bitCount <= 8) {
+
+    }
+}
+
+int BMPImage::copyImage(Image * img)
+{
+    if(img == NULL) {
+        return ERR_NULL_PTR;
+    }
+    BMPImage *bmp = dynamic_cast<BMPImage *>(img);
+    if(img == NULL) {
+        return ERR_TYPE;
+    }
+
+    // kopirovani dat Image tridy
+    bmp->imgPath = this->imgPath;
+    bmp->type = this->type;
+    bmp->bitDepth = this->bitDepth;
+    bmp->dataLen = this->dataLen;
+    bmp->width = this->width;
+    bmp->height = this->height;
+
+    // kopirovani hlavicek BMP
+    bmp->bmpFileHeader = this->bmpFileHeader;
+    bmp->bmpInfoHeader = this->bmpInfoHeader;
+
+    // kopirovani palety barev (pokud je k dispozici: 1, 4 a 8)
+    if(bmpInfoHeader.bitCount <= 8) {
+        int paletteSize = 1 << this->bmpInfoHeader.bitCount;
+        bmp->bmpColors = new RGBQUAD[paletteSize];
+        if(std::copy(this->bmpColors, this->bmpColors + paletteSize, bmp->bmpColors) == NULL) {
+            return ERR_MEM_CPY;
+        }
+    }
+
+    // kopirovani pixelu obrazku
+    bmp->pixels = new unsigned char[this->dataLen];
+    if(std::copy(this->pixels, this->pixels + this->dataLen, bmp->pixels) == NULL) {
+        return ERR_MEM_CPY;
+    }
+
+    return STATUS_OK;
+}
+
+Image *BMPImage::cloneImage()
+{
+    BMPImage *bmp = new BMPImage();
+    if(bmp != NULL) {
+        this->copyImage(bmp);
+    }
+    return bmp;
 }

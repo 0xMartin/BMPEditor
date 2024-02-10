@@ -52,11 +52,17 @@ public:
     virtual int saveImage(const QString & path = "");
 
     /**
-     * @brief Virtualni funkce pro kopirovani obrazku.
+     * @brief Abstraktni funkce pro kopirovani obrazku.
      * @param img - Obrazek, ze ktereho budou data kopirovany
      * @return Error code
      */
-    virtual int copyImage(Image * img);
+    virtual int copyImage(Image * img) = 0;
+
+    /**
+     * @brief Abstraktni funkce pro klonovani obrazku.
+     * @return Naklonovany obrazek
+     */
+    virtual Image * cloneImage() = 0;
 
     /**
      * @brief Event pro vykresleni obrazku

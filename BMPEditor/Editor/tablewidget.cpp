@@ -56,8 +56,7 @@ CustomTableWidget::CustomTableWidget(const QString &name, QWidget *parent) : QWi
     tabHeader->setStyleSheet("background-color: rgb(39, 39, 41); padding: 3px");
     QHBoxLayout *layout2 = new QHBoxLayout(tabHeader);
     layout2->addWidget(label);
-    QSpacerItem *spacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-    layout2->addSpacerItem(spacer);
+    layout2->addStretch();
     layout2->addWidget(minimizeButton);
     layout2->addWidget(maximizeButton);
 

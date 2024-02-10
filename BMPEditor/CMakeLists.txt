@@ -14,22 +14,39 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
 set(PROJECT_SOURCES
         main.cpp
-        mainwindow.h mainwindow.cpp
+        mainwindow.h
+        mainwindow.cpp
         mainwindow.ui
         about.ui
-        about.h about.cpp
+        about.h
+        about.cpp
         Base/types.h
-        Base/error.h Base/error.cpp
-        Base/image.h Base/image.cpp
-        Image/bmpimage.h Image/bmpimage.cpp
-        Base/bmpio.h Base/bmpio.cpp
-        Base/imageutils.h Base/imageutils.cpp
-        Struct/bmpstruct.h Struct/bmpstruct.cpp
-        Editor/workspace.h Editor/workspace.cpp
-        Editor/mouseeventhelper.h Editor/mouseeventhelper.cpp
-        Editor/imageinfopanel.h Editor/imageinfopanel.cpp
-        Editor/tablewidget.h Editor/tablewidget.cpp
-        Editor/clickablelabel.h Editor/clickablelabel.cpp
+        Base/error.h
+        Base/error.cpp
+        Base/image.h
+        Base/image.cpp
+        Image/bmpimage.h
+        Image/bmpimage.cpp
+        Base/bmpio.h
+        Base/bmpio.cpp
+        Base/imageutils.h
+        Base/imageutils.cpp
+        Struct/bmpstruct.h
+        Struct/bmpstruct.cpp
+        Editor/workspace.h
+        Editor/workspace.cpp
+        Editor/mouseeventhelper.h
+        Editor/mouseeventhelper.cpp
+        Editor/imageinfopanel.h
+        Editor/imageinfopanel.cpp
+        Editor/tablewidget.h
+        Editor/tablewidget.cpp
+        Editor/clickablelabel.h
+        Editor/clickablelabel.cpp
+        Dialog/blurdialog.h
+        Dialog/blurdialog.cpp
+        Dialog/brightnessdialog.h
+        Dialog/brightnessdialog.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

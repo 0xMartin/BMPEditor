@@ -17,6 +17,9 @@ void getErrorCodeInfo(int errCode, QString & buffer) {
     case ERR_EMPTY_IMG:
         buffer = "EMPTY IMAGE";
         break;
+    case ERR_TYPE:
+        buffer = "INVALID TYPE";
+        break;
     case ERR_INVALID_FILE_TYPE:
         buffer = "INVALID FILE TYPE";
         break;

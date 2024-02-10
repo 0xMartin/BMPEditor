@@ -15,12 +15,16 @@ class ImageUtils : public QObject
     Q_OBJECT
 protected:
     Image * currentImage;
+    uint16_t historyIndex;
     std::vector<Image*> imageHistory;
 
     void refreshImage(const QString &message);
 
+    void clearHistory();
+
 public:
     explicit ImageUtils(QObject * parrent = nullptr);
+    ~ImageUtils();
 
     Image * getCurrentImage() const;
     void setCurrentImage(Image * image);
@@ -48,6 +52,10 @@ public:
     void formatToBMP4();
     void formatToBMP8();
     void formatToBMP24();
+
+    uint16_t getHistoryIndex() const;
+
+    std::vector<Image *> getImageHistory() const;
 
 signals:
     void imageChangedSignal(const QString &message);

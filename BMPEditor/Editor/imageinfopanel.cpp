@@ -68,7 +68,7 @@ void ImageInfoPanel::setImage(Image *img) {
         BMPImage *bmp = (BMPImage*)img;
 
         // file header
-        this->fileHeaderTable->getLabel()->setText("File Header");
+        this->fileHeaderTable->getLabel()->setText("BMP File Header");
         buffer = (char)(bmp->bmpFileHeader.type & 0xFF);
         buffer += (char)((bmp->bmpFileHeader.type >> 8) & 0xFF);
         this->fileHeaderTable->addRow("Type", buffer);

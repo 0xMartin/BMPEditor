@@ -43,6 +43,12 @@
     <property name="title">
      <string>Filter</string>
     </property>
+    <addaction name="actionGrayscale"/>
+    <addaction name="actionInvert"/>
+    <addaction name="actionSepia"/>
+    <addaction name="actionBlur"/>
+    <addaction name="actionBrightness"/>
+    <addaction name="actionContrast"/>
    </widget>
    <widget class="QMenu" name="menuTransform">
     <property name="title">
@@ -270,6 +276,36 @@ Flip vertically</string>
   <action name="actionConvert_to_24b_BMP">
    <property name="text">
     <string>Convert to 24b BMP</string>
+   </property>
+  </action>
+  <action name="actionGrayscale">
+   <property name="text">
+    <string>Grayscale</string>
+   </property>
+  </action>
+  <action name="actionInvert">
+   <property name="text">
+    <string>Invert</string>
+   </property>
+  </action>
+  <action name="actionSepia">
+   <property name="text">
+    <string>Sepia</string>
+   </property>
+  </action>
+  <action name="actionBlur">
+   <property name="text">
+    <string>Blur</string>
+   </property>
+  </action>
+  <action name="actionBrightness">
+   <property name="text">
+    <string>Brightness</string>
+   </property>
+  </action>
+  <action name="actionContrast">
+   <property name="text">
+    <string>Contrast</string>
    </property>
   </action>
  </widget>
