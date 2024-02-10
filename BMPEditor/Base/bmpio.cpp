@@ -6,17 +6,6 @@
 
 #include "../Base/error.h"
 
-/**
- * @brief Najde index barvy v palete barev podle predanych argumentu funkce
- * @param palette - Ukazatel na paletu barev BMP obrazku
- * @param paletteSize - Velikost palety barev
- * @param red - Cervena slozka pixelu
- * @param green - Zelena slozka pixelu
- * @param blue - Modra slozka pixelu
- * @return Index barvy pixelu v palete barev (pokud neni barva primo nalezena tak barva s nejblizsi podobnosti)
- */
-static inline int __findColorIndex(const RGBQUAD *palette, int paletteSize, int red, int green, int blue);
-
 int BMP_IO_loadBMPImage(const QString &path,
                         BitMapFileHeader &fileHeader,
                         BitMapInfoHeader &infoHeader,
@@ -49,7 +38,7 @@ int BMP_IO_loadBMPImage(const QString &path,
     // pokud ma obrazek paletu barev (bitCount: 1, 2 nebo 8) tak ji ze souboru nacte
     if (infoHeader.bitCount <= 8) {
         // vypocet velikosti palety
-        int paletteSize = 1 << infoHeader.bitCount;
+        uint16_t paletteSize = 1 << infoHeader.bitCount;
         // alokace palety barev
         if(*palette != NULL) {
             delete[] *palette;
@@ -160,7 +149,7 @@ int BMP_IO_saveBMPImage(const QString &path,
     qDebug() << "BMP SAVE - headers writing done";
 
     // zapis palety barev
-    int paletteSize = 0;
+    uint16_t paletteSize = 0;
     if (infoHeader.bitCount <= 8) {
         // vypocet velikosti palety
         paletteSize = 1 << infoHeader.bitCount;
@@ -193,11 +182,11 @@ int BMP_IO_saveBMPImage(const QString &path,
             index = (y * infoHeader.width + x) * 3;
             // pokud jde o obrazek s color paletou tak si najde v palete index barvy aktualniho pixelu
             if(infoHeader.bitCount <= 8) {
-                colorIndex = __findColorIndex(palette,
-                                              paletteSize,
-                                              pixels[index],
-                                              pixels[index + 1],
-                                              pixels[index + 2]);
+                colorIndex = BMP_IO_findColorIndex(palette,
+                                                   paletteSize,
+                                                   pixels[index],
+                                                   pixels[index + 1],
+                                                   pixels[index + 2]);
             }
             // zapis pixelu do bufferu
             switch (infoHeader.bitCount) {
@@ -243,10 +232,10 @@ int BMP_IO_saveBMPImage(const QString &path,
     return STATUS_OK;
 }
 
-static inline int __findColorIndex(const RGBQUAD *palette, int paletteSize, int red, int green, int blue) {
-    int closestIndex = 0;
+uint16_t BMP_IO_findColorIndex(const RGBQUAD *palette, uint16_t paletteSize, uint8_t red, uint8_t green, uint8_t blue) {
+    uint16_t closestIndex = 0;
     int closestDistance = std::numeric_limits<int>::max();
-    for (int i = 0; i < paletteSize; ++i) {
+    for (uint16_t i = 0; i < paletteSize; ++i) {
         int distance = std::abs(palette[i].red - red) +
                        std::abs(palette[i].green - green) +
                        std::abs(palette[i].blue - blue);

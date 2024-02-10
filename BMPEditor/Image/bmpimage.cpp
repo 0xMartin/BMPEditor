@@ -65,7 +65,21 @@ void BMPImage::refresh()
 
     // aktualizace pixelu podle color palety
     if(bmpInfoHeader.bitCount <= 8) {
-
+        RGBQUAD rgb;
+        for(uint32_t i = 0; i < this->dataLen; i += 3) {
+            // ziskani barvy aktualniho pixele
+            rgb.red = this->pixels[i];
+            rgb.green = this->pixels[i + 1];
+            rgb.blue = this->pixels[i + 2];
+            // urci index barvy v palete barev, ktera je nejblize barve aktualniho pixelu
+            uint16_t paletteSize = 1 << this->bmpInfoHeader.bitCount;
+            uint16_t index = BMP_IO_findColorIndex(this->bmpColors, paletteSize, rgb.red, rgb.green, rgb.blue);
+            // aktualnimu pixelu nastavi barvu z palety (aby barva pixelu odpovidala realite = bitove hloubce)
+            rgb = this->bmpColors[index];
+            this->pixels[i] = rgb.red;
+            this->pixels[i + 1] = rgb.green;
+            this->pixels[i + 2] = rgb.blue;
+        }
     }
 }
 

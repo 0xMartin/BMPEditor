@@ -35,4 +35,15 @@ extern int BMP_IO_saveBMPImage(const QString & path,
                                const RGBQUAD * palette,
                                const unsigned char * pixels);
 
+/**
+ * @brief Najde index barvy v palete barev podle predanych argumentu funkce
+ * @param palette - Ukazatel na paletu barev BMP obrazku
+ * @param paletteSize - Velikost palety barev
+ * @param red - Cervena slozka pixelu
+ * @param green - Zelena slozka pixelu
+ * @param blue - Modra slozka pixelu
+ * @return Index barvy pixelu v palete barev (pokud neni barva primo nalezena tak barva s nejblizsi podobnosti)
+ */
+extern uint16_t BMP_IO_findColorIndex(const RGBQUAD *palette, uint16_t paletteSize, uint8_t red, uint8_t green, uint8_t blue);
+
 #endif // BMPIO_H
