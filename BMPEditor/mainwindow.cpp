@@ -52,6 +52,10 @@ MainWindow::MainWindow(QWidget *parent)
     this->imageInfoPanel = new ImageInfoPanel(this);
 
     /**********************************************************/
+    // nastaveni image utils tridy
+    connect(&this->imgUtils, &ImageUtils::imageChangedSignal, this, &MainWindow::imageChanged);
+
+    /**********************************************************/
     // sestaveni celkove pracovni plochy s vyuzitim splitteru
     this->splitter_horizontal = new QSplitter(Qt::Horizontal);
     this->splitter_horizontal->setObjectName("bg-widget");
@@ -78,12 +82,15 @@ void MainWindow::setImage(Image *image)
         delete this->image;
         this->image = NULL;
     }
+
     // nastaveni pointeru obrazku hlavnim prvkum editoru
     this->image = image;
     this->workspace->setImage(this->image);
     this->workspace->setDefaultScale();
     this->workspace->setDefaultOffset();
     this->imageInfoPanel->setImage(this->image);
+    this->imgUtils.setCurrentImage(this->image);
+
     // status bar
     this->statusLabel->setText(tr("Status: Image loaded"));
 }
@@ -105,6 +112,14 @@ void MainWindow::closeEvent(QCloseEvent *event) {
     } else {
         event->ignore();
     }
+}
+
+void MainWindow::imageChanged(const QString &message)
+{
+    // obrazek byl zmenen nejaky zpusobem
+    this->workspace->repaint();
+    this->imageInfoPanel->refresh();
+    this->statusLabel->setText(tr("Status: ") + message);
 }
 
 void MainWindow::on_actionOpen_triggered()

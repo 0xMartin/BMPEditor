@@ -44,6 +44,8 @@ protected:
     void closeEvent(QCloseEvent *event);
 
 private slots:
+    void imageChanged(const QString &message);
+
     void on_actionOpen_triggered();
 
     void on_actionSave_triggered();

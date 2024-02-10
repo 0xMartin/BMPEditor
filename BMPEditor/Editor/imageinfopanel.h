@@ -15,6 +15,7 @@ public:
     explicit ImageInfoPanel(QWidget *parent = nullptr);
 
     void setImage(Image *img);
+    void refresh();
 
 protected:
     Image *image;

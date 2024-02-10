@@ -19,8 +19,6 @@ public:
 
     QLabel *getLabel() const;
 
-signals:
-
 public slots:
     void minimize();
 

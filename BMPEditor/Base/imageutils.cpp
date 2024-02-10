@@ -1,6 +1,6 @@
 #include "imageutils.h"
 
-ImageUtils::ImageUtils() {
+ImageUtils::ImageUtils(QObject * parrent) : QObject(parrent) {
 
 }
 

@@ -10,14 +10,15 @@
 /**
  * @brief Trida umoznujici upravi bitmapoveho obrazku. Obsahuje sadu zakladnich funkci + historii uprav.
  */
-class ImageUtils : QObject
+class ImageUtils : public QObject
 {
+    Q_OBJECT
 protected:
     Image * currentImage;
     std::vector<Image*> imageHistory;
 
 public:
-    ImageUtils();
+    explicit ImageUtils(QObject * parrent = nullptr);
 
     Image * getCurrentImage() const;
     void setCurrentImage(Image * image);
@@ -47,7 +48,7 @@ public:
     void formatToBMP24();
 
 signals:
-    void imageChangedSignal();
+    void imageChangedSignal(const QString &message);
 };
 
 #endif // IMAGEUTILS_H

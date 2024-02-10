@@ -114,8 +114,15 @@ void ImageInfoPanel::setImage(Image *img) {
             }
         }
 
-        emit this->fileHeaderTable->maximize();
-        emit this->infoHeaderTable->maximize();
+        this->fileHeaderTable->maximize();
+        this->infoHeaderTable->maximize();
         this->repaint();
+    }
+}
+
+void ImageInfoPanel::refresh()
+{
+    if(this->image != NULL) {
+        this->setImage(this->image);
     }
 }
