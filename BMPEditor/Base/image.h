@@ -23,12 +23,6 @@ class Image
 protected:
     QImage *imagePreview; /** Vykreslovany obrazek */
 
-    /**
-     * @brief Vygeneruje nahled obrazku
-     * @return Error code
-     */
-    int buildImagePreview();
-
 public:
     QString imgPath; /** Puvodni cesta k nactenemu obrazku */
     ImageType type; /** Typo obrazku */
@@ -69,6 +63,12 @@ public:
      * @param painter - QPainter
      */
     virtual void paintEvent(QPainter &painter);
+
+    /**
+     * @brief Vygeneruje nahled obrazku (pro zobrazeni v editoru)
+     * @return Error code
+     */
+    int buildImagePreview();
 
     /**
      * @brief Univerzalni metoda refresh. Vyuziti pro prepocitani internich atributu tridy, ktery od teto tridy dedi.

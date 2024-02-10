@@ -236,24 +236,36 @@ void MainWindow::on_actionRedo_triggered()
 
 void MainWindow::on_actionRotate_90_plus_triggered()
 {
-
+    // image traformation : rotate +90
+    if(this->image != NULL) {
+        this->imgUtils.rotateClockwise();
+    }
 }
 
 
 void MainWindow::on_actionRotate_90_minus_triggered()
 {
-
+    // image traformation : rotate -90
+    if(this->image != NULL) {
+        this->imgUtils.rotateCounterClockwise();
+    }
 }
 
 
 void MainWindow::on_actionFlip_horizontally_triggered()
 {
-
+    // image traformation : flip H
+    if(this->image != NULL) {
+        this->imgUtils.flipHorizontally();
+    }
 }
 
 
 void MainWindow::on_action_Flip_vertically_triggered()
 {
-
+    // image traformation : flip V
+    if(this->image != NULL) {
+        this->imgUtils.flipVertically();
+    }
 }
 

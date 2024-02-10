@@ -3,8 +3,6 @@
         <file>Resources/Combinear.qss</file>
         <file>Resources/file_open.svg</file>
         <file>Resources/file_save.svg</file>
-        <file>Resources/flip_horizontal.svg</file>
-        <file>Resources/flip_vertical.svg</file>
         <file>Resources/redo.svg</file>
         <file>Resources/rotate_minus.svg</file>
         <file>Resources/rotate_plus.svg</file>
@@ -15,5 +13,7 @@
         <file>Resources/icon.png</file>
         <file>Resources/minimize.svg</file>
         <file>Resources/maximize.svg</file>
+        <file>Resources/flip_horizontal.svg</file>
+        <file>Resources/flip_vertical.svg</file>
     </qresource>
 </RCC>

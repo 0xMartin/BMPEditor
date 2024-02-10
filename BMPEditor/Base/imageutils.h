@@ -17,6 +17,8 @@ protected:
     Image * currentImage;
     std::vector<Image*> imageHistory;
 
+    void refreshImage(const QString &message);
+
 public:
     explicit ImageUtils(QObject * parrent = nullptr);
 
