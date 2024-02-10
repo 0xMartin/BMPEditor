@@ -90,22 +90,22 @@ void Workspace::addScale(float diff)
 void Workspace::zoomIN()
 {
     if(this->scale < 3) {
-        this->addScale(0.05); // 5 %
-    } else if(this->scale < 6) {
         this->addScale(0.2); // 20 %
-    } else {
+    } else if(this->scale < 6) {
         this->addScale(0.4); // 40 %
+    } else {
+        this->addScale(0.8); // 80 %
     }
 }
 
 void Workspace::zoomOUT()
 {
     if(this->scale < 3) {
-        this->addScale(-0.05);
-    } else if(this->scale < 6) {
         this->addScale(-0.2);
-    } else {
+    } else if(this->scale < 6) {
         this->addScale(-0.4);
+    } else {
+        this->addScale(-0.8);
     }
 }
 

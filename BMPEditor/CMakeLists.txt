@@ -28,6 +28,8 @@ set(PROJECT_SOURCES
         Editor/workspace.h Editor/workspace.cpp
         Editor/mouseeventhelper.h Editor/mouseeventhelper.cpp
         Editor/imageinfopanel.h Editor/imageinfopanel.cpp
+        Editor/tablewidget.h Editor/tablewidget.cpp
+        Editor/clickablelabel.h Editor/clickablelabel.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

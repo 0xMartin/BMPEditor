@@ -52,6 +52,24 @@ private slots:
 
     void on_actionExit_triggered();
 
+    void on_actionZoom_in_triggered();
+
+    void on_actionZoom_out_triggered();
+
+    void on_actionReset_scale_triggered();
+
+    void on_actionUndo_triggered();
+
+    void on_actionRedo_triggered();
+
+    void on_actionRotate_90_plus_triggered();
+
+    void on_actionRotate_90_minus_triggered();
+
+    void on_actionFlip_horizontally_triggered();
+
+    void on_action_Flip_vertically_triggered();
+
 private:
     Ui::MainWindow *ui;
     QSplitter * splitter_horizontal;

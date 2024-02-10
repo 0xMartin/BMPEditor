@@ -94,6 +94,7 @@ QFrame *MainWindow::createToolbarSeparator()
 }
 
 void MainWindow::closeEvent(QCloseEvent *event) {
+    // app: close event dialog
     QMessageBox::StandardButton reply;
     reply = QMessageBox::question(this, "Close", "Are you sure you want to exit the application?",
                                   QMessageBox::Yes|QMessageBox::No);
@@ -106,6 +107,7 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 
 void MainWindow::on_actionOpen_triggered()
 {
+    // app: load image
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open Image"), QDir::homePath(), tr("BMP File (*.bmp)"));
     if (!fileName.isEmpty()) {
         qDebug() << "Open file: " << fileName;
@@ -127,6 +129,7 @@ void MainWindow::on_actionOpen_triggered()
 
 void MainWindow::on_actionSave_triggered()
 {
+    // app: save image
     if(this->image == NULL) {
         QMessageBox::critical(this, tr("Save Error"), tr("It is not possible to save an image because no image is opened!"));
     } else {
@@ -149,17 +152,86 @@ void MainWindow::on_actionSave_triggered()
 
 void MainWindow::on_actionAbout_triggered()
 {
+    // app: about section
     dialog.show();
 }
 
 
 void MainWindow::on_actionExit_triggered()
 {
+    // app: close
     QCloseEvent *event = new QCloseEvent();
     closeEvent(event);
     if(event->isAccepted()) {
         exit(0);
     }
     delete event;
+}
+
+
+void MainWindow::on_actionZoom_in_triggered()
+{
+    // workspace: zoom in
+    if(this->image != NULL && this->workspace != NULL) {
+        this->workspace->zoomIN();
+        this->workspace->repaint();
+    }
+}
+
+
+void MainWindow::on_actionZoom_out_triggered()
+{
+    // workspace: zoom out
+    if(this->image != NULL && this->workspace != NULL) {
+        this->workspace->zoomOUT();
+        this->workspace->repaint();
+    }
+}
+
+
+void MainWindow::on_actionReset_scale_triggered()
+{
+    // workspace: default scale & position
+    if(this->image != NULL && this->workspace != NULL) {
+        this->workspace->setDefaultOffset();
+        this->workspace->setDefaultScale();
+        this->workspace->repaint();
+    }
+}
+
+
+void MainWindow::on_actionUndo_triggered()
+{
+
+}
+
+
+void MainWindow::on_actionRedo_triggered()
+{
+
+}
+
+
+void MainWindow::on_actionRotate_90_plus_triggered()
+{
+
+}
+
+
+void MainWindow::on_actionRotate_90_minus_triggered()
+{
+
+}
+
+
+void MainWindow::on_actionFlip_horizontally_triggered()
+{
+
+}
+
+
+void MainWindow::on_action_Flip_vertically_triggered()
+{
+
 }
 
