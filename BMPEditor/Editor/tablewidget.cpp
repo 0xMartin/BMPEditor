@@ -48,7 +48,7 @@ CustomTableWidget::CustomTableWidget(const QString &name, QWidget *parent) : QWi
     maximizeButton->setPixmap(QPixmap(":/Resources/maximize.svg").scaled(QSize(12, 12)));
     maximizeButton->setTextFormat(Qt::RichText);
     maximizeButton->setCursor(Qt::PointingHandCursor);
-    minimizeButton->setToolTip(tr("Maximize"));
+    maximizeButton->setToolTip(tr("Maximize"));
     maximizeButton->setOpenExternalLinks(true);
 
     // sestaveni layoutu headeru tabulky (label + tlacitka)

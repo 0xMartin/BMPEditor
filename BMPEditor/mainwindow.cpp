@@ -84,6 +84,8 @@ void MainWindow::setImage(Image *image)
     this->workspace->setDefaultScale();
     this->workspace->setDefaultOffset();
     this->imageInfoPanel->setImage(this->image);
+    // status bar
+    this->statusLabel->setText(tr("Status: Image loaded"));
 }
 
 QFrame *MainWindow::createToolbarSeparator()
@@ -112,12 +114,14 @@ void MainWindow::on_actionOpen_triggered()
     if (!fileName.isEmpty()) {
         qDebug() << "Open file: " << fileName;
         BMPImage *bmp = new BMPImage();
+        this->statusLabel->setText(tr("Status: Image loading ..."));
         int errCode = bmp->loadImage(fileName);
         if(errCode != STATUS_OK) {
             // nastala chyba pri nacteni souboru
             QString errorStr;
             getErrorCodeInfo(errCode, errorStr);
             QMessageBox::critical(this, tr("Open Error"), QString(tr("Failed to open BMP image. Error: %1")).arg(errorStr));
+            this->statusLabel->setText(tr("Status: Failed to load image"));
         } else {
             // obrazek uspesne nacten => zobrazeni v editoru
             this->setImage(bmp);
@@ -136,14 +140,17 @@ void MainWindow::on_actionSave_triggered()
         QString fileName = QFileDialog::getSaveFileName(this, tr("Save Image"), QDir::homePath(), tr("BMP file (*.bmp)"));
         if (!fileName.isEmpty()) {
             qDebug() << "Save file: " << fileName;
+            this->statusLabel->setText(tr("Status: Image saving ..."));
             int errCode = this->image->saveImage(fileName);
             if(errCode != STATUS_OK) {
                 // nastala chyba pri nacteni souboru
                 QString errorStr;
                 getErrorCodeInfo(errCode, errorStr);
                 QMessageBox::critical(this, tr("Save Error"), QString(tr("Failed to save BMP image. Error: %1")).arg(errorStr));
+                this->statusLabel->setText(tr("Status: Failed to save image"));
             } else {
                 QMessageBox::information(this, "Save Image", "Image saved successfully!");
+                this->statusLabel->setText(tr("Status: Image saved"));
             }
         }
     }

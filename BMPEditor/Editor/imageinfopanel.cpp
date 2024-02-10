@@ -39,7 +39,7 @@ QLabel * ImageInfoPanel::createHeader(const QString &name) {
     QLabel * label = new QLabel(name);
     QFont font = label->font();
     font.setBold(true);
-    font.setPointSize(14);
+    font.setPointSize(12);
     label->setFont(font);
     label->setStyleSheet("background-color: rgb(39, 39, 41); padding: 6px");
     return label;
