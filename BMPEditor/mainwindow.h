@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QSplitter>
+#include <QProgressDialog>
 
 #include "Base/image.h"
 #include "Base/imageutils.h"
@@ -43,6 +44,7 @@ protected:
 
     // dialogy
     AboutDialog dialog;
+    QProgressDialog progressDialog;
     BlurDialog blurDialog;
     BrightnessDialog brightnessDialog;
 
@@ -50,6 +52,8 @@ protected:
 
 private slots:
     void imageChanged(const QString &message);
+    void imageUtilsJobStart();
+    void imageUtilsJobFinished();
 
     void on_actionOpen_triggered();
 

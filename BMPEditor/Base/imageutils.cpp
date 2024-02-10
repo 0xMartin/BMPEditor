@@ -4,6 +4,7 @@
 
 ImageUtils::ImageUtils(QObject * parrent) : QObject(parrent) {
     this->historyIndex = 0;
+    connect(&this->worker, &ThreadRunner::jobFinished, this, &ImageUtils::workerJobFinished);
 }
 
 ImageUtils::~ImageUtils()
@@ -19,6 +20,12 @@ uint16_t ImageUtils::getHistoryIndex() const
 std::vector<Image *> ImageUtils::getImageHistory() const
 {
     return imageHistory;
+}
+
+void ImageUtils::runOperationAsync(std::function<void ()> func)
+{
+    emit this->jobStart();
+    worker.runInThread(func);
 }
 
 void ImageUtils::refreshImage(const QString &message)
@@ -269,7 +276,7 @@ void ImageUtils::applySepiaFilter()
         for (size_t x = 0; x < currentImage->width; ++x) {
             size_t index = (y * currentImage->width + x) * 3;
 
-            // Převedení pixelu na sepia pomocí matematických transformací
+            // prevedeni barvy aktualni pixelu pomoci matematicke trasformace
             int r = currentImage->pixels[index];
             int g = currentImage->pixels[index + 1];
             int b = currentImage->pixels[index + 2];
@@ -278,7 +285,7 @@ void ImageUtils::applySepiaFilter()
             int tg = static_cast<int>(0.349 * r + 0.686 * g + 0.168 * b);
             int tb = static_cast<int>(0.272 * r + 0.534 * g + 0.131 * b);
 
-            // Omezení hodnot na rozsah 0-255
+            // omezeni rozsahu hodnot 0-255
             currentImage->pixels[index] = static_cast<unsigned char>(std::min(255, tr));
             currentImage->pixels[index + 1] = static_cast<unsigned char>(std::min(255, tg));
             currentImage->pixels[index + 2] = static_cast<unsigned char>(std::min(255, tb));
@@ -296,18 +303,17 @@ void ImageUtils::applyBlurFilter(int radius)
 
     std::vector<unsigned char> blurredPixels(currentImage->dataLen);
 
-    // Iterujeme přes každý pixel v obrázku
     for (size_t y = 0; y < currentImage->height; ++y) {
         for (size_t x = 0; x < currentImage->width; ++x) {
             int rAcc = 0, gAcc = 0, bAcc = 0, count = 0;
 
-            // Pro každý pixel spočítáme průměrnou hodnotu jeho okolí
+            // pro kazdy pixel vypocita prumernou hodnotu jeho okoli
             for (int dy = -radius; dy <= radius; ++dy) {
                 for (int dx = -radius; dx <= radius; ++dx) {
                     int nx = x + dx;
                     int ny = y + dy;
 
-                    // Ověříme, zda jsme uvnitř obrázku
+                    // overeni zda je pixel jeste uvnitr obrazku
                     if (nx >= 0 && nx < static_cast<int>(currentImage->width) &&
                         ny >= 0 && ny < static_cast<int>(currentImage->height)) {
                         size_t index = (ny * currentImage->width + nx) * 3;
@@ -319,7 +325,7 @@ void ImageUtils::applyBlurFilter(int radius)
                 }
             }
 
-            // Vypočteme průměrnou hodnotu a uložíme do nového obrázku
+            // vypocte prumernou hodnotu a ulozi ji do noveho obrazku
             size_t index = (y * currentImage->width + x) * 3;
             count = count == 0 ? 1 : count;
             blurredPixels[index] = static_cast<unsigned char>(rAcc / count);
@@ -328,7 +334,7 @@ void ImageUtils::applyBlurFilter(int radius)
         }
     }
 
-    // Nahradíme původní pixely novými rozmazanými pixely
+    // nahradi puvodni pixely rozmazanymi pixely
     std::copy(blurredPixels.begin(), blurredPixels.end(), currentImage->pixels);
 
     // refresh obrazku + emitovani signalu o zmene obrazku
@@ -408,4 +414,9 @@ void ImageUtils::formatToBMP8()
 void ImageUtils::formatToBMP24()
 {
 
+}
+
+void ImageUtils::workerJobFinished()
+{
+    emit this->jobFinished();
 }

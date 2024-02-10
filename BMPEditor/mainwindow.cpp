@@ -12,6 +12,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    /**********************************************************/
     // toolbar
     this->ui->toolBar->addAction(this->ui->actionOpen);
     this->ui->toolBar->addAction(this->ui->actionSave);
@@ -28,10 +29,12 @@ MainWindow::MainWindow(QWidget *parent)
     this->ui->toolBar->addAction(this->ui->actionFlip_horizontally);
     this->ui->toolBar->addAction(this->ui->action_Flip_vertically);
 
+    /**********************************************************/
     // histori (undo, redo)
     this->ui->actionUndo->setEnabled(false);
     this->ui->actionRedo->setEnabled(false);
 
+    /**********************************************************/
     // status bar
     QWidget *statusBarWidget = new QWidget(this->ui->statusbar);
 
@@ -51,6 +54,15 @@ MainWindow::MainWindow(QWidget *parent)
     statusBarLayour->addStretch();
 
     this->statusBar()->addPermanentWidget(statusBarWidget, 1);
+
+    /**********************************************************/
+    // progress dialog
+    progressDialog.cancel();
+    progressDialog.setLabelText("Loading...");
+    progressDialog.setCancelButton(nullptr); // Bez tlačítka pro zrušení
+    progressDialog.setWindowFlags(progressDialog.windowFlags() & ~Qt::WindowCloseButtonHint | Qt::WindowStaysOnTopHint);
+    progressDialog.setWindowModality(Qt::WindowModal);
+    progressDialog.setRange(0, 0);
 
     /**********************************************************/
     // init
@@ -73,6 +85,8 @@ MainWindow::MainWindow(QWidget *parent)
     /**********************************************************/
     // nastaveni image utils tridy
     connect(&this->imgUtils, &ImageUtils::imageChangedSignal, this, &MainWindow::imageChanged);
+    connect(&this->imgUtils, &ImageUtils::jobStart, this, &MainWindow::imageUtilsJobStart);
+    connect(&this->imgUtils, &ImageUtils::jobFinished, this, &MainWindow::imageUtilsJobFinished);
 
     /**********************************************************/
     // sestaveni celkove pracovni plochy s vyuzitim splitteru
@@ -89,6 +103,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
+    progressDialog.hide();
     delete ui;
 }
 
@@ -126,6 +141,7 @@ void MainWindow::closeEvent(QCloseEvent *event) {
     reply = QMessageBox::question(this, "Close", "Are you sure you want to exit the application?",
                                   QMessageBox::Yes|QMessageBox::No);
     if (reply == QMessageBox::Yes) {
+        progressDialog.hide();
         event->accept();
     } else {
         event->ignore();
@@ -146,6 +162,18 @@ void MainWindow::imageChanged(const QString &message)
     // zmena stavu tlacitek pro rizeni historie (undo, redo)
     this->ui->actionUndo->setEnabled(this->imgUtils.getHistoryIndex() > 0);
     this->ui->actionRedo->setEnabled(this->imgUtils.getHistoryIndex() + 1 < this->imgUtils.getImageHistory().size());
+}
+
+void MainWindow::imageUtilsJobStart()
+{
+    this->progressDialog.show();
+    this->setEnabled(false);
+}
+
+void MainWindow::imageUtilsJobFinished()
+{
+    this->progressDialog.hide();
+    this->setEnabled(true);
 }
 
 void MainWindow::on_actionOpen_triggered()
@@ -270,7 +298,7 @@ void MainWindow::on_actionRotate_90_plus_triggered()
 {
     // image traformation : rotate +90
     if(this->image != NULL) {
-        this->imgUtils.rotateClockwise();
+        IMG_UTIL_ASYNC(this->imgUtils, this->imgUtils.rotateClockwise());
     }
 }
 
@@ -279,7 +307,7 @@ void MainWindow::on_actionRotate_90_minus_triggered()
 {
     // image traformation : rotate -90
     if(this->image != NULL) {
-        this->imgUtils.rotateCounterClockwise();
+        IMG_UTIL_ASYNC(this->imgUtils, this->imgUtils.rotateCounterClockwise());
     }
 }
 
@@ -287,7 +315,7 @@ void MainWindow::on_actionFlip_horizontally_triggered()
 {
     // image traformation : flip H
     if(this->image != NULL) {
-        this->imgUtils.flipHorizontally();
+        IMG_UTIL_ASYNC(this->imgUtils, this->imgUtils.flipHorizontally());
     }
 }
 
@@ -295,7 +323,7 @@ void MainWindow::on_action_Flip_vertically_triggered()
 {
     // image traformation : flip V
     if(this->image != NULL) {
-        this->imgUtils.flipVertically();
+        IMG_UTIL_ASYNC(this->imgUtils, this->imgUtils.flipVertically());
     }
 }
 
@@ -303,7 +331,7 @@ void MainWindow::on_actionGrayscale_triggered()
 {
     // image filter : grayscale
     if(this->image != NULL) {
-        this->imgUtils.applyGrayscaleFilter();
+        IMG_UTIL_ASYNC(this->imgUtils, this->imgUtils.applyGrayscaleFilter());
     }
 }
 
@@ -311,7 +339,7 @@ void MainWindow::on_actionInvert_triggered()
 {
     // image filter : invert
     if(this->image != NULL) {
-        this->imgUtils.applyInvertFilter();
+        IMG_UTIL_ASYNC(this->imgUtils, this->imgUtils.applyInvertFilter());
     }
 }
 
@@ -319,7 +347,7 @@ void MainWindow::on_actionSepia_triggered()
 {
     // image filter : sepia
     if(this->image != NULL) {
-        this->imgUtils.applySepiaFilter();
+        IMG_UTIL_ASYNC(this->imgUtils, this->imgUtils.applySepiaFilter());
     }
 }
 
@@ -329,7 +357,7 @@ void MainWindow::on_actionBlur_triggered()
     if(this->image != NULL) {
         if (blurDialog.exec() == QDialog::Accepted) {
             int radius = blurDialog.getBlurRadius();
-            this->imgUtils.applyBlurFilter(radius);
+            IMG_UTIL_ASYNC(this->imgUtils, this->imgUtils.applyBlurFilter(radius));
         }
     }
 }
@@ -340,7 +368,7 @@ void MainWindow::on_actionBrightness_triggered()
     if(this->image != NULL) {
         if (brightnessDialog.exec() == QDialog::Accepted) {
             int radius = blurDialog.getBlurRadius();
-            this->imgUtils.applyBrightnessAdjustment(radius);
+            IMG_UTIL_ASYNC(this->imgUtils, this->imgUtils.applyBrightnessAdjustment(radius));
         }
     }
 }

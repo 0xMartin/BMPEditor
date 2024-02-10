@@ -25,14 +25,16 @@ set(PROJECT_SOURCES
         Base/error.cpp
         Base/image.h
         Base/image.cpp
-        Image/bmpimage.h
-        Image/bmpimage.cpp
+        Base/threadrunner.h
+        Base/threadrunner.cpp
         Base/bmpio.h
         Base/bmpio.cpp
         Base/imageutils.h
         Base/imageutils.cpp
         Struct/bmpstruct.h
         Struct/bmpstruct.cpp
+        Image/bmpimage.h
+        Image/bmpimage.cpp
         Editor/workspace.h
         Editor/workspace.cpp
         Editor/mouseeventhelper.h

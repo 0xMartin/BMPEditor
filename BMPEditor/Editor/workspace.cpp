@@ -63,36 +63,38 @@ void Workspace::setDefaultOffset()
 void Workspace::setScale(float scale)
 {
     // update scale
-    if(scale <= 0.05) {
-        scale = 0.05;
+    if(scale <= 0.02) {
+        scale = 0.02;
     } else if(scale > 40.0) {
         scale = 40.0;
     }
     this->scale = scale;
-    this->scale -= (float)(qRound(this->scale * 100) % 5) / 100;
+    this->scale -= (float)(qRound(this->scale * 100) % 2) / 100;
 }
 
 void Workspace::addScale(float diff)
 {
     // update scale
     float f = this->scale + diff;
-    if(f <= 0.05) {
-        f = 0.05;
+    if(f <= 0.02) {
+        f = 0.02;
     } else if(f > 40.0 ) {
         f = 40.0;
     }
     this->scale = f;
-    this->scale -= (float)(qRound(this->scale * 100) % 5) / 100;
+    this->scale -= (float)(qRound(this->scale * 100) % 2) / 100;
     // update mouse helper
     this->mouseHelper.updateDistance(DEFAULT_MOUSE_HELPER_DIST * INV_SCALE(this->scale));
 }
 
 void Workspace::zoomIN()
 {
-    if(this->scale < 3) {
-        this->addScale(0.2); // 20 %
+    if(this->scale < 1) {
+        this->addScale(0.02); // 2 % <0 - 100%>
+    } else if(this->scale < 3) {
+        this->addScale(0.2); // 20 % <100 - 300%>
     } else if(this->scale < 6) {
-        this->addScale(0.4); // 40 %
+        this->addScale(0.4); // 40 % <300 - 600%>
     } else {
         this->addScale(0.8); // 80 %
     }
@@ -100,7 +102,9 @@ void Workspace::zoomIN()
 
 void Workspace::zoomOUT()
 {
-    if(this->scale < 3) {
+    if(this->scale < 1) {
+        this->addScale(-0.02);
+    } else if(this->scale < 3) {
         this->addScale(-0.2);
     } else if(this->scale < 6) {
         this->addScale(-0.4);
@@ -116,6 +120,8 @@ float Workspace::getScale() const
 
 void Workspace::mousePressEvent(QMouseEvent *event)
 {
+    if(!this->isEnabled()) return;
+
     switch (event->buttons()) {
     case Qt::MiddleButton:
         this->setCursor(Qt::ClosedHandCursor);
@@ -125,6 +131,8 @@ void Workspace::mousePressEvent(QMouseEvent *event)
 
 void Workspace::mouseReleaseEvent(QMouseEvent *event)
 {
+    if(!this->isEnabled()) return;
+
     // release event -> pohyb workspace pomoci stredoveho tlacitka
     if(event->buttons() != Qt::MiddleButton) {
         this->mouseHelper.resetMove();
@@ -136,6 +144,8 @@ void Workspace::mouseReleaseEvent(QMouseEvent *event)
 
 void Workspace::mouseMoveEvent(QMouseEvent *event)
 {
+    if(!this->isEnabled()) return;
+
     this->currentPos = event->pos();
 
     // lokalni paint request promenna
@@ -164,6 +174,8 @@ void Workspace::mouseMoveEvent(QMouseEvent *event)
 
 void Workspace::wheelEvent(QWheelEvent *event)
 {
+    if(!this->isEnabled()) return;
+
     double delta = event->angleDelta().x() + event->angleDelta().y();
     if (QApplication::keyboardModifiers().testFlag(Qt::AltModifier) == true) {
         // zoom in & zoom out

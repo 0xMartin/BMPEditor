@@ -42,7 +42,7 @@ int BMP_STRUCT_validate(const BitMapFileHeader& fileHeader, const BitMapInfoHead
     if (infoHeader.compression != 0) {
         return ERR_UNSUPPORTED_BMP_COMPRESSION;
     }
-    if (infoHeader.width <= 0 || infoHeader.height <= 0 || infoHeader.imageSize <= 0) {
+    if (infoHeader.width <= 0 || infoHeader.height <= 0) {
         return ERR_INVALID_BMP_SIZE;
     }
 
