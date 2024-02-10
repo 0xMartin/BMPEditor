@@ -122,6 +122,8 @@ void Workspace::mousePressEvent(QMouseEvent *event)
 {
     if(!this->isEnabled()) return;
 
+    this->pressPos = event->pos();
+
     switch (event->buttons()) {
     case Qt::MiddleButton:
         this->setCursor(Qt::ClosedHandCursor);
@@ -139,7 +141,12 @@ void Workspace::mouseReleaseEvent(QMouseEvent *event)
         // nastaveni zakladniho kurzoru
         this->setCursor(Qt::ArrowCursor);
     }
+
+    // repaint
     this->repaint();
+
+    // ulozeni last press pozice
+    this->lastPressPos = this->pressPos;
 }
 
 void Workspace::mouseMoveEvent(QMouseEvent *event)
@@ -345,7 +352,7 @@ void Workspace::paintEvent(QPaintEvent *event) {
         buffer += "X: " + QString::number(pos.x(), 'f', 0) + " Y: " + QString::number(pos.y(), 'f', 0);
         buffer = buffer.leftJustified(75, ' ') + " ";
         // dx & dy
-        pos = pos - this->pressPos;
+        pos = pos - this->calculateEventOffsetPosition(this->lastPressPos, b);
         buffer += "DX: " + QString::number(pos.x(), 'f', 0) + " DY: " + QString::number(pos.y(), 'f', 0);
         buffer = buffer.leftJustified(89, ' ');
         // paint info

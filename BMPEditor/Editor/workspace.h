@@ -13,7 +13,7 @@
 #define DEFAULT_MOUSE_HELPER_DIST 5
 
 // minimalni scale projektu nutne pro zobrazeni pixelove mrizky
-#define PIXEL_GRID_MIN_SCALE 15
+#define PIXEL_GRID_MIN_SCALE 12
 
 /**
  * @brief Konfiguracn struktura pro workspace
@@ -120,6 +120,7 @@ protected:
     // aktualni pozice kurzoru (pro press a current)
     QPointF pressPos;
     QPointF currentPos;
+    QPointF lastPressPos;
 
     // helper pro mouse eventy
     MouseEventHelper mouseHelper;
