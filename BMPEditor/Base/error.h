@@ -29,6 +29,7 @@
 
 // formating
 #define ERR_SAME_FORMAT 0x10
+#define ERR_INVALID_BIT_DEPTH 0x11
 
 
 /**
