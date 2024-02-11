@@ -5,6 +5,10 @@
 #include "error.h"
 #include "../Image/bmpimage.h"
 
+/******************************************************************************************************************************************/
+// FUNCTION DECLARATION
+/******************************************************************************************************************************************/
+
 /**
  * @brief Univerzalni metoda pro formatovani tridy Image na format BMP (1, 4, 8) s paletou barev
  * @param src - Zdrojovy obrazek
@@ -13,6 +17,10 @@
  * @return Error Code
  */
 static int FORMATTER_formatToBMPWithPalette(Image *src, Image **dst, uint8_t bitCount);
+
+/******************************************************************************************************************************************/
+// FUNCTION DEFINITION
+/******************************************************************************************************************************************/
 
 int FORMATTER_formatToBMP1(Image *src, Image **dst)
 {
@@ -63,7 +71,7 @@ static int FORMATTER_formatToBMPWithPalette(Image *src, Image **dst, uint8_t bit
     bmpOut->bmpFileHeader.size = sizeof(BitMapFileHeader_t) + sizeof(BitMapInfoHeader_t) + (stride * bmpOut->height);
     bmpOut->bmpFileHeader.reserved1 = 0;
     bmpOut->bmpFileHeader.reserved2 = 0;
-    bmpOut->bmpFileHeader.offset = sizeof(BitMapFileHeader_t) + sizeof(BitMapInfoHeader_t) + (sizeof(RGBQUAD) * paletteSize);
+    bmpOut->bmpFileHeader.offset = sizeof(BitMapFileHeader_t) + sizeof(BitMapInfoHeader_t) + (sizeof(RGBQUAD_t) * paletteSize);
     qDebug() << "FORMAT TO BMP " << bitCount << "b - file header init done";
 
     // incializace BMP info header
@@ -87,8 +95,8 @@ static int FORMATTER_formatToBMPWithPalette(Image *src, Image **dst, uint8_t bit
     qDebug() << "FORMAT TO BMP " << bitCount << "b - pixel array alloc done";
 
     // generovani palety barev
-    std::vector<RGBQUAD> colors = RGB_quantizeImage(src->pixels, src->width, src->height, paletteSize);
-    bmpOut->bmpColors = new RGBQUAD[colors.size()];
+    std::vector<RGBQUAD_t> colors = RGB_generateColorPalette(src->pixels, src->width, src->height, paletteSize);
+    bmpOut->bmpColors = new RGBQUAD_t[colors.size()];
     if(bmpOut->bmpColors == NULL) return ERR_ALLOC;
     std::copy(colors.begin(), colors.end(), bmpOut->bmpColors);
     qDebug() << "FORMAT TO BMP " << bitCount << "b - color palette generating done";
@@ -96,21 +104,19 @@ static int FORMATTER_formatToBMPWithPalette(Image *src, Image **dst, uint8_t bit
     // kopirovani pixelu ze zdrojoveho do ciloveho obrazku (color palety). Pixelu jsou v teto fazi zapisovany
     // do abtraktni tridy image a vzdy ve formatu RGB 3x uint8_t. Az pri ukladani dochazi k usporadani bitu
     // ve spravnem formatu.
-    if(bmpOut->bmpInfoHeader.bitCount <= 8) {
-        RGBQUAD rgb;
-        for(uint32_t i = 0; i < src->dataLen; i += 3) {
-            // ziskani barvy aktualniho pixele
-            rgb.red = src->pixels[i];
-            rgb.green = src->pixels[i + 1];
-            rgb.blue = src->pixels[i + 2];
-            // urci index barvy v palete barev, ktera je nejblize barve aktualniho pixelu
-            uint16_t index = BMP_IO_findColorIndex(bmpOut->bmpColors, paletteSize, rgb.red, rgb.green, rgb.blue);
-            // aktualnimu pixelu nastavi barvu z palety (aby barva pixelu odpovidala realite = bitove hloubce)
-            rgb = bmpOut->bmpColors[index];
-            bmpOut->pixels[i] = rgb.red;
-            bmpOut->pixels[i + 1] = rgb.green;
-            bmpOut->pixels[i + 2] = rgb.blue;
-        }
+    RGBQUAD_t rgb;
+    for(uint32_t i = 0; i < src->dataLen; i += 3) {
+        // ziskani barvy aktualniho pixele
+        rgb.red = src->pixels[i];
+        rgb.green = src->pixels[i + 1];
+        rgb.blue = src->pixels[i + 2];
+        // urci index barvy v palete barev, ktera je nejblize barve aktualniho pixelu
+        uint16_t index = BMP_IO_findColorIndex(bmpOut->bmpColors, paletteSize, rgb.red, rgb.green, rgb.blue);
+        // aktualnimu pixelu nastavi barvu z palety (aby barva pixelu odpovidala realite = bitove hloubce)
+        rgb = bmpOut->bmpColors[index];
+        bmpOut->pixels[i] = rgb.red;
+        bmpOut->pixels[i + 1] = rgb.green;
+        bmpOut->pixels[i + 2] = rgb.blue;
     }
     qDebug() << "FORMAT TO BMP " << bitCount << "b - pixel copy done";
 

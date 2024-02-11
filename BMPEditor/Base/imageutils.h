@@ -11,6 +11,8 @@
 #include "threadrunner.h"
 
 #define IMG_UTIL_ASYNC(imgutils, func) imgutils.runOperationAsync([&]() {func;});
+#define IMG_UTIL_ASYNC_ARG(imgutils, func, arg) imgutils.runOperationAsync([&, arg]() {func;});
+
 
 /**
  * @brief Trida umoznujici upravi bitmapoveho obrazku. Obsahuje sadu zakladnich funkci + historii uprav.

@@ -97,7 +97,7 @@ void ImageInfoPanel::setImage(Image *img) {
             int row = 0;
             int col = 0;
             for (int i = 0; i < (1 << bmp->bmpInfoHeader.bitCount); ++i) {
-                RGBQUAD color = bmp->bmpColors[i];
+                RGBQUAD_t color = bmp->bmpColors[i];
                 QFrame *colorFrame = new QFrame(this);
                 colorFrame->setFrameShape(QFrame::Box);
                 colorFrame->setFrameShadow(QFrame::Plain);

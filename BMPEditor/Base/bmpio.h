@@ -17,7 +17,7 @@
 extern int BMP_IO_loadBMPImage(const QString & path,
                                BitMapFileHeader_t & fileHeader,
                                BitMapInfoHeader_t & infoHeader,
-                               RGBQUAD ** palette,
+                               RGBQUAD_t ** palette,
                                unsigned char ** pixels);
 
 /**
@@ -32,7 +32,7 @@ extern int BMP_IO_loadBMPImage(const QString & path,
 extern int BMP_IO_saveBMPImage(const QString & path,
                                const BitMapFileHeader_t & fileHeader,
                                const BitMapInfoHeader_t & infoHeader,
-                               const RGBQUAD * palette,
+                               const RGBQUAD_t * palette,
                                const unsigned char * pixels);
 
 /**
@@ -52,6 +52,6 @@ extern uint16_t BMP_IO_calculateStride(uint8_t bitCount, uint16_t width);
  * @param blue - Modra slozka pixelu
  * @return Index barvy pixelu v palete barev (pokud neni barva primo nalezena tak barva s nejblizsi podobnosti)
  */
-extern uint16_t BMP_IO_findColorIndex(const RGBQUAD *palette, uint16_t paletteSize, uint8_t red, uint8_t green, uint8_t blue);
+extern uint16_t BMP_IO_findColorIndex(const RGBQUAD_t *palette, uint16_t paletteSize, uint8_t red, uint8_t green, uint8_t blue);
 
 #endif // BMPIO_H

@@ -4,16 +4,18 @@
 #include <cstdint>
 #include <vector>
 
+#pragma pack(push, 1)
+
 /**
- * @brief The RGBQUAD class
+ * @brief RGBQUAD_t struktura
  */
-struct RGBQUAD {
+struct RGBQUAD_t {
     std::uint8_t blue;
     std::uint8_t green;
     std::uint8_t red;
     std::uint8_t reserved;
 
-    bool operator==(const RGBQUAD& other) const {
+    bool operator==(const RGBQUAD_t& other) const {
         return (blue == other.blue &&
                 green == other.green &&
                 red == other.red &&
@@ -21,20 +23,16 @@ struct RGBQUAD {
     }
 };
 
-/**
- * @brief Vypocita vzdalenost mezi dvema barvami
- * @param c1 - Barva 1
- * @param c2 - Barva 2
- * @return Vzdalenost
- */
-extern double RGB_colorDistance(const RGBQUAD& c1, const RGBQUAD& c2);
+#pragma pack(pop)
 
 /**
- * @brief Funkce pro kvantizaci obrazku
- * @param pixels - Obrazova data ve formatu RGB (3x uint8_t)
- * @param numColors - Pocet barev ve vysledne palete
- * @return Paleta barev
+ * @brief Funkce pro vygenerovani color palety pro libovolny obrazek. Vyuziva algoritmus Median cut.
+ * @param pixels - Pixel obrazku, pro ktery bude paleta barev generovana (format pixelu: RGB 3 * uint8_t)
+ * @param width - Sirka obrazku
+ * @param height - Vyska obrazku
+ * @param numColors - Pocet barev v palete
+ * @return Vysledna paleta barev
  */
-extern std::vector<RGBQUAD> RGB_quantizeImage(const unsigned char * pixels, int width, int height, int numColors);
+extern std::vector<RGBQUAD_t> RGB_generateColorPalette(const unsigned char * pixels, int width, int height, int numColors);
 
 #endif // RGB_H

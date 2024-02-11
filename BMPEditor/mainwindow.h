@@ -12,6 +12,7 @@
 #include "about.h"
 #include "Dialog/blurdialog.h"
 #include "Dialog/brightnessdialog.h"
+#include "Dialog/contrastdialog.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -50,6 +51,7 @@ protected:
     QProgressDialog progressDialog;
     BlurDialog blurDialog;
     BrightnessDialog brightnessDialog;
+    ContrastDialog contrastDialog;
 
     void closeEvent(QCloseEvent *event);
 

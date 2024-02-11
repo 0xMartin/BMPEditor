@@ -65,7 +65,7 @@ void BMPImage::refresh()
 
     // aktualizace pixelu podle color palety
     if(bmpInfoHeader.bitCount <= 8) {
-        RGBQUAD rgb;
+        RGBQUAD_t rgb;
         for(uint32_t i = 0; i < this->dataLen; i += 3) {
             // ziskani barvy aktualniho pixele
             rgb.red = this->pixels[i];
@@ -108,7 +108,7 @@ int BMPImage::copyImage(Image * img)
     // kopirovani palety barev (pokud je k dispozici: 1, 4 a 8)
     if(bmpInfoHeader.bitCount <= 8) {
         int paletteSize = 1 << this->bmpInfoHeader.bitCount;
-        bmp->bmpColors = new RGBQUAD[paletteSize];
+        bmp->bmpColors = new RGBQUAD_t[paletteSize];
         if(std::copy(this->bmpColors, this->bmpColors + paletteSize, bmp->bmpColors) == NULL) {
             return ERR_MEM_CPY;
         }

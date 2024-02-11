@@ -52,6 +52,8 @@ set(PROJECT_SOURCES
         Dialog/blurdialog.cpp
         Dialog/brightnessdialog.h
         Dialog/brightnessdialog.cpp
+        Dialog/contrastdialog.h
+        Dialog/contrastdialog.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

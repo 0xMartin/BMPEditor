@@ -6,10 +6,14 @@
 
 #include "../Base/error.h"
 
+/******************************************************************************************************************************************/
+// FUNCTION DEFINITION
+/******************************************************************************************************************************************/
+
 int BMP_IO_loadBMPImage(const QString &path,
                         BitMapFileHeader_t &fileHeader,
                         BitMapInfoHeader_t &infoHeader,
-                        RGBQUAD **palette,
+                        RGBQUAD_t **palette,
                         unsigned char **pixels) {
     if(palette == NULL || pixels == NULL) {
         return ERR_NULL_PTR;
@@ -43,13 +47,13 @@ int BMP_IO_loadBMPImage(const QString &path,
         if(*palette != NULL) {
             delete[] *palette;
         }
-        *palette = new RGBQUAD[paletteSize];
+        *palette = new RGBQUAD_t[paletteSize];
         if(*palette == NULL) {
             file.close();
             return ERR_ALLOC;
         }
         // nacteni palety barev do pole "RGBQUAD" (blue, greeb, red, reserved)
-        file.read(reinterpret_cast<char*>(*palette), paletteSize * sizeof(RGBQUAD));
+        file.read(reinterpret_cast<char*>(*palette), paletteSize * sizeof(RGBQUAD_t));
         qDebug() << "BMP LOAD - color palette loaded ( " << paletteSize << " )";
     }
 
@@ -73,7 +77,7 @@ int BMP_IO_loadBMPImage(const QString &path,
     file.seekg(fileHeader.offset);
     uint32_t index = 0;
     uint32_t offset = 0;
-    RGBQUAD color;
+    RGBQUAD_t color;
     int32_t x;
     unsigned char * buff = new unsigned char[stride];
     for (int32_t y = 0; y < infoHeader.height; ++y) {
@@ -124,7 +128,7 @@ int BMP_IO_loadBMPImage(const QString &path,
 int BMP_IO_saveBMPImage(const QString &path,
                         const BitMapFileHeader_t &fileHeader,
                         const BitMapInfoHeader_t &infoHeader,
-                        const RGBQUAD *palette,
+                        const RGBQUAD_t *palette,
                         const unsigned char *pixels) {
     // overeni platnosti hlavicek
     int errorCode = BMP_STRUCT_validate(fileHeader, infoHeader);
@@ -150,7 +154,7 @@ int BMP_IO_saveBMPImage(const QString &path,
     if (infoHeader.bitCount <= 8) {
         // vypocet velikosti palety
         paletteSize = 1 << infoHeader.bitCount;
-        file.write(reinterpret_cast<const char*>(palette), paletteSize * sizeof(RGBQUAD));
+        file.write(reinterpret_cast<const char*>(palette), paletteSize * sizeof(RGBQUAD_t));
         qDebug() << "BMP SAVE - color palette writing done ( " << paletteSize << " )";
     }
 
@@ -226,7 +230,7 @@ int BMP_IO_saveBMPImage(const QString &path,
     return STATUS_OK;
 }
 
-uint16_t BMP_IO_findColorIndex(const RGBQUAD *palette, uint16_t paletteSize, uint8_t red, uint8_t green, uint8_t blue) {
+uint16_t BMP_IO_findColorIndex(const RGBQUAD_t *palette, uint16_t paletteSize, uint8_t red, uint8_t green, uint8_t blue) {
     uint16_t closestIndex = 0;
     int closestDistance = std::numeric_limits<int>::max();
     for (uint16_t i = 0; i < paletteSize; ++i) {

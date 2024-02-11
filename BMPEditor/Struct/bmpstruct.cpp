@@ -5,17 +5,21 @@
 #include <QDebug>
 #include "../Base/rgb.h"
 
+/******************************************************************************************************************************************/
+// FUNCTION DEFINITION
+/******************************************************************************************************************************************/
+
 int BMP_STRUCT_validate(const BitMapFileHeader_t& fileHeader, const BitMapInfoHeader_t& infoHeader) {
     // debug info
-    qDebug() << "BMP Type: " << "0x" + QString::number(fileHeader.type, 16);
-    qDebug() << "BMP Offset: " << fileHeader.offset;
-    qDebug() << "BMP File Header size: " << sizeof(BitMapFileHeader_t);
-    qDebug() << "BMP Info Header size: " << infoHeader.size;
-    qDebug() << "BMP bit count: " << infoHeader.bitCount;
-    qDebug() << "BMP compression: " << infoHeader.compression;
-    qDebug() << "BMP width: " << infoHeader.width;
-    qDebug() << "BMP height: " << infoHeader.height;
-    qDebug() << "BMP image size: " << infoHeader.imageSize;
+    qDebug() << "VALIDATE - BMP Type: " << "0x" + QString::number(fileHeader.type, 16);
+    qDebug() << "VALIDATE - BMP Offset: " << fileHeader.offset;
+    qDebug() << "VALIDATE - BMP File Header size: " << sizeof(BitMapFileHeader_t);
+    qDebug() << "VALIDATE - BMP Info Header size: " << infoHeader.size;
+    qDebug() << "VALIDATE - BMP bit count: " << infoHeader.bitCount;
+    qDebug() << "VALIDATE - BMP compression: " << infoHeader.compression;
+    qDebug() << "VALIDATE - BMP width: " << infoHeader.width;
+    qDebug() << "VALIDATE - BMP height: " << infoHeader.height;
+    qDebug() << "VALIDATE - BMP image size: " << infoHeader.imageSize;
 
     // overeni platnost hlavicky souboru
     if (fileHeader.type != 0x4D42) { // 'BM' v ASCII
@@ -23,7 +27,7 @@ int BMP_STRUCT_validate(const BitMapFileHeader_t& fileHeader, const BitMapInfoHe
     }
     int paletteTotalSize = 0;
     if(infoHeader.bitCount <= 8) {
-        paletteTotalSize = (1 << infoHeader.bitCount) * sizeof(RGBQUAD);
+        paletteTotalSize = (1 << infoHeader.bitCount) * sizeof(RGBQUAD_t);
     }
     if (fileHeader.offset != sizeof(BitMapFileHeader_t) + infoHeader.size + paletteTotalSize) {
         return ERR_INVALID_FILE_OFFSET;

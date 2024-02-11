@@ -4,7 +4,7 @@ BlurDialog::BlurDialog(QWidget *parent) : QDialog(parent) {
     // slider pro nastavovani blur
     radiusSlider = new QSlider(Qt::Horizontal);
     radiusSlider->setMinimum(1);
-    radiusSlider->setMaximum(10);
+    radiusSlider->setMaximum(20);
     radiusSlider->setValue(1);
     connect(radiusSlider, &QSlider::valueChanged, this, &BlurDialog::updateLabel);
 

@@ -281,14 +281,14 @@ void ImageUtils::applySepiaFilter()
             int g = currentImage->pixels[index + 1];
             int b = currentImage->pixels[index + 2];
 
-            int tr = static_cast<int>(0.393 * r + 0.769 * g + 0.189 * b);
-            int tg = static_cast<int>(0.349 * r + 0.686 * g + 0.168 * b);
-            int tb = static_cast<int>(0.272 * r + 0.534 * g + 0.131 * b);
+            int tr = (int)(0.393 * r + 0.769 * g + 0.189 * b);
+            int tg = (int)(0.349 * r + 0.686 * g + 0.168 * b);
+            int tb = (int)(0.272 * r + 0.534 * g + 0.131 * b);
 
             // omezeni rozsahu hodnot 0-255
-            currentImage->pixels[index] = static_cast<unsigned char>(std::min(255, tr));
-            currentImage->pixels[index + 1] = static_cast<unsigned char>(std::min(255, tg));
-            currentImage->pixels[index + 2] = static_cast<unsigned char>(std::min(255, tb));
+            currentImage->pixels[index] = (int)(std::min(255, tr));
+            currentImage->pixels[index + 1] = (int)(std::min(255, tg));
+            currentImage->pixels[index + 2] = (int)(std::min(255, tb));
         }
     }
 
@@ -299,7 +299,7 @@ void ImageUtils::applySepiaFilter()
 void ImageUtils::applyBlurFilter(int radius)
 {
     if (!currentImage || radius <= 0) return;
-    qDebug() << "Filer: blur";
+    qDebug() << "Filer: blur = " << radius;
 
     std::vector<unsigned char> blurredPixels(currentImage->dataLen);
 
@@ -314,8 +314,8 @@ void ImageUtils::applyBlurFilter(int radius)
                     int ny = y + dy;
 
                     // overeni zda je pixel jeste uvnitr obrazku
-                    if (nx >= 0 && nx < static_cast<int>(currentImage->width) &&
-                        ny >= 0 && ny < static_cast<int>(currentImage->height)) {
+                    if (nx >= 0 && nx < (int)(currentImage->width) &&
+                        ny >= 0 && ny < (int)(currentImage->height)) {
                         size_t index = (ny * currentImage->width + nx) * 3;
                         rAcc += currentImage->pixels[index];
                         gAcc += currentImage->pixels[index + 1];
@@ -328,9 +328,9 @@ void ImageUtils::applyBlurFilter(int radius)
             // vypocte prumernou hodnotu a ulozi ji do noveho obrazku
             size_t index = (y * currentImage->width + x) * 3;
             count = count == 0 ? 1 : count;
-            blurredPixels[index] = static_cast<unsigned char>(rAcc / count);
-            blurredPixels[index + 1] = static_cast<unsigned char>(gAcc / count);
-            blurredPixels[index + 2] = static_cast<unsigned char>(bAcc / count);
+            blurredPixels[index] = (unsigned char)(rAcc / count);
+            blurredPixels[index + 1] = (unsigned char)(gAcc / count);
+            blurredPixels[index + 2] = (unsigned char)(bAcc / count);
         }
     }
 
@@ -344,52 +344,33 @@ void ImageUtils::applyBlurFilter(int radius)
 void ImageUtils::applyBrightnessAdjustment(int value)
 {
     if (!currentImage) return;
-    qDebug() << "Filer: brightness";
+    qDebug() << "Filer: brightness = " << value;
 
-    // Iterujeme přes každý pixel v obrázku
+    // upravi kazdy pixel obrazku
     for (size_t i = 0; i < currentImage->dataLen; ++i) {
         int newValue = currentImage->pixels[i] + value;
 
-        // Omezíme hodnoty na rozmezí 0-255
+        // omezeni hodnoty barvy pixelu 0-255
         newValue = std::max(0, std::min(255, newValue));
 
-        currentImage->pixels[i] = static_cast<unsigned char>(newValue);
+        currentImage->pixels[i] = (unsigned char)(newValue);
     }
 
     // refresh obrazku + emitovani signalu o zmene obrazku
     this->refreshImage("Brightness adjustment applied");
 }
 
-void ImageUtils::applyContrastAdjustment(double factor)
+void ImageUtils::applyContrastAdjustment(double value)
 {
     if (!currentImage) return;
-    qDebug() << "Filer: contrast";
+    qDebug() << "Filer: contrast = " << value;
 
-    // Získání průměrné hodnoty pro každou složku
-    double redMean = 0.0;
-    double greenMean = 0.0;
-    double blueMean = 0.0;
-
-    for (size_t i = 0; i < currentImage->dataLen; i += 3) {
-        redMean += currentImage->pixels[i];
-        greenMean += currentImage->pixels[i + 1];
-        blueMean += currentImage->pixels[i + 2];
-    }
-
-    redMean /= currentImage->dataLen / 3;
-    greenMean /= currentImage->dataLen / 3;
-    blueMean /= currentImage->dataLen / 3;
-
-    // Úprava kontrastu pro každý pixel
+    double factor = (259.0 * (value + 255.0)) / (255.0 * (259.0 - value));
     for (size_t i = 0; i < currentImage->dataLen; ++i) {
-        double redDiff = currentImage->pixels[i] - redMean;
-        double greenDiff = currentImage->pixels[i + 1] - greenMean;
-        double blueDiff = currentImage->pixels[i + 2] - blueMean;
-
-        // Násobení rozdílu faktorem kontrastu
-        currentImage->pixels[i] = static_cast<unsigned char>(redMean + factor * redDiff);
-        currentImage->pixels[i + 1] = static_cast<unsigned char>(greenMean + factor * greenDiff);
-        currentImage->pixels[i + 2] = static_cast<unsigned char>(blueMean + factor * blueDiff);
+        // Pro každý pixel provede úpravu kontrastu
+        int newValue = static_cast<int>(factor * (currentImage->pixels[i] - 128) + 128);
+        // Omezí hodnotu na rozsah 0-255
+        currentImage->pixels[i] = (unsigned char)(std::max(0, std::min(255, newValue)));
     }
 
     // refresh obrazku + emitovani signalu o zmene obrazku

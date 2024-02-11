@@ -1,76 +1,136 @@
 #include "rgb.h"
 
-#include <cmath>
 #include <QDebug>
+#include <vector>
+#include <algorithm>
+#include <cstdint>
 
-double RGB_colorDistance(const RGBQUAD& c1, const RGBQUAD& c2) {
-    return sqrt(pow(c1.red - c2.red, 2) + pow(c1.green - c2.green, 2) + pow(c1.blue - c2.blue, 2));
+/******************************************************************************************************************************************/
+// MACRO
+/******************************************************************************************************************************************/
+
+#define RED_CHANNEL 0x1
+#define GREEN_CHANNEL 0x2
+#define BLUE_CHANNEL 0x3
+
+/******************************************************************************************************************************************/
+// FUNCTION DECLARATION
+/******************************************************************************************************************************************/
+
+/**
+ * @brief Navrati index kanalu barvy, ktery ma nejvetsi rozdil ve vstupnim vektoru pixelu
+ * @param pixels - Vstupni vektor pixelu
+ * @return Index RGB kanalu {RED_CHANNEL: 0x1, GREEN_CHANNEL: 0x2, BLUE_CHANNEL: 0x3}
+ */
+static uint8_t colorChannelWithGreatestRange(const std::vector<RGBQUAD_t>& pixels);
+
+/**
+ * @brief Kvantizacni rekurivni algoritmus zalozeny na algoritmu Median cut
+ * @param pixels - Vstupni vektor RGB pixelu
+ * @param initialDepth - Hloubka zanoreni algoritmu
+ * @param maxDepth - Maximalni hloubka rekurze
+ * @return Paleta RGB barev
+ */
+static std::vector<RGBQUAD_t> quantize(const std::vector<RGBQUAD_t>& pixels, int initialDepth, int maxDepth);
+
+/******************************************************************************************************************************************/
+// FUNCTION DEFINITION
+/******************************************************************************************************************************************/
+
+static uint8_t colorChannelWithGreatestRange(const std::vector<RGBQUAD_t>& pixels) {
+    // inicializace minima a maxima RGB kanalu
+    int rMin = 255, rMax = 0;
+    int gMin = 255, gMax = 0;
+    int bMin = 255, bMax = 0;
+
+    // vypocet minima a maxima ve vstupnim vektoru pixelu
+    for (const RGBQUAD_t& pixel : pixels) {
+        rMin = std::min((int)(pixel.red), rMin);
+        rMax = std::max((int)(pixel.red), rMax);
+        gMin = std::min((int)(pixel.green), gMin);
+        gMax = std::max((int)(pixel.green), gMax);
+        bMin = std::min((int)(pixel.blue), bMin);
+        bMax = std::max((int)(pixel.blue), bMax);
+    }
+
+    // vypocet difference (rozsahy RGB kanalu ve vstupnim vektoru)
+    int diffRed = rMax - rMin;
+    int diffGreen = gMax - gMin;
+    int diffBlue = bMax - bMin;
+
+    // urceni RGB kanalu s nejvetsim rozdilem
+    if (diffRed >= diffGreen && diffRed >= diffBlue) {
+        return RED_CHANNEL;
+    } else if (diffGreen >= diffRed && diffGreen >= diffBlue) {
+        return GREEN_CHANNEL;
+    } else {
+        return BLUE_CHANNEL;
+    }
 }
 
-std::vector<RGBQUAD> RGB_quantizeImage(const unsigned char * pixels, int width, int height, int numColors) {
-    qDebug() << "QUANIZATION - start for number of colors (" << numColors << ")";
-
-    // inicalizace palety barev
-    std::vector<RGBQUAD> palette(numColors);
-
-    // inicalizace indexu palety baver
-    std::vector<int> colorIndices(width * height);
-
-    // inicializace centroidu palety barev
-    for (int i = 0; i < numColors; ++i) {
-        palette[i].blue = pixels[i * 3];
-        palette[i].green = pixels[i * 3 + 1];
-        palette[i].red = pixels[i * 3 + 2];
-        palette[i].reserved = 0;
+static std::vector<RGBQUAD_t> quantize(const std::vector<RGBQUAD_t>& pixels, int initialDepth, int maxDepth) {
+    // dosazena maximalni hloubka rekurze nebo vstupni vektor pixelu jiz dale neni mozny delit na mensi casti
+    if (initialDepth == maxDepth || pixels.size() <= 1) {
+        // vypocet prumerne hodny pixelu
+        uint64_t totalR = 0, totalG = 0, totalB = 0;
+        for (const RGBQUAD_t& pixel : pixels) {
+            totalR += pixel.red;
+            totalG += pixel.green;
+            totalB += pixel.blue;
+        }
+        RGBQUAD_t rgb;
+        rgb.red = (uint8_t)(totalR / pixels.size());
+        rgb.green = (uint8_t)(totalG / pixels.size());
+        rgb.blue = (uint8_t)(totalB / pixels.size());
+        return {rgb};
     }
 
-    // iterativni generovani palety barev
-    bool converged = false;
-    int i = 0;
-    while (!converged) {
-        qDebug() << "QUANIZATION - iteration: " << (i++);
+    // urceni RGB kanalu, ktery ma nejvetsi rozdil ve vstupni pixel vektoru
+    char channel = colorChannelWithGreatestRange(pixels);
 
-        // prirazeni pixelu nejblizsimu centroidu
-        for (int i = 0; i < width * height; ++i) {
-            double minDist = RGB_colorDistance({pixels[i * 3], pixels[i * 3 + 1], pixels[i * 3 + 2], 0}, palette[0]);
-            int minIndex = 0;
-            for (int j = 1; j < numColors; ++j) {
-                double dist = RGB_colorDistance({pixels[i * 3], pixels[i * 3 + 1], pixels[i * 3 + 2], 0}, palette[j]);
-                if (dist < minDist) {
-                    minDist = dist;
-                    minIndex = j;
-                }
-            }
-            colorIndices[i] = minIndex;
+    // serazeni vektoru podle RGB kanalu s nejvetsim rozdilem ve vektoru
+    std::vector<RGBQUAD_t> sortedPixels = pixels;
+    std::sort(sortedPixels.begin(), sortedPixels.end(), [channel](const RGBQUAD_t& lhs, const RGBQUAD_t& rhs) {
+        if (channel == RED_CHANNEL) {
+            return lhs.red < rhs.red;
+        } else if (channel == GREEN_CHANNEL) {
+            return lhs.green < rhs.green;
+        } else {
+            return lhs.blue < rhs.blue;
         }
+    });
 
-        // vypocet novych centroidu
-        std::vector<int> count(numColors, 0);
-        std::vector<RGBQUAD> newPalette(numColors);
-        for (int i = 0; i < width * height; ++i) {
-            int index = colorIndices[i];
-            newPalette[index].red += pixels[i * 3];
-            newPalette[index].green += pixels[i * 3 + 1];
-            newPalette[index].blue += pixels[i * 3 + 2];
-            count[index]++;
-        }
-        for (int i = 0; i < numColors; ++i) {
-            if (count[i] != 0) {
-                newPalette[i].red /= count[i];
-                newPalette[i].green /= count[i];
-                newPalette[i].blue /= count[i];
-            }
-        }
+    // vypocet medianu
+    double mid = sortedPixels.size() / 2;
 
-        // kontrola konvergence
-        converged = std::equal(palette.begin(), palette.end(), newPalette.begin());
+    // rozdeleni serazeneho vstupniho vektoru podle medianu. pro obe rozdelene casti se rekurzivne znovu opakuje tento algoritmus
+    std::vector<RGBQUAD_t> lowerPixels = quantize(std::vector<RGBQUAD_t>(sortedPixels.begin(), sortedPixels.begin() + mid),
+                                                initialDepth + 1,
+                                                maxDepth);
+    std::vector<RGBQUAD_t> upperPixels = quantize(std::vector<RGBQUAD_t>(sortedPixels.begin() + mid, sortedPixels.end()),
+                                                initialDepth + 1,
+                                                maxDepth);
 
-        // aktualizace palety
-        palette = newPalette;
+    // spojeni vysledku s rekurzi "lowerPixels" a "upperPixels" do finalniho vysledku
+    std::vector<RGBQUAD_t> result;
+    result.insert(result.end(), lowerPixels.begin(), lowerPixels.end());
+    result.insert(result.end(), upperPixels.begin(), upperPixels.end());
+
+    return result;
+}
+
+std::vector<RGBQUAD_t> RGB_generateColorPalette(const unsigned char * pixels, int width, int height, int numColors) {
+    // prevod vstupni pixelovych dat obrazku na vektor RGBQUAD_t (vstupni bucket)
+    std::vector<RGBQUAD_t> pixelVector;
+    RGBQUAD_t pixel;
+    for (int i = 0; i < width * height; ++i) {
+        pixel.red = pixels[i * 3];
+        pixel.green = pixels[i * 3 + 1];
+        pixel.blue = pixels[i * 3 + 2];
+        pixelVector.push_back(pixel);
     }
 
-    qDebug() << "QUANIZATION - done";
-
-    return palette;
+    // rekurzivni kvantizacni algoritmus vyuzivajici median cut algoritmus
+    return quantize(pixelVector, 0, std::log2(numColors));
 }
 

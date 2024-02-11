@@ -59,6 +59,9 @@ MainWindow::MainWindow(QWidget *parent)
     /**********************************************************/
     // progress dialog
     progressDialog.cancel();
+    QIcon icon;
+    icon.addFile(QString::fromUtf8(":/Resources/icon.png"), QSize(), QIcon::Normal, QIcon::On);
+    progressDialog.setWindowIcon(icon);
     progressDialog.setLabelText("Loading...");
     progressDialog.setCancelButton(nullptr); // Bez tlačítka pro zrušení
     progressDialog.setWindowFlags(progressDialog.windowFlags() & ~Qt::WindowCloseButtonHint | Qt::WindowStaysOnTopHint);
@@ -161,7 +164,7 @@ void MainWindow::formatBMP(int bitCount)
         // zobrazeni progress dialogu
         this->asyncJobStart();
         // asynchronni spusteni procesu zmeny formatu
-        worker.runInThread([&]() {
+        worker.runInThread([&, bitCount]() {
             Image *newImg = NULL;
             int errCode;
             switch (bitCount) {
@@ -407,7 +410,7 @@ void MainWindow::on_actionBlur_triggered()
     if(this->image != NULL) {
         if (blurDialog.exec() == QDialog::Accepted) {
             int radius = blurDialog.getBlurRadius();
-            IMG_UTIL_ASYNC(this->imgUtils, this->imgUtils.applyBlurFilter(radius));
+            IMG_UTIL_ASYNC_ARG(this->imgUtils, this->imgUtils.applyBlurFilter(radius), radius);
         }
     }
 }
@@ -417,8 +420,8 @@ void MainWindow::on_actionBrightness_triggered()
     // image filer: brightness
     if(this->image != NULL) {
         if (brightnessDialog.exec() == QDialog::Accepted) {
-            int radius = blurDialog.getBlurRadius();
-            IMG_UTIL_ASYNC(this->imgUtils, this->imgUtils.applyBrightnessAdjustment(radius));
+            int brightness = brightnessDialog.getBrightnessValue();
+            IMG_UTIL_ASYNC_ARG(this->imgUtils, this->imgUtils.applyBrightnessAdjustment(brightness), brightness);
         }
     }
 }
@@ -426,7 +429,14 @@ void MainWindow::on_actionBrightness_triggered()
 
 void MainWindow::on_actionContrast_triggered()
 {
-
+    // image filer: contrast
+    if(this->image != NULL) {
+        if (contrastDialog.exec() == QDialog::Accepted) {
+            double factor = contrastDialog.getContrastValue();
+            if(factor == 0.0f) return;
+            IMG_UTIL_ASYNC_ARG(this->imgUtils, this->imgUtils.applyContrastAdjustment(factor), factor);
+        }
+    }
 }
 
 
