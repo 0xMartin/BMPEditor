@@ -21,7 +21,7 @@ public:
     virtual int saveImage(const QString & path = "") override;
 
     // funkce pro prepocitani informaci v headeru (pri zmene obrazovych dat)
-    virtual void refresh() override;
+    virtual void update(ImageUpdateMode mode) override;
 
     // funkce pro klonovani
     virtual int copyImage(Image * img) override;

@@ -12,7 +12,18 @@
  * @brief Typ obrazku
  */
 enum ImageType {
-    IMG_NONE, IMG_BMP, IMG_PCX
+    IMG_NONE,
+    IMG_BMP
+};
+
+/**
+ * @brief Zpusob updatu "zmeny" obrazku
+ */
+enum ImageUpdateMode {
+    IMG_UPDATE_NONE, /** Bez zmeny */
+    IMG_UPDATE_ALL, /** Zmena vsech parametru */
+    IMG_UPDATE_SIZE, /** Zmena velikosti obrazku */
+    IMG_UPDATE_COLOR /** Zmena barev v obrazku */
 };
 
 /**
@@ -77,9 +88,9 @@ public:
     int buildImagePreview();
 
     /**
-     * @brief Univerzalni metoda refresh. Vyuziti pro prepocitani internich atributu tridy, ktery od teto tridy dedi.
+     * @brief Univerzalni metoda update. Vyuziti pro prepocitani internich atributu tridy.
      */
-    virtual void refresh() = 0;
+    virtual void update(ImageUpdateMode mode) = 0;
 
     /**
      * @brief Navrati nazev obrazku

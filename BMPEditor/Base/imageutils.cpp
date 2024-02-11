@@ -28,13 +28,13 @@ void ImageUtils::runOperationAsync(std::function<void ()> func)
     worker.runInThread(func);
 }
 
-void ImageUtils::refreshImage(const QString &message)
+void ImageUtils::refreshImage(const QString &message, ImageUpdateMode mode)
 {
     if(this->currentImage == NULL) {
         emit imageChangedSignal("Failed to transform image");
     } else {
         // update image
-        this->currentImage->refresh();
+        this->currentImage->update(mode);
         this->currentImage->buildImagePreview();
 
         // odstrani vsechny obrazky z historie, ktere jsou za "historyIndex + 1"
@@ -157,7 +157,7 @@ void ImageUtils::rotateClockwise()
     currentImage->pixels = rotatedPixels;
 
     // refresh obrazku + emitovani signalu o zmene obrazku
-    this->refreshImage("Image rotated clockwise");
+    this->refreshImage("Image rotated clockwise", IMG_UPDATE_SIZE);
 }
 
 void ImageUtils::rotateCounterClockwise()
@@ -182,7 +182,7 @@ void ImageUtils::rotateCounterClockwise()
     currentImage->pixels = rotatedPixels;
 
     // refresh obrazku + emitovani signalu o zmene obrazku
-    this->refreshImage("Image rotated counterclockwise");
+    this->refreshImage("Image rotated counterclockwise", IMG_UPDATE_SIZE);
 }
 
 void ImageUtils::flipVertically()
@@ -204,7 +204,7 @@ void ImageUtils::flipVertically()
     currentImage->pixels = flippedPixels;
 
     // refresh obrazku + emitovani signalu o zmene obrazku
-    this->refreshImage("Image flipped vertically");
+    this->refreshImage("Image flipped vertically", IMG_UPDATE_NONE);
 }
 
 void ImageUtils::flipHorizontally()
@@ -226,7 +226,7 @@ void ImageUtils::flipHorizontally()
     currentImage->pixels = flippedPixels;
 
     // refresh obrazku + emitovani signalu o zmene obrazku
-    this->refreshImage("Image flipped horizontally");
+    this->refreshImage("Image flipped horizontally", IMG_UPDATE_NONE);
 }
 
 void ImageUtils::applyGrayscaleFilter()
@@ -247,7 +247,7 @@ void ImageUtils::applyGrayscaleFilter()
     }
 
     // refresh obrazku + emitovani signalu o zmene obrazku
-    this->refreshImage("Grayscale filter applied");
+    this->refreshImage("Grayscale filter applied", IMG_UPDATE_COLOR);
 }
 
 void ImageUtils::applyInvertFilter() {
@@ -264,7 +264,7 @@ void ImageUtils::applyInvertFilter() {
     }
 
     // refresh obrazku + emitovani signalu o zmene obrazku
-    this->refreshImage("Invert filter applied");
+    this->refreshImage("Invert filter applied", IMG_UPDATE_COLOR);
 }
 
 void ImageUtils::applySepiaFilter()
@@ -293,7 +293,7 @@ void ImageUtils::applySepiaFilter()
     }
 
     // refresh obrazku + emitovani signalu o zmene obrazku
-    this->refreshImage("Sepia filter applied");
+    this->refreshImage("Sepia filter applied", IMG_UPDATE_COLOR);
 }
 
 void ImageUtils::applyBlurFilter(int radius)
@@ -341,7 +341,7 @@ void ImageUtils::applyBlurFilter(int radius)
     std::copy(blurredPixels.begin(), blurredPixels.end(), currentImage->pixels);
 
     // refresh obrazku + emitovani signalu o zmene obrazku
-    this->refreshImage("Blur filter applied");
+    this->refreshImage("Blur filter applied", IMG_UPDATE_COLOR);
 }
 
 void ImageUtils::applyBrightnessAdjustment(int value)
@@ -363,7 +363,7 @@ void ImageUtils::applyBrightnessAdjustment(int value)
     }
 
     // refresh obrazku + emitovani signalu o zmene obrazku
-    this->refreshImage("Brightness adjustment applied");
+    this->refreshImage("Brightness adjustment applied", IMG_UPDATE_COLOR);
 }
 
 void ImageUtils::applyContrastAdjustment(double value)
@@ -383,7 +383,7 @@ void ImageUtils::applyContrastAdjustment(double value)
     }
 
     // refresh obrazku + emitovani signalu o zmene obrazku
-    this->refreshImage("Contrast adjustment applied");
+    this->refreshImage("Contrast adjustment applied", IMG_UPDATE_COLOR);
 }
 
 void ImageUtils::applyColorBalance(float redIntensity, float greenIntensity, float blueIntensity)
@@ -410,7 +410,7 @@ void ImageUtils::applyColorBalance(float redIntensity, float greenIntensity, flo
     }
 
     // refresh obrazku + emitovani signalu o zmene obrazku
-    this->refreshImage("Color balance applied");
+    this->refreshImage("Color balance applied", IMG_UPDATE_COLOR);
 }
 
 void ImageUtils::workerJobFinished()

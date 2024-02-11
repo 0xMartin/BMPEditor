@@ -27,7 +27,7 @@ protected:
     uint16_t historyIndex; /** Index v historii (urceno pro pohybovani v historii) */
     std::vector<Image*> imageHistory; /** Histrie obrazku */
 
-    void refreshImage(const QString &message);
+    void refreshImage(const QString &message, ImageUpdateMode mode);
     void clearHistory();
 
 public:
