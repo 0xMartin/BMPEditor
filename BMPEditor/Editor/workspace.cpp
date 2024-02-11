@@ -301,12 +301,12 @@ void Workspace::paintEvent(QPaintEvent *event) {
 
         // vekresleni meritek ose
         int ruleXStart = 0;
-        while(ruleXStart > -offset.x()) {
-            ruleXStart -= this->scale * 2;
+        while(ruleXStart > -offset.x() && this->scale != 0) {
+            ruleXStart -= this->scale * 4;
         }
         int ruleYStart = 0;
-        while(ruleYStart > -offset.y()) {
-            ruleYStart -= this->scale * 2;
+        while(ruleYStart > -offset.y() && this->scale != 0) {
+            ruleYStart -= this->scale * 4;
         }
 
         int ruleXEnd = this->width() - offset.x();
