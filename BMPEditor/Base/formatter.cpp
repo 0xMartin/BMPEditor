@@ -84,7 +84,7 @@ static int FORMATTER_formatToBMPWithPalette(Image *src, Image **dst, uint8_t bit
     bmpOut->bmpInfoHeader.imageSize = (stride * bmpOut->height);
     bmpOut->bmpInfoHeader.xPixelsPerMeter = 0;
     bmpOut->bmpInfoHeader.yPixelsPerMeter = 0;
-    bmpOut->bmpInfoHeader.colorsUsed = 0;
+    bmpOut->bmpInfoHeader.colorsUsed = paletteSize;
     bmpOut->bmpInfoHeader.colorsImportant = 0;
     qDebug() << "FORMAT TO BMP " << bitCount << "b - info header init done";
 

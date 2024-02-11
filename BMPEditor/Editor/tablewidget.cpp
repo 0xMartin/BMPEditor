@@ -3,12 +3,11 @@
 #include <QHeaderView>
 #include <QIcon>
 
-CustomTableWidget::CustomTableWidget(QWidget *parent) : QWidget(parent) {
+CustomTableWidget::CustomTableWidget(QWidget *parent) : QTableWidget(parent) {
     // vytvoreni tabulky
-    tableWidget = new QTableWidget();
-    tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    tableWidget->setColumnCount(2);
-    tableWidget->horizontalHeader()->setStretchLastSection(true);
+    this->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    this->setColumnCount(2);
+    this->horizontalHeader()->setStretchLastSection(true);
 
     // vytvoreni nazvu sloupcu v tabulce
     QTableWidgetItem *headerItem1 = new QTableWidgetItem("Name");
@@ -25,27 +24,21 @@ CustomTableWidget::CustomTableWidget(QWidget *parent) : QWidget(parent) {
     headerItem2->setBackground(Qt::lightGray);
     headerItem2->setFlags(headerItem2->flags() & ~Qt::ItemIsEditable);
 
-    tableWidget->setHorizontalHeaderItem(0, headerItem1);
-    tableWidget->setHorizontalHeaderItem(1, headerItem2);
+    this->setHorizontalHeaderItem(0, headerItem1);
+    this->setHorizontalHeaderItem(1, headerItem2);
 
-    // sestaveni hlavniho layoutu
-    QVBoxLayout *layout = new QVBoxLayout(this);
-    layout->setContentsMargins(0, 0, 0, 0);
-    layout->setSpacing(0);
-    layout->addWidget(tableWidget);
-    setLayout(layout);
+    this->setStyleSheet("QTableWidget { border: 0px solid rgb(20, 20, 20); }");
 }
 
 void CustomTableWidget::addRow(const QString &fieldName, const QString &value)
 {
-    int row = this->tableWidget->rowCount();
-    this->tableWidget->insertRow(row);
-    this->tableWidget->setItem(row, 0, new QTableWidgetItem(fieldName));
-    this->tableWidget->setItem(row, 1, new QTableWidgetItem(value));
+    int row = this->rowCount();
+    this->insertRow(row);
+    QLabel *item = new QLabel();
+    item->setText(fieldName);
+    this->setCellWidget(row, 0, item);
+    item = new QLabel(value);
+    item->setText(value);
+    this->setCellWidget(row, 1, item);
 }
 
-
-QTableWidget *CustomTableWidget::getTable() const
-{
-    return tableWidget;
-}

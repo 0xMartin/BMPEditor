@@ -17,6 +17,7 @@ FrameWidget::FrameWidget(const QString &name, QWidget *content, QWidget *parent)
     // vytvoreni tlacitka (minimalizace)
     minimizeButton = new ClickableLabel(this);
     minimizeButton->setPixmap(QPixmap(":/Resources/minimize.svg").scaled(QSize(12, 12)));
+    minimizeButton->setStyleSheet("ClickableLabel { padding: 0px 8px; border: 1px solid rgb(20, 20, 20); }");
     minimizeButton->setTextFormat(Qt::RichText);
     minimizeButton->setCursor(Qt::PointingHandCursor);
     minimizeButton->setToolTip(tr("Minimize"));
@@ -25,6 +26,7 @@ FrameWidget::FrameWidget(const QString &name, QWidget *content, QWidget *parent)
     // vytvoreni tlacitka (maximalizace)
     maximizeButton = new ClickableLabel(this);
     maximizeButton->setPixmap(QPixmap(":/Resources/maximize.svg").scaled(QSize(12, 12)));
+    maximizeButton->setStyleSheet("ClickableLabel { padding: 0px 8px; border: 1px solid rgb(20, 20, 20); }");
     maximizeButton->setTextFormat(Qt::RichText);
     maximizeButton->setCursor(Qt::PointingHandCursor);
     maximizeButton->setToolTip(tr("Maximize"));
@@ -52,8 +54,10 @@ FrameWidget::FrameWidget(const QString &name, QWidget *content, QWidget *parent)
     layoutMain->setSpacing(0);
     layoutMain->addWidget(tabHeader);
     layoutMain->addWidget(this->content);
-
     this->setLayout(layoutMain);
+
+    // maximize
+    this->maximize();
 }
 
 QLabel *FrameWidget::getLabel() const
@@ -64,11 +68,15 @@ QLabel *FrameWidget::getLabel() const
 void FrameWidget::minimize() {
     if(this->content != NULL) {
         this->content->hide();
+        this->maximizeButton->show();
+        this->minimizeButton->hide();
     }
 }
 
 void FrameWidget::maximize() {
     if(this->content != NULL) {
         this->content->show();
+        this->maximizeButton->hide();
+        this->minimizeButton->show();
     }
 }

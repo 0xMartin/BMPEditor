@@ -25,6 +25,7 @@ ImageInfoPanel::ImageInfoPanel(QWidget *parent) : QWidget(parent) {
 
     // color paleta
     QScrollArea *scrollAreaColors = new QScrollArea(this);
+    scrollAreaColors->setStyleSheet("QScrollArea { border: 0px solid rgb(20, 20, 20); }");
     scrollAreaColors->setMinimumHeight(200);
     scrollAreaColors->setWidgetResizable(true);
     QWidget *colorPaletteWidged = new QWidget();
@@ -50,11 +51,11 @@ ImageInfoPanel::ImageInfoPanel(QWidget *parent) : QWidget(parent) {
 
 void ImageInfoPanel::setImage(Image *img) {
     // clear
-    for (int i = this->infoHeaderTable->getTable()->rowCount() - 1; i >= 0; --i) {
-        this->infoHeaderTable->getTable()->removeRow(i);
+    for (int i = this->infoHeaderTable->rowCount() - 1; i >= 0; --i) {
+        this->infoHeaderTable->removeRow(i);
     }
-    for (int i = this->fileHeaderTable->getTable()->rowCount() - 1; i >= 0; --i) {
-        this->fileHeaderTable->getTable()->removeRow(i);
+    for (int i = this->fileHeaderTable->rowCount() - 1; i >= 0; --i) {
+        this->fileHeaderTable->removeRow(i);
     }
     QLayoutItem *item;
     while ((item = colorPalette->takeAt(0)) != nullptr) {
@@ -75,24 +76,24 @@ void ImageInfoPanel::setImage(Image *img) {
         buffer = (char)(bmp->bmpFileHeader.type & 0xFF);
         buffer += (char)((bmp->bmpFileHeader.type >> 8) & 0xFF);
         this->fileHeaderTable->addRow("Type", buffer);
-        this->fileHeaderTable->addRow("Size", QString::number(bmp->bmpFileHeader.size));
-        this->fileHeaderTable->addRow("Reserved1", "0x" + QString::number(bmp->bmpFileHeader.reserved1, 16));
-        this->fileHeaderTable->addRow("Reserved2", "0x" + QString::number(bmp->bmpFileHeader.reserved2, 16));
-        this->fileHeaderTable->addRow("Offset", "0x" + QString::number(bmp->bmpFileHeader.offset, 16));
+        this->fileHeaderTable->addRow("Size", QString(tr("<b>%1</b> bytes")).arg(bmp->bmpFileHeader.size));
+        this->fileHeaderTable->addRow("Reserved1", "<b>0x" + QString::number(bmp->bmpFileHeader.reserved1, 16) + "</b>");
+        this->fileHeaderTable->addRow("Reserved2", "<b>0x" + QString::number(bmp->bmpFileHeader.reserved2, 16) + "</b>");
+        this->fileHeaderTable->addRow("Offset", QString(tr("<b>%1</b> bytes")).arg(bmp->bmpFileHeader.offset));
 
         // info header
         this->infoTableFrame->getLabel()->setText("BMP Info Header");
-        this->infoHeaderTable->addRow("Size", QString::number(bmp->bmpInfoHeader.size));
-        this->infoHeaderTable->addRow("Width", QString::number(bmp->bmpInfoHeader.width));
-        this->infoHeaderTable->addRow("Height", QString::number(bmp->bmpInfoHeader.height));
-        this->infoHeaderTable->addRow("Planes", QString::number(bmp->bmpInfoHeader.planes));
-        this->infoHeaderTable->addRow("BitCount", QString::number(bmp->bmpInfoHeader.bitCount));
+        this->infoHeaderTable->addRow("Size", QString(tr("<b>%1</b> bytes")).arg(bmp->bmpInfoHeader.size));
+        this->infoHeaderTable->addRow("Width", QString(tr("<b>%1</b> px")).arg(bmp->bmpInfoHeader.width));
+        this->infoHeaderTable->addRow("Height", QString(tr("<b>%1</b> px")).arg(bmp->bmpInfoHeader.height));
+        this->infoHeaderTable->addRow("Planes", QString(tr("<b>%1</b> plane(s)")).arg(bmp->bmpInfoHeader.planes));
+        this->infoHeaderTable->addRow("BitCount", QString(tr("<b>%1</b> bits")).arg(bmp->bmpInfoHeader.bitCount));
         this->infoHeaderTable->addRow("Compression", QString::number(bmp->bmpInfoHeader.compression));
-        this->infoHeaderTable->addRow("ImageSize", QString::number(bmp->bmpInfoHeader.imageSize));
-        this->infoHeaderTable->addRow("XPixelsPerMeter", QString::number(bmp->bmpInfoHeader.xPixelsPerMeter));
-        this->infoHeaderTable->addRow("YPixelsPerMeter", QString::number(bmp->bmpInfoHeader.yPixelsPerMeter));
-        this->infoHeaderTable->addRow("ColorsUsed", QString::number(bmp->bmpInfoHeader.colorsUsed));
-        this->infoHeaderTable->addRow("ColorsImportant", QString::number(bmp->bmpInfoHeader.colorsImportant));
+        this->infoHeaderTable->addRow("ImageSize", QString(tr("<b>%1</b> bytes")).arg(bmp->bmpInfoHeader.imageSize));
+        this->infoHeaderTable->addRow("XPixelsPerMeter", QString(tr("<b>%1</b>")).arg(bmp->bmpInfoHeader.xPixelsPerMeter));
+        this->infoHeaderTable->addRow("YPixelsPerMeter", QString(tr("<b>%1</b>")).arg(bmp->bmpInfoHeader.yPixelsPerMeter));
+        this->infoHeaderTable->addRow("ColorsUsed", QString(tr("<b>%1</b> color(s)")).arg(bmp->bmpInfoHeader.colorsUsed));
+        this->infoHeaderTable->addRow("ColorsImportant", QString(tr("<b>%1</b> color(s)")).arg(bmp->bmpInfoHeader.colorsImportant));
 
         // paleta barev
         this->colorPaletteFrame->getLabel()->setText("Color Palette");
