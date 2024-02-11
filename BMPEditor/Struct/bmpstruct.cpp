@@ -5,11 +5,11 @@
 #include <QDebug>
 #include "../Base/rgb.h"
 
-int BMP_STRUCT_validate(const BitMapFileHeader& fileHeader, const BitMapInfoHeader& infoHeader) {
+int BMP_STRUCT_validate(const BitMapFileHeader_t& fileHeader, const BitMapInfoHeader_t& infoHeader) {
     // debug info
     qDebug() << "BMP Type: " << "0x" + QString::number(fileHeader.type, 16);
     qDebug() << "BMP Offset: " << fileHeader.offset;
-    qDebug() << "BMP File Header size: " << sizeof(BitMapFileHeader);
+    qDebug() << "BMP File Header size: " << sizeof(BitMapFileHeader_t);
     qDebug() << "BMP Info Header size: " << infoHeader.size;
     qDebug() << "BMP bit count: " << infoHeader.bitCount;
     qDebug() << "BMP compression: " << infoHeader.compression;
@@ -25,7 +25,7 @@ int BMP_STRUCT_validate(const BitMapFileHeader& fileHeader, const BitMapInfoHead
     if(infoHeader.bitCount <= 8) {
         paletteTotalSize = (1 << infoHeader.bitCount) * sizeof(RGBQUAD);
     }
-    if (fileHeader.offset != sizeof(BitMapFileHeader) + infoHeader.size + paletteTotalSize) {
+    if (fileHeader.offset != sizeof(BitMapFileHeader_t) + infoHeader.size + paletteTotalSize) {
         return ERR_INVALID_FILE_OFFSET;
     }
 

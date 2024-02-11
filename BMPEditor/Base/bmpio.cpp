@@ -7,8 +7,8 @@
 #include "../Base/error.h"
 
 int BMP_IO_loadBMPImage(const QString &path,
-                        BitMapFileHeader &fileHeader,
-                        BitMapInfoHeader &infoHeader,
+                        BitMapFileHeader_t &fileHeader,
+                        BitMapInfoHeader_t &infoHeader,
                         RGBQUAD **palette,
                         unsigned char **pixels) {
     if(palette == NULL || pixels == NULL) {
@@ -23,8 +23,8 @@ int BMP_IO_loadBMPImage(const QString &path,
     qDebug() << "BMP LOAD - file opened";
 
     // precte ze souboru hlavicky souboru a BMP obrazku
-    file.read(reinterpret_cast<char*>(&fileHeader), sizeof(BitMapFileHeader));
-    file.read(reinterpret_cast<char*>(&infoHeader), sizeof(BitMapInfoHeader));
+    file.read(reinterpret_cast<char*>(&fileHeader), sizeof(BitMapFileHeader_t));
+    file.read(reinterpret_cast<char*>(&infoHeader), sizeof(BitMapInfoHeader_t));
     qDebug() << "BMP LOAD - header reading done";
 
     // overeni platnosti hlavicek
@@ -122,8 +122,8 @@ int BMP_IO_loadBMPImage(const QString &path,
 }
 
 int BMP_IO_saveBMPImage(const QString &path,
-                        const BitMapFileHeader &fileHeader,
-                        const BitMapInfoHeader &infoHeader,
+                        const BitMapFileHeader_t &fileHeader,
+                        const BitMapInfoHeader_t &infoHeader,
                         const RGBQUAD *palette,
                         const unsigned char *pixels) {
     // overeni platnosti hlavicek
@@ -141,8 +141,8 @@ int BMP_IO_saveBMPImage(const QString &path,
     qDebug() << "BMP SAVE - file opened";
 
     //zapis hlavicek
-    file.write(reinterpret_cast<const char*>(&fileHeader), sizeof(BitMapFileHeader));
-    file.write(reinterpret_cast<const char*>(&infoHeader), sizeof(BitMapInfoHeader));
+    file.write(reinterpret_cast<const char*>(&fileHeader), sizeof(BitMapFileHeader_t));
+    file.write(reinterpret_cast<const char*>(&infoHeader), sizeof(BitMapInfoHeader_t));
     qDebug() << "BMP SAVE - headers writing done";
 
     // zapis palety barev

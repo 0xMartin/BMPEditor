@@ -15,8 +15,8 @@
  * @return Error code
  */
 extern int BMP_IO_loadBMPImage(const QString & path,
-                               BitMapFileHeader & fileHeader,
-                               BitMapInfoHeader & infoHeader,
+                               BitMapFileHeader_t & fileHeader,
+                               BitMapInfoHeader_t & infoHeader,
                                RGBQUAD ** palette,
                                unsigned char ** pixels);
 
@@ -30,8 +30,8 @@ extern int BMP_IO_loadBMPImage(const QString & path,
  * @return Error code
  */
 extern int BMP_IO_saveBMPImage(const QString & path,
-                               const BitMapFileHeader & fileHeader,
-                               const BitMapInfoHeader & infoHeader,
+                               const BitMapFileHeader_t & fileHeader,
+                               const BitMapInfoHeader_t & infoHeader,
                                const RGBQUAD * palette,
                                const unsigned char * pixels);
 

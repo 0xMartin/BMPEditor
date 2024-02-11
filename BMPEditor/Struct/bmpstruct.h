@@ -9,7 +9,7 @@
 /**
  * @brief Struktura pro hlavicku souboru BMP
  */
-struct BitMapFileHeader {
+struct BitMapFileHeader_t {
     uint16_t type {0x4D42};  /** Oznaceni souboru (Musí byt 'BM' pro BMP soubory) */
     uint32_t size {0};  /** Velikost celeho souboru v bytech */
     uint16_t reserved1 {0}; /** Rezervovana hodnota 1 */
@@ -20,7 +20,7 @@ struct BitMapFileHeader {
 /**
  * @brief Struktura pro informace o BMP obrazku
  */
-struct BitMapInfoHeader {
+struct BitMapInfoHeader_t {
     uint32_t size {0};          /** Velikost hlavicky (40 bytu) */
     int32_t width {0};          /** Sirka obrazku v pixelech */
     int32_t height {0};         /** Vyska obrazku v pixelech */
@@ -42,6 +42,6 @@ struct BitMapInfoHeader {
  * @param infoHeader - Struktura BitMapInfoHeader
  * @return Error Code
  */
-extern int BMP_STRUCT_validate(const BitMapFileHeader & fileHeader, const BitMapInfoHeader & infoHeader);
+extern int BMP_STRUCT_validate(const BitMapFileHeader_t & fileHeader, const BitMapInfoHeader_t & infoHeader);
 
 #endif // BITMAPFILEHEADER_H

@@ -61,14 +61,14 @@ int FORMATTER_formatToBMP8(Image *src, Image **dst)
 
     // incializace BMP file header
     bmp24->bmpFileHeader.type = 0x4D42; // 'BM'
-    bmp24->bmpFileHeader.size = sizeof(BitMapFileHeader) + sizeof(BitMapInfoHeader) + (stride * src->height);
+    bmp24->bmpFileHeader.size = sizeof(BitMapFileHeader_t) + sizeof(BitMapInfoHeader_t) + (stride * src->height);
     bmp24->bmpFileHeader.reserved1 = 0;
     bmp24->bmpFileHeader.reserved2 = 0;
-    bmp24->bmpFileHeader.offset = sizeof(BitMapFileHeader) + sizeof(BitMapInfoHeader) + (sizeof(RGBQUAD) * paletteSize);
+    bmp24->bmpFileHeader.offset = sizeof(BitMapFileHeader_t) + sizeof(BitMapInfoHeader_t) + (sizeof(RGBQUAD) * paletteSize);
     qDebug() << "FORMAT TO BMP 8 - file header init done";
 
     // incializace BMP info header
-    bmp24->bmpInfoHeader.size = sizeof(BitMapInfoHeader);
+    bmp24->bmpInfoHeader.size = sizeof(BitMapInfoHeader_t);
     bmp24->bmpInfoHeader.width = src->width;
     bmp24->bmpInfoHeader.height = src->height;
     bmp24->bmpInfoHeader.planes = 1;
@@ -131,14 +131,14 @@ int FORMATTER_formatToBMP24(Image *src, Image **dst)
 
     // incializace BMP file header
     bmp24->bmpFileHeader.type = 0x4D42; // 'BM'
-    bmp24->bmpFileHeader.size = sizeof(BitMapFileHeader) + sizeof(BitMapInfoHeader) + (stride * src->height);
+    bmp24->bmpFileHeader.size = sizeof(BitMapFileHeader_t) + sizeof(BitMapInfoHeader_t) + (stride * src->height);
     bmp24->bmpFileHeader.reserved1 = 0;
     bmp24->bmpFileHeader.reserved2 = 0;
-    bmp24->bmpFileHeader.offset = sizeof(BitMapFileHeader) + sizeof(BitMapInfoHeader);
+    bmp24->bmpFileHeader.offset = sizeof(BitMapFileHeader_t) + sizeof(BitMapInfoHeader_t);
     qDebug() << "FORMAT TO BMP 24 - file header init done";
 
     // incializace BMP info header
-    bmp24->bmpInfoHeader.size = sizeof(BitMapInfoHeader);
+    bmp24->bmpInfoHeader.size = sizeof(BitMapInfoHeader_t);
     bmp24->bmpInfoHeader.width = src->width;
     bmp24->bmpInfoHeader.height = src->height;
     bmp24->bmpInfoHeader.planes = 1;

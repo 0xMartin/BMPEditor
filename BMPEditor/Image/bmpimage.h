@@ -8,8 +8,8 @@
 class BMPImage : public Image
 {
 public:
-    BitMapFileHeader bmpFileHeader; /** Datova struktura souboru */
-    BitMapInfoHeader bmpInfoHeader; /** Datova struktura BMP obrazku */
+    BitMapFileHeader_t bmpFileHeader; /** Datova struktura souboru */
+    BitMapInfoHeader_t bmpInfoHeader; /** Datova struktura BMP obrazku */
     RGBQUAD *bmpColors; /** Paleta barev */
 
     // Konstruktor & Destruktor BMP obrazku

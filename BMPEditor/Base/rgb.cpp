@@ -32,10 +32,10 @@ std::vector<RGBQUAD> RGB_quantizeImage(const unsigned char * pixels, int width, 
 
         // prirazeni pixelu nejblizsimu centroidu
         for (int i = 0; i < width * height; ++i) {
-            double minDist = colorDistance({pixels[i * 3], pixels[i * 3 + 1], pixels[i * 3 + 2], 0}, palette[0]);
+            double minDist = RGB_colorDistance({pixels[i * 3], pixels[i * 3 + 1], pixels[i * 3 + 2], 0}, palette[0]);
             int minIndex = 0;
             for (int j = 1; j < numColors; ++j) {
-                double dist = colorDistance({pixels[i * 3], pixels[i * 3 + 1], pixels[i * 3 + 2], 0}, palette[j]);
+                double dist = RGB_colorDistance({pixels[i * 3], pixels[i * 3 + 1], pixels[i * 3 + 2], 0}, palette[j]);
                 if (dist < minDist) {
                     minDist = dist;
                     minIndex = j;
