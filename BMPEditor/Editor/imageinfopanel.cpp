@@ -13,36 +13,38 @@ ImageInfoPanel::ImageInfoPanel(QWidget *parent) : QWidget(parent) {
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setContentsMargins(2, 4, 4, 3);
 
+    // aktivni prvky *************************************************************
+
+    // histogram
+    this->histogram = new ImageHistogramWidget(this);
+
     // tabulka pro BMP file header
-    this->fileHeaderTable = new CustomTableWidget("BMP File Header", this);
+    this->fileHeaderTable = new CustomTableWidget(this);
     // tabulka pro BMP info header
-    this->infoHeaderTable = new CustomTableWidget("BMP Info Header", this);
+    this->infoHeaderTable = new CustomTableWidget(this);
 
     // color paleta
-    QScrollArea *scrollArea = new QScrollArea(this);
-    scrollArea->setWidgetResizable(true);
+    QScrollArea *scrollAreaColors = new QScrollArea(this);
+    scrollAreaColors->setWidgetResizable(true);
     QWidget *colorPaletteWidged = new QWidget();
-    scrollArea->setWidget(colorPaletteWidged);
+    scrollAreaColors->setWidget(colorPaletteWidged);
     this->colorPalette = new QGridLayout(this);
     colorPaletteWidged->setLayout(this->colorPalette);
 
-    // pridani tabulke do hlavni layoutu tohoto widgetu
-    layout->addWidget(this->fileHeaderTable);
-    layout->addWidget(this->infoHeaderTable);
-    this->colorsLabel = this->createHeader("Color Palette");
-    layout->addWidget(this->colorsLabel);
-    layout->addWidget(scrollArea);
-    setLayout(layout);
-}
+    // UI kontajnery pro aktivni prvky ********************************************
+    this->histogramFrame = new FrameWidget("Histogram", this->histogram, this);
+    this->fileTableFrame = new FrameWidget("BMP File Header", this->fileHeaderTable, this);
+    this->infoTableFrame = new FrameWidget("BMP Info Header", this->infoHeaderTable, this);
+    this->colorPaletteFrame = new FrameWidget("Color Palette", scrollAreaColors, this);
 
-QLabel * ImageInfoPanel::createHeader(const QString &name) {
-    QLabel * label = new QLabel(name);
-    QFont font = label->font();
-    font.setBold(true);
-    font.setPointSize(12);
-    label->setFont(font);
-    label->setStyleSheet("background-color: rgb(39, 39, 41); padding: 6px");
-    return label;
+    // pridani tabulke do hlavni layoutu tohoto widgetu
+    layout->addWidget(this->histogramFrame);
+    layout->addWidget(this->fileTableFrame);
+    layout->addWidget(this->infoTableFrame);
+    layout->addWidget(this->colorPaletteFrame);
+    layout->addStretch();
+
+    setLayout(layout);
 }
 
 void ImageInfoPanel::setImage(Image *img) {
@@ -68,7 +70,7 @@ void ImageInfoPanel::setImage(Image *img) {
         BMPImage *bmp = (BMPImage*)img;
 
         // file header
-        this->fileHeaderTable->getLabel()->setText("BMP File Header");
+        this->fileTableFrame->getLabel()->setText("BMP File Header");
         buffer = (char)(bmp->bmpFileHeader.type & 0xFF);
         buffer += (char)((bmp->bmpFileHeader.type >> 8) & 0xFF);
         this->fileHeaderTable->addRow("Type", buffer);
@@ -78,7 +80,7 @@ void ImageInfoPanel::setImage(Image *img) {
         this->fileHeaderTable->addRow("Offset", "0x" + QString::number(bmp->bmpFileHeader.offset, 16));
 
         // info header
-        this->infoHeaderTable->getLabel()->setText("BMP Info Header");
+        this->infoTableFrame->getLabel()->setText("BMP Info Header");
         this->infoHeaderTable->addRow("Size", QString::number(bmp->bmpInfoHeader.size));
         this->infoHeaderTable->addRow("Width", QString::number(bmp->bmpInfoHeader.width));
         this->infoHeaderTable->addRow("Height", QString::number(bmp->bmpInfoHeader.height));
@@ -92,7 +94,7 @@ void ImageInfoPanel::setImage(Image *img) {
         this->infoHeaderTable->addRow("ColorsImportant", QString::number(bmp->bmpInfoHeader.colorsImportant));
 
         // paleta barev
-        this->colorsLabel->setText("Color Palette");
+        this->colorPaletteFrame->getLabel()->setText("Color Palette");
         if(bmp->bmpInfoHeader.bitCount <= 8 && bmp->bmpInfoHeader.bitCount > 0) {
             int row = 0;
             int col = 0;
@@ -114,10 +116,15 @@ void ImageInfoPanel::setImage(Image *img) {
             }
         }
 
-        this->fileHeaderTable->maximize();
-        this->infoHeaderTable->maximize();
+        this->histogramFrame->maximize();
+        this->fileTableFrame->maximize();
+        this->infoTableFrame->maximize();
+        this->colorPaletteFrame->maximize();
         this->repaint();
     }
+
+    // histogram
+    this->histogram->setImage(this->image);
 }
 
 void ImageInfoPanel::refresh()

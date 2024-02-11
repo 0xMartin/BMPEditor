@@ -48,6 +48,10 @@ set(PROJECT_SOURCES
         Editor/tablewidget.cpp
         Editor/clickablelabel.h
         Editor/clickablelabel.cpp
+        Editor/imagehistogramwidget.h
+        Editor/imagehistogramwidget.cpp
+        Editor/framewidget.h
+        Editor/framewidget.cpp
         Dialog/blurdialog.h
         Dialog/blurdialog.cpp
         Dialog/brightnessdialog.h

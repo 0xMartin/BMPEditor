@@ -6,6 +6,8 @@
 #include <QGridLayout>
 #include <QTableWidget>
 #include "tablewidget.h"
+#include "imagehistogramwidget.h"
+#include "framewidget.h"
 #include "../Base/image.h"
 
 
@@ -21,12 +23,17 @@ protected:
     Image *image;
 
 private:
-    QLabel *colorsLabel;
+    // aktivni zobrazovaci prvky
+    ImageHistogramWidget *histogram;
     CustomTableWidget *fileHeaderTable;
     CustomTableWidget *infoHeaderTable;
     QGridLayout *colorPalette;
 
-    QLabel * createHeader(const QString &name);
+    // UI kontajner pro zobrazovaci prvky
+    FrameWidget *histogramFrame;
+    FrameWidget *fileTableFrame;
+    FrameWidget *infoTableFrame;
+    FrameWidget *colorPaletteFrame;
 };
 
 #endif // IMAGEINFOPANEL_H
