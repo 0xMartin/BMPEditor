@@ -27,6 +27,9 @@
 #define ERR_FILE_READ 0xE
 #define ERR_FILE_WRITE 0xF
 
+// formating
+#define ERR_SAME_FORMAT 0x10
+
 
 /**
  * @brief Ziska informaci v podobe textu o error codu, ktery v aplikaci nastal

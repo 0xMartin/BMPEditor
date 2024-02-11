@@ -3,7 +3,7 @@
 #include "../Base/error.h"
 
 #include <QDebug>
-#include "../Base/types.h"
+#include "../Base/rgb.h"
 
 int BMP_STRUCT_validate(const BitMapFileHeader& fileHeader, const BitMapInfoHeader& infoHeader) {
     // debug info

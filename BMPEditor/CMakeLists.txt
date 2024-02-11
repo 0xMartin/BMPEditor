@@ -20,7 +20,8 @@ set(PROJECT_SOURCES
         about.ui
         about.h
         about.cpp
-        Base/types.h
+        Base/rgb.h
+        Base/rgb.cpp
         Base/error.h
         Base/error.cpp
         Base/image.h
@@ -31,6 +32,8 @@ set(PROJECT_SOURCES
         Base/bmpio.cpp
         Base/imageutils.h
         Base/imageutils.cpp
+        Base/formatter.h
+        Base/formatter.cpp
         Struct/bmpstruct.h
         Struct/bmpstruct.cpp
         Image/bmpimage.h

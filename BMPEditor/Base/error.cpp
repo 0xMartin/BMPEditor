@@ -44,6 +44,12 @@ void getErrorCodeInfo(int errCode, QString & buffer) {
     case ERR_FILE_READ:
         buffer = "FILE READ ERROR";
         break;
+    case ERR_SAME_FORMAT:
+        buffer = "SAME IMAGE FORMAT";
+        break;
+    default:
+        buffer = "UNKNOWN";
+        break;
     }
 }
 

@@ -42,6 +42,9 @@ protected:
     QLabel *statusLabel;
     QLabel *pathLabel;
 
+    // pro asynchronni spousteni
+    ThreadRunner worker;
+
     // dialogy
     AboutDialog dialog;
     QProgressDialog progressDialog;
@@ -50,10 +53,13 @@ protected:
 
     void closeEvent(QCloseEvent *event);
 
+    void formatBMP(int bitCount);
+
 private slots:
     void imageChanged(const QString &message);
-    void imageUtilsJobStart();
-    void imageUtilsJobFinished();
+    void asyncJobStart();
+    void asyncJobFinished();
+    void formatDone(Image *img);
 
     void on_actionOpen_triggered();
 
@@ -92,6 +98,14 @@ private slots:
     void on_actionBrightness_triggered();
 
     void on_actionContrast_triggered();
+
+    void on_actionConvert_to_1b_BMP_triggered();
+
+    void on_actionConvert_to_4b_BMP_triggered();
+
+    void on_actionConvert_to_8b_BMP_triggered();
+
+    void on_actionConvert_to_24b_BMP_triggered();
 
 private:
     Ui::MainWindow *ui;

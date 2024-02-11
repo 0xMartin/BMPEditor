@@ -396,26 +396,6 @@ void ImageUtils::applyContrastAdjustment(double factor)
     this->refreshImage("Contrast adjustment applied");
 }
 
-void ImageUtils::formatToBMP1()
-{
-
-}
-
-void ImageUtils::formatToBMP4()
-{
-
-}
-
-void ImageUtils::formatToBMP8()
-{
-
-}
-
-void ImageUtils::formatToBMP24()
-{
-
-}
-
 void ImageUtils::workerJobFinished()
 {
     emit this->jobFinished();

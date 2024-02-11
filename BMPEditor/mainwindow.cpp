@@ -2,6 +2,7 @@
 #include "./ui_mainwindow.h"
 
 #include "Image/bmpimage.h"
+#include "Base/formatter.h"
 #include "Base/error.h"
 #include <QFileDialog>
 #include <QMessageBox>
@@ -65,8 +66,9 @@ MainWindow::MainWindow(QWidget *parent)
     progressDialog.setRange(0, 0);
 
     /**********************************************************/
-    // init
+    // init lokalnich atributu
     this->image = NULL;
+    connect(&this->worker, &ThreadRunner::jobFinished, this, &MainWindow::asyncJobFinished);
 
     /**********************************************************/
     // vytvoreni a konfigurace workspacu
@@ -85,8 +87,8 @@ MainWindow::MainWindow(QWidget *parent)
     /**********************************************************/
     // nastaveni image utils tridy
     connect(&this->imgUtils, &ImageUtils::imageChangedSignal, this, &MainWindow::imageChanged);
-    connect(&this->imgUtils, &ImageUtils::jobStart, this, &MainWindow::imageUtilsJobStart);
-    connect(&this->imgUtils, &ImageUtils::jobFinished, this, &MainWindow::imageUtilsJobFinished);
+    connect(&this->imgUtils, &ImageUtils::jobStart, this, &MainWindow::asyncJobStart);
+    connect(&this->imgUtils, &ImageUtils::jobFinished, this, &MainWindow::asyncJobFinished);
 
     /**********************************************************/
     // sestaveni celkove pracovni plochy s vyuzitim splitteru
@@ -138,13 +140,55 @@ QFrame *MainWindow::createToolbarSeparator()
 void MainWindow::closeEvent(QCloseEvent *event) {
     // app: close event dialog
     QMessageBox::StandardButton reply;
-    reply = QMessageBox::question(this, "Close", "Are you sure you want to exit the application?",
+    reply = QMessageBox::question(this, tr("Close"), tr("Are you sure you want to exit the application?"),
                                   QMessageBox::Yes|QMessageBox::No);
     if (reply == QMessageBox::Yes) {
         progressDialog.hide();
         event->accept();
     } else {
         event->ignore();
+    }
+}
+
+void MainWindow::formatBMP(int bitCount)
+{
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, QString(tr("Format to BMP %1b").arg(bitCount)),
+                                  QString(tr("Are you sure you want to change the image format to BMP %1b? This operation is irreversible.").arg(bitCount)),
+                                  QMessageBox::Yes|QMessageBox::No);
+    if (reply == QMessageBox::Yes) {
+        // vyber funkce
+        // zobrazeni progress dialogu
+        this->asyncJobStart();
+        // asynchronni spusteni procesu zmeny formatu
+        worker.runInThread([&]() {
+            Image *newImg = NULL;
+            int errCode;
+            switch (bitCount) {
+            case 1:
+                errCode = FORMATTER_formatToBMP1(this->image, &newImg);
+                break;
+            case 4:
+                errCode = FORMATTER_formatToBMP4(this->image, &newImg);
+                break;
+            case 8:
+                errCode = FORMATTER_formatToBMP8(this->image, &newImg);
+                break;
+            default:
+                errCode = FORMATTER_formatToBMP24(this->image, &newImg);
+                break;
+            }
+            if(errCode == STATUS_OK) {
+                // format uspesne zmenen (aplikuje zmeny .. nahrazeni aktualniho obrazku za novy)
+                QMetaObject::invokeMethod(this, "formatDone", Qt::QueuedConnection, Q_ARG(Image*, newImg));
+            } else {
+                // nastala chyba
+                QString errorStr;
+                getErrorCodeInfo(errCode, errorStr);
+                QMessageBox::critical(this, tr("Format Error"),
+                                      QString(tr("Failed to change format. Error: %1")).arg(errorStr));
+            }
+        });
     }
 }
 
@@ -164,16 +208,22 @@ void MainWindow::imageChanged(const QString &message)
     this->ui->actionRedo->setEnabled(this->imgUtils.getHistoryIndex() + 1 < this->imgUtils.getImageHistory().size());
 }
 
-void MainWindow::imageUtilsJobStart()
+void MainWindow::asyncJobStart()
 {
     this->progressDialog.show();
     this->setEnabled(false);
 }
 
-void MainWindow::imageUtilsJobFinished()
+void MainWindow::asyncJobFinished()
 {
     this->progressDialog.hide();
     this->setEnabled(true);
+}
+
+void MainWindow::formatDone(Image *img)
+{
+    this->statusLabel->setText(tr("<b>Status: </b> Format changed"));
+    this->setImage(img);
 }
 
 void MainWindow::on_actionOpen_triggered()
@@ -353,7 +403,7 @@ void MainWindow::on_actionSepia_triggered()
 
 void MainWindow::on_actionBlur_triggered()
 {
-    // image filer: bluer
+    // image filer: blur
     if(this->image != NULL) {
         if (blurDialog.exec() == QDialog::Accepted) {
             int radius = blurDialog.getBlurRadius();
@@ -373,8 +423,33 @@ void MainWindow::on_actionBrightness_triggered()
     }
 }
 
+
 void MainWindow::on_actionContrast_triggered()
 {
 
+}
+
+
+void MainWindow::on_actionConvert_to_1b_BMP_triggered()
+{
+    this->formatBMP(1);
+}
+
+
+void MainWindow::on_actionConvert_to_4b_BMP_triggered()
+{
+    this->formatBMP(4);
+}
+
+
+void MainWindow::on_actionConvert_to_8b_BMP_triggered()
+{
+    this->formatBMP(8);
+}
+
+
+void MainWindow::on_actionConvert_to_24b_BMP_triggered()
+{
+    this->formatBMP(24);
 }
 

@@ -131,3 +131,15 @@ Image *BMPImage::cloneImage()
     }
     return bmp;
 }
+
+int BMPImage::isBMPImage(Image *img, int bitDepth) {
+    if(img == NULL)
+        return ERR_NULL_PTR;
+    if (img->type == IMG_BMP) {
+        BMPImage *bmp = dynamic_cast<BMPImage *>(img);
+        if(bmp != NULL)
+            if(bmp->bmpInfoHeader.bitCount == 1)
+                return ERR_SAME_FORMAT;
+    }
+    return STATUS_OK;
+}

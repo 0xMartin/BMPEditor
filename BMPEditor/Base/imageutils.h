@@ -112,28 +112,6 @@ public:
      */
     void applyContrastAdjustment(double factor);
 
-    // zmena formatu
-
-    /**
-     * @brief Zmeni format aktualniho obrazeku na format BMP 1b
-     */
-    void formatToBMP1();
-
-    /**
-     * @brief Zmeni format aktualniho obrazeku na format BMP 4b
-     */
-    void formatToBMP4();
-
-    /**
-     * @brief Zmeni format aktualniho obrazeku na format BMP 8b
-     */
-    void formatToBMP8();
-
-    /**
-     * @brief Zmeni format aktualniho obrazeku na format BMP 24b
-     */
-    void formatToBMP24();
-
 private slots:
     void workerJobFinished();
 

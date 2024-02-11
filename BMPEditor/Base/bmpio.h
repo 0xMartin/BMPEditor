@@ -3,7 +3,7 @@
 
 #include <QString>
 #include "../Struct/bmpstruct.h"
-#include "types.h"
+#include "rgb.h"
 
 /**
  * @brief Funkce pro nacitani BMP obrazku ze souboroveho systemu
@@ -11,7 +11,7 @@
  * @param fileHeader - Reference na hlacivkou souboru, ze ktereho bude obrazek nacitan (out)
  * @param infoHeader - Reference na hlavicku BMP obrazku (out)
  * @param palette - Pointer na paletu barev (out)
- * @param data - Obrazova data, ktere budou nacitani ze souboru (out)
+ * @param pixels - Obrazova data, ktere budou nacitani ze souboru (out)
  * @return Error code
  */
 extern int BMP_IO_loadBMPImage(const QString & path,
@@ -26,7 +26,7 @@ extern int BMP_IO_loadBMPImage(const QString & path,
  * @param fileHeader - Reference na hlacivkou souboru, ze ktereho bude obrazek nacitan (in)
  * @param infoHeader - Reference na hlavicku BMP obrazku (in)
  * @param palette - Pointer na paletu barev. Vyzadaovano je pri bitove hloubce: 1, 4 nebo 8 (in)
- * @param data - Obrazova data, ktere budou zapsana do souboru (in)
+ * @param pixels - Obrazova data, ktere budou zapsana do souboru (in)
  * @return Error code
  */
 extern int BMP_IO_saveBMPImage(const QString & path,
@@ -34,6 +34,14 @@ extern int BMP_IO_saveBMPImage(const QString & path,
                                const BitMapInfoHeader & infoHeader,
                                const RGBQUAD * palette,
                                const unsigned char * pixels);
+
+/**
+ * @brief Vypocet velikosti stride v BMP obrazku. Bity v radku obrazku musi byt zarovnani na 32b, koncove nevyuzite bity jsou 0.
+ * @param bitCount - Pocet bitu na jeden pixel v BMP obrazku
+ * @param width - Sirka obrazku v pixelech
+ * @return Velikost stride
+ */
+extern uint16_t BMP_IO_calculateStride(uint8_t bitCount, uint16_t width);
 
 /**
  * @brief Najde index barvy v palete barev podle predanych argumentu funkce

@@ -3,6 +3,7 @@
 
 #include <cstdint>
 
+// zarovnani struktur na 1b (velmi dulezite!!)
 #pragma pack(push, 1)
 
 /**

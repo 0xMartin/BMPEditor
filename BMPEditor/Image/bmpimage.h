@@ -3,7 +3,7 @@
 
 #include "../Base/image.h"
 #include "../Struct/bmpstruct.h"
-#include "../Base/types.h"
+#include "../Base/rgb.h"
 
 class BMPImage : public Image
 {
@@ -26,6 +26,9 @@ public:
     // funkce pro klonovani
     virtual int copyImage(Image * img) override;
     virtual Image * cloneImage() override;
+
+    // overeni formatu abstraktniho Image
+    static int isBMPImage(Image *img, int bitDepth);
 };
 
 #endif // BMPIMAGE_H

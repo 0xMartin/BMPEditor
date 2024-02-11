@@ -66,14 +66,11 @@ int BMP_IO_loadBMPImage(const QString &path,
     qDebug() << "BMP LOAD - image pixel array allocated (" << pixArrSiz << ")";
 
     // vypocet stride (musi byt dorovnany na 32b, posledni bity jsou 0)
-    file.seekg(fileHeader.offset);
-    uint16_t stride = infoHeader.bitCount * infoHeader.width;
-    if (stride % 32 != 0)
-        stride = (stride | 31) + 1;
-    stride /= 8;
+    uint16_t stride = BMP_IO_calculateStride(infoHeader.bitCount, infoHeader.width);
     qDebug() << "BMP LOAD - stride size: " << stride;
 
     // nacteni vsech pixelu obrazku z data bufferu
+    file.seekg(fileHeader.offset);
     uint32_t index = 0;
     uint32_t offset = 0;
     RGBQUAD color;
@@ -158,10 +155,7 @@ int BMP_IO_saveBMPImage(const QString &path,
     }
 
     // vypocet stride
-    uint16_t stride = infoHeader.bitCount * infoHeader.width;
-    if (stride % 32 != 0)
-        stride = (stride | 31) + 1;
-    stride /= 8;
+    uint16_t stride = BMP_IO_calculateStride(infoHeader.bitCount, infoHeader.width);
     qDebug() << "BMP SAVE - stride size: " << stride;
 
     // zapis dat obrazku (inverzni zpusob jak u cteni)
@@ -245,4 +239,14 @@ uint16_t BMP_IO_findColorIndex(const RGBQUAD *palette, uint16_t paletteSize, uin
         }
     }
     return closestIndex;
+}
+
+
+uint16_t BMP_IO_calculateStride(uint8_t bitCount, uint16_t width)
+{
+    uint16_t stride = bitCount * width;
+    if (stride % 32 != 0)
+        stride = (stride | 31) + 1;
+    stride /= 8;
+    return stride;
 }
