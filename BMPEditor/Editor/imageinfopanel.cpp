@@ -45,8 +45,15 @@ ImageInfoPanel::ImageInfoPanel(QWidget *parent) : QWidget(parent) {
     layout->addWidget(this->infoTableFrame);
     layout->addWidget(this->colorPaletteFrame);
     layout->addStretch();
-
     setLayout(layout);
+    this->setMaximumWidth(640);
+    this->setMinimumWidth(250);
+
+    // minimalizovat vse
+    this->histogramFrame->minimize();
+    this->fileTableFrame->minimize();
+    this->infoTableFrame->minimize();
+    this->colorPaletteFrame->minimize();
 }
 
 void ImageInfoPanel::setImage(Image *img) {
