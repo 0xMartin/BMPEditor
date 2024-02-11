@@ -11,7 +11,11 @@ void ImageHistogramWidget::setImage(Image *img) {
     if (this->image != NULL) {
         computeHistogram();
     }
-    this->update();
+    qDebug() << "Histogram run update in separated thread";
+    worker.runInThread([&]() {
+        this->update();
+        QMetaObject::invokeMethod(this, "updateDone", Qt::QueuedConnection);
+    });
 }
 
 void ImageHistogramWidget::paintEvent(QPaintEvent *event) {
@@ -73,4 +77,10 @@ void ImageHistogramWidget::computeHistogram() {
         maxFrequency = std::max(maxFrequency, histogramGreen[g]);
         maxFrequency = std::max(maxFrequency, histogramBlue[b]);
     }
+}
+
+void ImageHistogramWidget::updateDone()
+{
+    qDebug() << "Histogram update done";
+    this->repaint();
 }

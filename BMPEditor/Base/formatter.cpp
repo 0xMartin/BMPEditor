@@ -111,7 +111,7 @@ static int FORMATTER_formatToBMPWithPalette(Image *src, Image **dst, uint8_t bit
         rgb.green = src->pixels[i + 1];
         rgb.blue = src->pixels[i + 2];
         // urci index barvy v palete barev, ktera je nejblize barve aktualniho pixelu
-        uint16_t index = BMP_IO_findColorIndex(bmpOut->bmpColors, paletteSize, rgb.red, rgb.green, rgb.blue);
+        uint16_t index = RGB_findColorIndex(bmpOut->bmpColors, paletteSize, rgb.red, rgb.green, rgb.blue);
         // aktualnimu pixelu nastavi barvu z palety (aby barva pixelu odpovidala realite = bitove hloubce)
         rgb = bmpOut->bmpColors[index];
         bmpOut->pixels[i] = rgb.red;

@@ -14,6 +14,9 @@ void getErrorCodeInfo(int errCode, QString & buffer) {
     case ERR_NULL_PTR:
         buffer = QObject::tr("NULL POINTER");
         break;
+    case ERROR_INVALID_PARAMETERS:
+        buffer = QObject::tr("INVALID PARAMETERS");
+        break;
     case ERR_MEM_CPY:
         buffer = QObject::tr("MEMORY COPY");
         break;
@@ -55,6 +58,15 @@ void getErrorCodeInfo(int errCode, QString & buffer) {
         break;
     case ERR_INVALID_BIT_DEPTH:
         buffer = QObject::tr("INVALID BIT DEPTH");
+        break;
+    case ERROR_MESSAGE_TOO_LONG:
+        buffer = QObject::tr("MESSAGE IS TOO LONG");
+        break;
+    case ERROR_NO_MESSAGE_FOUND:
+        buffer = QObject::tr("MESSAGE NOT FOUND");
+        break;
+    case ERROR_INVALID_CRC:
+        buffer = QObject::tr("INVALID CRC");
         break;
     default:
         buffer = QObject::tr("UNKNOWN");

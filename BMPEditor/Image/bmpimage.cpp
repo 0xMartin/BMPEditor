@@ -84,7 +84,7 @@ void BMPImage::update(ImageUpdateMode mode)
                 rgb.green = this->pixels[i + 1];
                 rgb.blue = this->pixels[i + 2];
                 // urci index barvy v palete barev, ktera je nejblize barve aktualniho pixelu
-                index = BMP_IO_findColorIndex(this->bmpColors, paletteSize, rgb.red, rgb.green, rgb.blue);
+                index = RGB_findColorIndex(this->bmpColors, paletteSize, rgb.red, rgb.green, rgb.blue);
                 // aktualnimu pixelu nastavi barvu z palety (aby barva pixelu odpovidala realite = bitove hloubce)
                 rgb = this->bmpColors[index];
                 this->pixels[i] = rgb.red;

@@ -5,6 +5,7 @@
 #include <QImage>
 #include <QPainter>
 #include <vector>
+#include "../Base/threadrunner.h"
 #include "../Base/image.h"
 
 class ImageHistogramWidget : public QWidget {
@@ -24,12 +25,18 @@ protected:
 
 private:
     Image *image;
+
+    ThreadRunner worker;
+
     std::vector<int> histogramRed;
     std::vector<int> histogramGreen;
     std::vector<int> histogramBlue;
     int maxFrequency;
 
     void computeHistogram();
+
+private slots:
+    void updateDone();
 };
 
 #endif // IMAGEHISTOGRAMWIDGET_H

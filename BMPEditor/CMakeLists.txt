@@ -34,6 +34,8 @@ set(PROJECT_SOURCES
         Base/imageutils.cpp
         Base/formatter.h
         Base/formatter.cpp
+        Base/steganography.h
+        Base/steganography.cpp
         Struct/bmpstruct.h
         Struct/bmpstruct.cpp
         Image/bmpimage.h
@@ -60,6 +62,8 @@ set(PROJECT_SOURCES
         Dialog/contrastdialog.cpp
         Dialog/colorbalancedialog.h
         Dialog/colorbalancedialog.cpp
+        Dialog/writemessagedialog.h
+        Dialog/writemessagedialog.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

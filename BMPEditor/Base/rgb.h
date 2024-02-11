@@ -35,4 +35,15 @@ struct RGBQUAD_t {
  */
 extern std::vector<RGBQUAD_t> RGB_generateColorPalette(const unsigned char * pixels, int width, int height, int numColors);
 
+/**
+ * @brief Najde index barvy v palete barev podle predanych argumentu funkce
+ * @param palette - Ukazatel na paletu barev BMP obrazku
+ * @param paletteSize - Velikost palety barev
+ * @param red - Cervena slozka pixelu
+ * @param green - Zelena slozka pixelu
+ * @param blue - Modra slozka pixelu
+ * @return Index barvy pixelu v palete barev (pokud neni barva primo nalezena tak barva s nejblizsi podobnosti)
+ */
+extern uint16_t RGB_findColorIndex(const RGBQUAD_t *palette, uint16_t paletteSize, uint8_t red, uint8_t green, uint8_t blue);
+
 #endif // RGB_H

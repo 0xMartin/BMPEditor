@@ -14,6 +14,7 @@
 #include "Dialog/brightnessdialog.h"
 #include "Dialog/contrastdialog.h"
 #include "Dialog/colorbalancedialog.h"
+#include "Dialog/writemessagedialog.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -54,6 +55,7 @@ protected:
     BrightnessDialog brightnessDialog;
     ContrastDialog contrastDialog;
     ColorBalanceDialog colorBalanceDialog;
+    WriteMessageDialog writeMessageDialog;
 
     void closeEvent(QCloseEvent *event);
 
@@ -114,6 +116,12 @@ private slots:
     void on_actionConvert_to_8b_BMP_triggered();
 
     void on_actionConvert_to_24b_BMP_triggered();
+
+    void on_actionWrite_message_triggered();
+
+    void on_actionRead_message_triggered();
+
+    void on_actionClear_message_triggered();
 
 private:
     Ui::MainWindow *ui;

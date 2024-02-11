@@ -134,3 +134,18 @@ std::vector<RGBQUAD_t> RGB_generateColorPalette(const unsigned char * pixels, in
     return quantize(pixelVector, 0, std::log2(numColors));
 }
 
+uint16_t RGB_findColorIndex(const RGBQUAD_t *palette, uint16_t paletteSize, uint8_t red, uint8_t green, uint8_t blue) {
+    uint16_t closestIndex = 0;
+    int closestDistance = std::numeric_limits<int>::max();
+    for (uint16_t i = 0; i < paletteSize; ++i) {
+        int distance = std::abs(palette[i].red - red) +
+                       std::abs(palette[i].green - green) +
+                       std::abs(palette[i].blue - blue);
+        if (distance < closestDistance) {
+            closestIndex = i;
+            closestDistance = distance;
+        }
+    }
+    return closestIndex;
+}
+

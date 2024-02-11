@@ -180,11 +180,11 @@ int BMP_IO_saveBMPImage(const QString &path,
             index = (y * infoHeader.width + x) * 3;
             // pokud jde o obrazek s color paletou tak si najde v palete index barvy aktualniho pixelu
             if(infoHeader.bitCount <= 8) {
-                colorIndex = BMP_IO_findColorIndex(palette,
-                                                   paletteSize,
-                                                   pixels[index],
-                                                   pixels[index + 1],
-                                                   pixels[index + 2]);
+                colorIndex = RGB_findColorIndex(palette,
+                                                paletteSize,
+                                                pixels[index],
+                                                pixels[index + 1],
+                                                pixels[index + 2]);
             }
             // zapis pixelu do bufferu
             switch (infoHeader.bitCount) {
@@ -229,22 +229,6 @@ int BMP_IO_saveBMPImage(const QString &path,
 
     return STATUS_OK;
 }
-
-uint16_t BMP_IO_findColorIndex(const RGBQUAD_t *palette, uint16_t paletteSize, uint8_t red, uint8_t green, uint8_t blue) {
-    uint16_t closestIndex = 0;
-    int closestDistance = std::numeric_limits<int>::max();
-    for (uint16_t i = 0; i < paletteSize; ++i) {
-        int distance = std::abs(palette[i].red - red) +
-                       std::abs(palette[i].green - green) +
-                       std::abs(palette[i].blue - blue);
-        if (distance < closestDistance) {
-            closestIndex = i;
-            closestDistance = distance;
-        }
-    }
-    return closestIndex;
-}
-
 
 uint16_t BMP_IO_calculateStride(uint8_t bitCount, uint16_t width)
 {

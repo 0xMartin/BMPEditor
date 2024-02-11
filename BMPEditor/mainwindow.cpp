@@ -1,11 +1,14 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 
-#include "Image/bmpimage.h"
-#include "Base/formatter.h"
-#include "Base/error.h"
 #include <QFileDialog>
 #include <QMessageBox>
+
+#include "Image/bmpimage.h"
+#include "Base/formatter.h"
+#include "Base/steganography.h"
+#include "Base/error.h"
+
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -162,8 +165,8 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 void MainWindow::formatBMP(int bitCount)
 {
     QMessageBox::StandardButton reply;
-    reply = QMessageBox::question(this, QString(tr("Format to BMP %1b").arg(bitCount)),
-                                  QString(tr("Are you sure you want to change the image format to BMP %1b? This operation is irreversible.").arg(bitCount)),
+    reply = QMessageBox::question(this, tr("Format to BMP %1b").arg(bitCount),
+                                  tr("Are you sure you want to change the image format to BMP %1b? This operation is irreversible.").arg(bitCount),
                                   QMessageBox::Yes|QMessageBox::No);
     if (reply == QMessageBox::Yes) {
         // vyber funkce
@@ -271,21 +274,33 @@ void MainWindow::on_actionOpen_triggered()
     // app: load image
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open Image"), QDir::homePath(), tr("BMP File (*.bmp)"));
     if (!fileName.isEmpty()) {
+
         qDebug() << "Open file: " << fileName;
         BMPImage *bmp = new BMPImage();
         this->statusLabel->setText(tr("<b>Status:</b> Image loading ..."));
+
         int errCode = bmp->loadImage(fileName);
         if(errCode != STATUS_OK) {
+
             // nastala chyba pri nacteni souboru
             QString errorStr;
             getErrorCodeInfo(errCode, errorStr);
-            QMessageBox::critical(this, tr("Open Error"), QString(tr("Failed to open BMP image. Error: %1")).arg(errorStr));
+            QMessageBox::critical(this, tr("Open Error"), tr("Failed to open BMP image. Error: %1").arg(errorStr));
             this->statusLabel->setText(tr("<b>Status:</b> Failed to load image"));
+
         } else {
             // obrazek uspesne nacten => zobrazeni v editoru
             this->setImage(bmp);
-            QMessageBox::information(this, "Open Image", "Image opened successfully!");
+            QMessageBox::information(this, tr("Open Image"), tr("Image opened successfully!"));
+
+            // overi zda se v nactenem obrazku nenachazi zprava
+            QString msg = "";
+            int errCode = STEGANOGRAPHY_readMessage(this->image->pixels, this->image->width, this->image->height, msg);
+            if(errCode == STATUS_OK) {
+                QMessageBox::information(this, tr("Hidden message"), tr("The image contains a hidden message!\n\nMessage: %1").arg(msg));
+            }
         }
+
     }
 }
 
@@ -296,21 +311,28 @@ void MainWindow::on_actionSave_triggered()
     if(this->image == NULL) {
         QMessageBox::critical(this, tr("Save Error"), tr("It is not possible to save an image because no image is opened!"));
     } else {
+
         QString fileName = QFileDialog::getSaveFileName(this, tr("Save Image"), QDir::homePath(), tr("BMP file (*.bmp)"));
         if (!fileName.isEmpty()) {
             qDebug() << "Save file: " << fileName;
             this->statusLabel->setText(tr("<b>Status:</b> Image saving ..."));
+
             int errCode = this->image->saveImage(fileName);
             if(errCode != STATUS_OK) {
+
                 // nastala chyba pri nacteni souboru
                 QString errorStr;
                 getErrorCodeInfo(errCode, errorStr);
                 QMessageBox::critical(this, tr("Save Error"), QString(tr("Failed to save BMP image. Error: %1")).arg(errorStr));
                 this->statusLabel->setText(tr("<b>Status:</b> Failed to save image"));
+
             } else {
-                QMessageBox::information(this, "Save Image", "Image saved successfully!");
+
+                QMessageBox::information(this, tr("Save Image"), tr("Image saved successfully!"));
                 this->statusLabel->setText(tr("<b>Status:</b> Image saved"));
+
             }
+
         }
     }
 }
@@ -519,4 +541,75 @@ void MainWindow::on_actionConvert_to_24b_BMP_triggered()
     this->formatBMP(24);
 }
 
+
+
+void MainWindow::on_actionWrite_message_triggered()
+{
+    // zapis tajne zpravy do obrazku
+    if(this->image != NULL) {
+        if(this->image->bitDepth <= 8) {
+            QMessageBox::critical(this, tr("Write Message Error"), tr("You can write the message only in to image that does not use color palette!"));
+            return;
+        }
+        writeMessageDialog.resetDialog();
+        if (writeMessageDialog.exec() == QDialog::Accepted) {
+            QString msg = writeMessageDialog.getMessage();
+            int errCode = STEGANOGRAPHY_writeMessage(this->image->pixels, this->image->width, this->image->height, msg);
+            if(errCode != STATUS_OK) {
+                // nastala chyba pri zapisu zpravy do obrazku
+                QString errorStr;
+                getErrorCodeInfo(errCode, errorStr);
+                QMessageBox::critical(this, tr("Write Message Error"), tr("Failed to write message. Error: %1").arg(errorStr));
+                this->statusLabel->setText(tr("<b>Status:</b> Failed to write message"));
+            } else {
+                QMessageBox::information(this, tr("Write Message"), tr("Message written successfully!"));
+                this->statusLabel->setText(tr("<b>Status:</b> Message written"));
+            }
+        }
+    }
+}
+
+
+void MainWindow::on_actionRead_message_triggered()
+{
+    // precteni tajne zpravy do obrazku
+    if(this->image != NULL) {
+        if(this->image->bitDepth <= 8) {
+            QMessageBox::critical(this, tr("Read Message Error"), tr("You can read the message only from image that does not use color palette!"));
+            return;
+        }
+        QString msg = "";
+        int errCode = STEGANOGRAPHY_readMessage(this->image->pixels, this->image->width, this->image->height, msg);
+        if(errCode != STATUS_OK) {
+            // nastala chyba pri cteni zpravy z obrazku
+            QString errorStr;
+            getErrorCodeInfo(errCode, errorStr);
+            QMessageBox::critical(this, tr("Read Message Error"), tr("Failed to read message. Error: %1").arg(errorStr));
+            this->statusLabel->setText(tr("<b>Status:</b> Failed to read message"));
+        } else {
+            qDebug() << "MESSAGE=" << msg;
+            QMessageBox::information(this, tr("Read Message"), tr("Message: %1").arg(msg));
+            this->statusLabel->setText(tr("<b>Status:</b> Message read done"));
+        }
+    }
+}
+
+
+void MainWindow::on_actionClear_message_triggered()
+{
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, tr("Remove Message"),
+                                  tr("Are you sure you want to remove the hidden message from this image?"),
+                                  QMessageBox::Yes|QMessageBox::No);
+    if (reply == QMessageBox::Yes) {
+        int errCode = STEGANOGRAPHY_clearMessage(this->image->pixels, this->image->width, this->image->height);
+        if(errCode != STATUS_OK) {
+            // nastala chyba pri odstraneni zpravy z obrazku
+            QString errorStr;
+            getErrorCodeInfo(errCode, errorStr);
+            QMessageBox::critical(this, tr("Remove Message Error"), tr("Failed to remove message. Error: %1").arg(errorStr));
+            this->statusLabel->setText(tr("<b>Status:</b> Failed to read message"));
+        }
+    }
+}
 

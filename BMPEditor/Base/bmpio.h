@@ -11,7 +11,7 @@
  * @param fileHeader - Reference na hlacivkou souboru, ze ktereho bude obrazek nacitan (out)
  * @param infoHeader - Reference na hlavicku BMP obrazku (out)
  * @param palette - Pointer na paletu barev (out)
- * @param pixels - Obrazova data, ktere budou nacitani ze souboru (out)
+ * @param pixels - Pixely obrazku, ktere budou nacitani ze souboru. Pixely budou zapsany ve formatu RGB 3*uint8 (out)
  * @return Error code
  */
 extern int BMP_IO_loadBMPImage(const QString & path,
@@ -26,7 +26,7 @@ extern int BMP_IO_loadBMPImage(const QString & path,
  * @param fileHeader - Reference na hlacivkou souboru, ze ktereho bude obrazek nacitan (in)
  * @param infoHeader - Reference na hlavicku BMP obrazku (in)
  * @param palette - Pointer na paletu barev. Vyzadaovano je pri bitove hloubce: 1, 4 nebo 8 (in)
- * @param pixels - Obrazova data, ktere budou zapsana do souboru (in)
+ * @param pixels - Pixely obrazku, ktere budou zapsana do souboru. Jsou ve formatu RGB 3*uint8 (in)
  * @return Error code
  */
 extern int BMP_IO_saveBMPImage(const QString & path,
@@ -42,16 +42,5 @@ extern int BMP_IO_saveBMPImage(const QString & path,
  * @return Velikost stride
  */
 extern uint16_t BMP_IO_calculateStride(uint8_t bitCount, uint16_t width);
-
-/**
- * @brief Najde index barvy v palete barev podle predanych argumentu funkce
- * @param palette - Ukazatel na paletu barev BMP obrazku
- * @param paletteSize - Velikost palety barev
- * @param red - Cervena slozka pixelu
- * @param green - Zelena slozka pixelu
- * @param blue - Modra slozka pixelu
- * @return Index barvy pixelu v palete barev (pokud neni barva primo nalezena tak barva s nejblizsi podobnosti)
- */
-extern uint16_t BMP_IO_findColorIndex(const RGBQUAD_t *palette, uint16_t paletteSize, uint8_t red, uint8_t green, uint8_t blue);
 
 #endif // BMPIO_H

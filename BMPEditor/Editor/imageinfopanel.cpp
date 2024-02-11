@@ -128,7 +128,11 @@ void ImageInfoPanel::setImage(Image *img) {
         this->histogramFrame->maximize();
         this->fileTableFrame->maximize();
         this->infoTableFrame->maximize();
-        this->colorPaletteFrame->maximize();
+        if(bmp->bmpInfoHeader.bitCount <= 8 && bmp->bmpInfoHeader.bitCount > 0) {
+            this->colorPaletteFrame->maximize();
+        } else {
+            this->colorPaletteFrame->minimize();
+        }
         this->repaint();
     }
 
