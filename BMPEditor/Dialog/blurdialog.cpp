@@ -34,6 +34,11 @@ BlurDialog::BlurDialog(QWidget *parent) : QDialog(parent) {
     setWindowTitle("Blur Filter");
 }
 
+void BlurDialog::resetDialog()
+{
+    this->radiusSlider->setValue(0);
+}
+
 int BlurDialog::getBlurRadius() const {
     return radiusSlider->value();
 }

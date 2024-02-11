@@ -14,6 +14,8 @@ class ContrastDialog : public QDialog {
 public:
     explicit ContrastDialog(QWidget *parent = nullptr);
 
+    void resetDialog();
+
     int getContrastValue() const;
 
 private:

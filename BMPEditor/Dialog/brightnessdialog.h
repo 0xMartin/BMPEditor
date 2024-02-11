@@ -14,6 +14,8 @@ class BrightnessDialog : public QDialog
 public:
     explicit BrightnessDialog(QWidget *parent = nullptr);
 
+    void resetDialog();
+
     int getBrightnessValue() const;
 
 private:

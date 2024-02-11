@@ -25,6 +25,11 @@ ContrastDialog::ContrastDialog(QWidget *parent) : QDialog(parent) {
     mainLayout->addLayout(buttonLayout);
 }
 
+void ContrastDialog::resetDialog()
+{
+    this->contrastSlider->setValue(0);
+}
+
 int ContrastDialog::getContrastValue() const {
     return contrastSlider->value();
 }

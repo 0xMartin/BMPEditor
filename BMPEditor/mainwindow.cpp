@@ -104,6 +104,9 @@ MainWindow::MainWindow(QWidget *parent)
     this->setCentralWidget(this->splitter_horizontal);
     this->splitter_horizontal->setStretchFactor(0, 1);
     this->splitter_horizontal->setStretchFactor(1, 2);
+
+    // deaktivace funkci aklikace
+    this->appActionActivation();
 }
 
 MainWindow::~MainWindow()
@@ -131,6 +134,9 @@ void MainWindow::setImage(Image *image)
     // status bar
     this->statusLabel->setText(tr("<b>Status:</b> Image loaded"));
     this->pathLabel->setText(tr("<b>Path:</b> ") + image->imgPath);
+
+    // aktivace/deaktive funkci aplikace
+    this->appActionActivation();
 }
 
 QFrame *MainWindow::createToolbarSeparator()
@@ -193,6 +199,37 @@ void MainWindow::formatBMP(int bitCount)
             }
         });
     }
+}
+
+void MainWindow::appActionActivation()
+{
+    bool enabled = this->image != NULL;
+    // filtry
+    this->ui->actionColor_balance->setEnabled(enabled);
+    this->ui->actionContrast->setEnabled(enabled);
+    this->ui->actionBrightness->setEnabled(enabled);
+    this->ui->actionBlur->setEnabled(enabled);
+    this->ui->actionGrayscale->setEnabled(enabled);
+    this->ui->actionInvert->setEnabled(enabled);
+    this->ui->actionSepia->setEnabled(enabled);
+    // transformace
+    this->ui->actionRotate_90_plus->setEnabled(enabled);
+    this->ui->actionRotate_90_minus->setEnabled(enabled);
+    this->ui->actionFlip_horizontally->setEnabled(enabled);
+    this->ui->action_Flip_vertically->setEnabled(enabled);
+    // view funkce
+    this->ui->actionZoom_in->setEnabled(enabled);
+    this->ui->actionZoom_out->setEnabled(enabled);
+    this->ui->actionReset_scale->setEnabled(enabled);
+    // formatovani
+    this->ui->actionConvert_to_1b_BMP->setEnabled(enabled);
+    this->ui->actionConvert_to_4b_BMP->setEnabled(enabled);
+    this->ui->actionConvert_to_8b_BMP->setEnabled(enabled);
+    this->ui->actionConvert_to_24b_BMP->setEnabled(enabled);
+    // steganografie
+    this->ui->actionClear_message->setEnabled(enabled);
+    this->ui->actionWrite_message->setEnabled(enabled);
+    this->ui->actionRead_message->setEnabled(enabled);
 }
 
 void MainWindow::imageChanged(const QString &message)
@@ -408,6 +445,7 @@ void MainWindow::on_actionBlur_triggered()
 {
     // image filer: blur
     if(this->image != NULL) {
+        blurDialog.resetDialog();
         if (blurDialog.exec() == QDialog::Accepted) {
             int radius = blurDialog.getBlurRadius();
             IMG_UTIL_ASYNC_ARG(this->imgUtils, this->imgUtils.applyBlurFilter(radius), radius);
@@ -419,8 +457,10 @@ void MainWindow::on_actionBrightness_triggered()
 {
     // image filer: brightness
     if(this->image != NULL) {
+        brightnessDialog.resetDialog();
         if (brightnessDialog.exec() == QDialog::Accepted) {
             int brightness = brightnessDialog.getBrightnessValue();
+            if(brightness == 0.0f) return;
             IMG_UTIL_ASYNC_ARG(this->imgUtils, this->imgUtils.applyBrightnessAdjustment(brightness), brightness);
         }
     }
@@ -431,6 +471,7 @@ void MainWindow::on_actionContrast_triggered()
 {
     // image filer: contrast
     if(this->image != NULL) {
+        contrastDialog.resetDialog();
         if (contrastDialog.exec() == QDialog::Accepted) {
             double factor = contrastDialog.getContrastValue();
             if(factor == 0.0f) return;
@@ -439,6 +480,21 @@ void MainWindow::on_actionContrast_triggered()
     }
 }
 
+void MainWindow::on_actionColor_balance_triggered()
+{
+    // image filer: color balance
+    if(this->image != NULL) {
+        colorBalanceDialog.resetDialog();
+        if (colorBalanceDialog.exec() == QDialog::Accepted) {
+            int r = colorBalanceDialog.getRedIntensity();
+            int g = colorBalanceDialog.getGreenIntensity();
+            int b = colorBalanceDialog.getBlueIntensity();
+            this->imgUtils.runOperationAsync([&, r, g, b]() {
+                this->imgUtils.applyColorBalance(r, g, b);
+            });
+        }
+    }
+}
 
 void MainWindow::on_actionConvert_to_1b_BMP_triggered()
 {
@@ -462,4 +518,5 @@ void MainWindow::on_actionConvert_to_24b_BMP_triggered()
 {
     this->formatBMP(24);
 }
+
 

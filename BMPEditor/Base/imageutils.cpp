@@ -298,7 +298,10 @@ void ImageUtils::applySepiaFilter()
 
 void ImageUtils::applyBlurFilter(int radius)
 {
-    if (!currentImage || radius <= 0) return;
+    if (!currentImage) return;
+
+    // omezeni rozsahu vstupnich parametru
+    radius = radius < 0 ? 0 : radius;
     qDebug() << "Filer: blur = " << radius;
 
     std::vector<unsigned char> blurredPixels(currentImage->dataLen);
@@ -344,6 +347,9 @@ void ImageUtils::applyBlurFilter(int radius)
 void ImageUtils::applyBrightnessAdjustment(int value)
 {
     if (!currentImage) return;
+
+    // omezeni rozsahu vstupnich parametru
+    value = std::max(-100, std::min(100, value));
     qDebug() << "Filer: brightness = " << value;
 
     // upravi kazdy pixel obrazku
@@ -363,6 +369,9 @@ void ImageUtils::applyBrightnessAdjustment(int value)
 void ImageUtils::applyContrastAdjustment(double value)
 {
     if (!currentImage) return;
+
+    // omezeni rozsahu vstupnich parametru
+    value = std::max(-255.0, std::min(255.0, value));
     qDebug() << "Filer: contrast = " << value;
 
     double factor = (259.0 * (value + 255.0)) / (255.0 * (259.0 - value));
@@ -375,6 +384,33 @@ void ImageUtils::applyContrastAdjustment(double value)
 
     // refresh obrazku + emitovani signalu o zmene obrazku
     this->refreshImage("Contrast adjustment applied");
+}
+
+void ImageUtils::applyColorBalance(float redIntensity, float greenIntensity, float blueIntensity)
+{
+    if (!currentImage) return;
+
+    // omezeni rozsahu vstupnich parametru
+    redIntensity = std::max(-100.0f, std::min(100.0f, redIntensity));
+    greenIntensity = std::max(-100.0f, std::min(100.0f, greenIntensity));
+    blueIntensity = std::max(-100.0f, std::min(100.0f, blueIntensity));
+    qDebug() << "Filter: color balance = rgb(" << redIntensity << ","
+             << greenIntensity << "," << blueIntensity << ")";
+
+
+    // vypocet faktoru pro upravu jednotlivych kanalu RGB obrazku
+    double redFactor = (100.0 + redIntensity) / 100.0;
+    double greenFactor = (100.0 + greenIntensity) / 100.0;
+    double blueFactor = (100.0 + blueIntensity) / 100.0;
+
+    for (size_t i = 0; i < currentImage->dataLen; i += 3) {
+        currentImage->pixels[i] = (unsigned char)(std::max(0.0, std::min(255.0, currentImage->pixels[i] * redFactor)));
+        currentImage->pixels[i + 1] = (unsigned char)(std::max(0.0, std::min(255.0, currentImage->pixels[i + 1] * greenFactor)));
+        currentImage->pixels[i + 2] = (unsigned char)(std::max(0.0, std::min(255.0, currentImage->pixels[i + 2] * blueFactor)));
+    }
+
+    // refresh obrazku + emitovani signalu o zmene obrazku
+    this->refreshImage("Color balance applied");
 }
 
 void ImageUtils::workerJobFinished()

@@ -14,6 +14,8 @@ class BlurDialog : public QDialog {
 public:
     explicit BlurDialog(QWidget *parent = nullptr);
 
+    void resetDialog();
+
     int getBlurRadius() const;
 
 private slots:

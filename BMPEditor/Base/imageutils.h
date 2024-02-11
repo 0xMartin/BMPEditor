@@ -106,13 +106,23 @@ public:
 
     /**
      * @brief Zmena svetlosti obrazku
+     * @param value - Hodnota urcujici zmenu jasu obrazku. Kladne cislo = zvyseni jasu, zaporne cislo = snizeni jasu
      */
     void applyBrightnessAdjustment(int value);
 
     /**
      * @brief Zmena kontrastu obrazku
+     * @param faktor - Faktor ovlivnujici zmenu kontrastu (-255 az 255)
      */
     void applyContrastAdjustment(double factor);
+
+    /**
+     * @brief Color baland filter
+     * @param redIntensity - Intenzita cerveneho kanalu (-100 az 100)
+     * @param greenIntensity - Intenzita zeleneho kanalu (-100 az 100)
+     * @param blueIntensity - Intenzita modreho kanalu (-100 az 100)
+     */
+    void applyColorBalance(float redIntensity, float greenIntensity, float blueIntensity);
 
 private slots:
     void workerJobFinished();

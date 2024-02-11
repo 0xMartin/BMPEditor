@@ -13,6 +13,7 @@
 #include "Dialog/blurdialog.h"
 #include "Dialog/brightnessdialog.h"
 #include "Dialog/contrastdialog.h"
+#include "Dialog/colorbalancedialog.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -52,10 +53,13 @@ protected:
     BlurDialog blurDialog;
     BrightnessDialog brightnessDialog;
     ContrastDialog contrastDialog;
+    ColorBalanceDialog colorBalanceDialog;
 
     void closeEvent(QCloseEvent *event);
 
     void formatBMP(int bitCount);
+
+    void appActionActivation();
 
 private slots:
     void imageChanged(const QString &message);
@@ -100,6 +104,8 @@ private slots:
     void on_actionBrightness_triggered();
 
     void on_actionContrast_triggered();
+
+    void on_actionColor_balance_triggered();
 
     void on_actionConvert_to_1b_BMP_triggered();
 

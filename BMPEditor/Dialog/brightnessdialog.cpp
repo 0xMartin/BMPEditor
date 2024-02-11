@@ -32,6 +32,11 @@ BrightnessDialog::BrightnessDialog(QWidget *parent) : QDialog(parent)
     setMinimumSize(300, 100);
 }
 
+void BrightnessDialog::resetDialog()
+{
+    this->brightnessSlider->setValue(0);
+}
+
 int BrightnessDialog::getBrightnessValue() const
 {
     return brightnessSlider->value();
