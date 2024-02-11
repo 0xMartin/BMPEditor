@@ -11,7 +11,7 @@
 
 
 // velikost useku meritka v pixelech
-#define RULE_STEP_PX_MIN 80
+#define RULE_STEP_PX_MIN 120
 
 // inverzni scale
 #define INV_SCALE(scale) (1.0 / scale)
@@ -214,6 +214,29 @@ void Workspace::wheelEvent(QWheelEvent *event)
     }
 }
 
+void drawScale(QPainter &painter, int size, int imageSize, int offset, const QFont &font) {
+    int scaledSize = imageSize * size;
+    float step = RULE_STEP_PX_MIN;
+    for (int d = 1; d <= 20; ++d) {
+        float sf = (float)scaledSize / d;
+        if (sf < RULE_STEP_PX_MIN) {
+            break;
+        }
+        if (imageSize % d == 0) {
+            step = sf;
+        }
+    }
+    float pxStep = imageSize / ((float)scaledSize / step);
+    float fromStartToZero = qCeil(offset / step);
+    float px = -pxStep * fromStartToZero;
+
+    for (int i = offset - step * fromStartToZero; i < size; i += step, px += pxStep) {
+        QString label = QString::number(px, 'f', 0);
+        painter.drawText(QPointF(i + 5, 18), label);
+        painter.drawLine(i, 4, i, 22);
+    }
+}
+
 void Workspace::paintEvent(QPaintEvent *event) {
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing, true);
@@ -230,6 +253,7 @@ void Workspace::paintEvent(QPaintEvent *event) {
             (this->height() - this->image->height * this->scale) / 2 + this->globalOffset.y() * this->scale
             );
 
+        /****************************************************************************************************************/
         //-------OBRAZEK-------------------------
         painter.save();
         // aplikace offsetu
@@ -245,12 +269,12 @@ void Workspace::paintEvent(QPaintEvent *event) {
         painter.drawRect(offset.x(), offset.y(), this->image->width * this->scale, this->image->height * this->scale);
         //-------OBRAZEK-------------------------
 
-
+        /****************************************************************************************************************/
         // pixel grid (jen kdyz je obrazek hodne priblizen)
+        int s_w = this->image->width * this->scale;
+        int s_h = this->image->height * this->scale;
         if(this->scale >= PIXEL_GRID_MIN_SCALE) {
             painter.setPen(QColor(100, 100, 100));
-            int s_w = this->image->width * this->scale;
-            int s_h = this->image->height * this->scale;
             for(float x = 0; (int)x < s_w; x += this->scale) {
                 painter.drawLine(
                     offset.x() + x,
@@ -267,7 +291,7 @@ void Workspace::paintEvent(QPaintEvent *event) {
             }
         }
 
-
+        /****************************************************************************************************************/
         // vykresleni ramecku meritek
         painter.fillRect(26, 0, this->width(), 26, QBrush(QColor(50, 50, 50), Qt::SolidPattern));
         painter.fillRect(0, 26, 26, this->height(), QBrush(QColor(50, 50, 50), Qt::SolidPattern));
@@ -275,71 +299,92 @@ void Workspace::paintEvent(QPaintEvent *event) {
         painter.setPen(QColor(150, 150, 150));
 
 
-        // x osa meritko
-        int scaled_size = this->image->width * this->scale;
-        float step = RULE_STEP_PX_MIN;
-        float sf;
-        for(int d = 1; d <= 20; ++d)
-        {
-            sf = (float) scaled_size / d;
-            if(sf < RULE_STEP_PX_MIN) {
-                break;
-            }
-            if(this->image->width % d == 0) {
-                step = sf;
-            }
+        // vekresleni meritek ose
+        int ruleXStart = 0;
+        while(ruleXStart > -offset.x()) {
+            ruleXStart -= this->scale * 2;
         }
-        float px_step = this->image->width / ((float)scaled_size / step);
-        float from_start_to_0 = qCeil(offset.x() / step);
-        float px = -px_step * from_start_to_0;
-        for(int x = offset.x() - step * from_start_to_0;
-             x < this->width();
-             x+= step, px += px_step) {
-            painter.drawText(QPointF(x + 5, 18), QString::number(px, 'f', 0));
-            painter.drawLine(x, 4, x, 22);
+        int ruleYStart = 0;
+        while(ruleYStart > -offset.y()) {
+            ruleYStart -= this->scale * 2;
         }
 
+        int ruleXEnd = this->width() - offset.x();
+        int ruleYEnd = this->height() - offset.y();
+
+        // x osa meritko
+        float rulePos;
+        float lastRulePoint;
+        float px = 0;
+        // vykresleni meritka v jednom smeru ->
+        lastRulePoint = 999999;
+        for(float x = 0; (int)x < ruleXEnd; x += this->scale * 2) {
+            rulePos = offset.x() + x;
+            if(std::abs(lastRulePoint - rulePos) >= RULE_STEP_PX_MIN) {
+                lastRulePoint = rulePos;
+                px = (x/s_w) * this->image->width;
+                painter.drawText(QPointF(rulePos + 5, 18), QString::number(px, 'f', 0));
+                painter.drawLine(rulePos, 4, rulePos, 22);
+            }
+        }
+        // vykresleni meritka v jednom smeru <-
+        lastRulePoint = 999999;
+        for(float x = 0; (int)x > ruleXStart; x -= this->scale * 2) {
+            rulePos = offset.x() + x;
+            if(std::abs(lastRulePoint - rulePos) >= RULE_STEP_PX_MIN) {
+                lastRulePoint = rulePos;
+                px = (x/s_w) * this->image->width;
+                painter.drawText(QPointF(rulePos + 5, 18), QString::number(px, 'f', 0));
+                painter.drawLine(rulePos, 4, rulePos, 22);
+            }
+        }
 
         // y osa meritko
-        scaled_size = this->image->height * this->scale;
-        step = RULE_STEP_PX_MIN;
-        for(int d = 1; d <= 20; ++d)
-        {
-            sf = (float) scaled_size / d;
-            if(sf < RULE_STEP_PX_MIN) {
-                break;
-            }
-            if(this->image->height % d == 0) {
-                step = sf;
+        QString buffer = "";
+        QFontMetrics fm(this->config.font);
+        // vykresleni meritka v jednom smeru ->
+        lastRulePoint = 999999;
+        for(float y = 0; (int)y < ruleYEnd; y += this->scale * 2) {
+            rulePos = offset.y() + y;
+            if(std::abs(lastRulePoint - rulePos) >= RULE_STEP_PX_MIN) {
+                lastRulePoint = rulePos;
+                px = (y/s_h) * this->image->height;
+
+                buffer = QString::number(px, 'f', 0);
+                uint16_t i = 0;
+                for(QChar &c : buffer) {
+                    painter.drawText(QPointF(8, rulePos + (i + 0.9) * (fm.height() - 4) + 5), c);
+                    ++i;
+                }
+                painter.drawLine(4, rulePos, 22, rulePos);
             }
         }
-        px_step = this->image->height / ((float)scaled_size / step);
-        from_start_to_0 = qCeil((float)offset.y() / step);
-        QFontMetrics fm(this->config.font);
-        px = -px_step * from_start_to_0;
-        int i;
-        QString num;
-        for(int y = offset.y() - step * from_start_to_0;
-             y < this->height();
-             y+= step, px += px_step) {
+        // vykresleni meritka v jednom smeru <-
+        lastRulePoint = 999999;
+        for(float y = 0; (int)y > ruleYStart; y -= this->scale * 2) {
+            rulePos = offset.y() + y;
+            if(std::abs(lastRulePoint - rulePos) >= RULE_STEP_PX_MIN) {
+                lastRulePoint = rulePos;
+                px = (y/s_h) * this->image->height;
 
-            num = QString::number(px, 'f', 0);
-            i = 0;
-            for(QChar &c : num) {
-                painter.drawText(QPointF(8, y + (i + 0.9) * (fm.height() - 4) + 5), c);
-                ++i;
+                buffer = QString::number(px, 'f', 0);
+                uint16_t i = 0;
+                for(QChar &c : buffer) {
+                    painter.drawText(QPointF(8, rulePos + (i + 0.9) * (fm.height() - 4) + 5), c);
+                    ++i;
+                }
+                painter.drawLine(4, rulePos, 22, rulePos);
             }
-            painter.drawLine(4, y, 22, y);
         }
 
         // stredovy ramecek meritek
         painter.fillRect(0, 0, 26, 26, QBrush(QColor(46, 46, 46), Qt::SolidPattern));
 
 
+        /****************************************************************************************************************/
         // pozicni informace
         painter.fillRect(26, this->height() - 26, this->width(), 26, QBrush(QColor(45, 45, 45), Qt::SolidPattern));
         painter.setPen(QColor(210, 150, 150));
-        QString buffer = "";
         // jmeno vrstvy
         buffer = this->image->getName();
         buffer = buffer.leftJustified(40, ' ') + " ";

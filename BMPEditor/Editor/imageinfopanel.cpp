@@ -25,6 +25,7 @@ ImageInfoPanel::ImageInfoPanel(QWidget *parent) : QWidget(parent) {
 
     // color paleta
     QScrollArea *scrollAreaColors = new QScrollArea(this);
+    scrollAreaColors->setMinimumHeight(200);
     scrollAreaColors->setWidgetResizable(true);
     QWidget *colorPaletteWidged = new QWidget();
     scrollAreaColors->setWidget(colorPaletteWidged);

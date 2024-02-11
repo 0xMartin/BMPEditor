@@ -18,34 +18,35 @@ void ImageHistogramWidget::paintEvent(QPaintEvent *event) {
     if (this->image == NULL) return;
 
     QPainter painter(this);
+    painter.setRenderHint(QPainter::Antialiasing, true);
 
     // vykresli histogram RGB
     float barWidth = (float)width() / histogramRed.size();
     int maxHeight = maxFrequency;
 
-    int x;
-    int height;
+    float x;
+    float height;
 
     painter.setPen(Qt::NoPen);
     painter.setBrush(Qt::red);
     for (size_t i = 0; i < histogramRed.size(); ++i) {
-        x = i * barWidth;
+        x = (float)i * barWidth;
         height = histogramRed[i] * this->height() / maxHeight;
-        painter.drawRect(x, this->height() - height, barWidth, height);
+        painter.drawRect(x, this->height() - height, (barWidth < 1 ? 1 : barWidth), height);
     }
 
     painter.setBrush(Qt::green);
     for (size_t i = 0; i < histogramGreen.size(); ++i) {
-        x = i * barWidth;
+        x = (float)i * barWidth;
         height = histogramGreen[i] * this->height() / maxHeight;
-        painter.drawRect(x, this->height() - height, barWidth, height);
+        painter.drawRect(x, this->height() - height, (barWidth < 1 ? 1 : barWidth), height);
     }
 
     painter.setBrush(Qt::blue);
     for (size_t i = 0; i < histogramBlue.size(); ++i) {
-        x = i * barWidth;
+        x = (float)i * barWidth;
         height = histogramBlue[i] * this->height() / maxHeight;
-        painter.drawRect(x, this->height() - height, barWidth, height);
+        painter.drawRect(x, this->height() - height, (barWidth < 1 ? 1 : barWidth), height);
     }
 }
 
