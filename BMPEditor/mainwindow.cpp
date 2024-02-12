@@ -219,6 +219,7 @@ void MainWindow::appActionActivation()
     this->ui->actionSharpen->setEnabled(enabled);
     this->ui->actionEdge_Detection->setEnabled(enabled);
     this->ui->actionEmboss->setEnabled(enabled);
+    this->ui->actionApply_Custom_Kernel->setEnabled(enabled);
     // transformace
     this->ui->actionRotate_90_plus->setEnabled(enabled);
     this->ui->actionRotate_90_minus->setEnabled(enabled);
@@ -237,6 +238,16 @@ void MainWindow::appActionActivation()
     this->ui->actionClear_message->setEnabled(enabled);
     this->ui->actionWrite_message->setEnabled(enabled);
     this->ui->actionRead_message->setEnabled(enabled);
+}
+
+void MainWindow::checkForHiddenMessage()
+{
+    // overi zda se v nactenem obrazku nenachazi zprava
+    QString msg = "";
+    int errCode = STEGANOGRAPHY_readMessage(this->image->pixels, this->image->width, this->image->height, msg);
+    if(errCode == STATUS_OK) {
+        QMessageBox::information(this, tr("Hidden message"), tr("The image contains a hidden message!\n\nMessage: %1").arg(msg));
+    }
 }
 
 void MainWindow::imageChanged(const QString &message)
@@ -298,11 +309,7 @@ void MainWindow::on_actionOpen_triggered()
             QMessageBox::information(this, tr("Open Image"), tr("Image opened successfully!"));
 
             // overi zda se v nactenem obrazku nenachazi zprava
-            QString msg = "";
-            int errCode = STEGANOGRAPHY_readMessage(this->image->pixels, this->image->width, this->image->height, msg);
-            if(errCode == STATUS_OK) {
-                QMessageBox::information(this, tr("Hidden message"), tr("The image contains a hidden message!\n\nMessage: %1").arg(msg));
-            }
+            this->checkForHiddenMessage();
         }
 
     }
@@ -650,6 +657,38 @@ void MainWindow::on_actionApply_Custom_Kernel_triggered()
     if(this->kernelInputDialog.exec() == QDialog::Accepted) {
         const std::vector<std::vector<int>> kernel = this->kernelInputDialog.getKernel();
         IMG_UTIL_ASYNC_ARG(this->imgUtils, this->imgUtils.applyKernel(kernel), kernel);
+    }
+}
+
+
+void MainWindow::on_actionImport_as_BMP_24_triggered()
+{
+    // app: import image
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Import Image As BMP 24b"), QDir::homePath(), tr("Images (*.bmp *.jpg *.jpeg *.png *.gif *.tiff)"));
+    if (!fileName.isEmpty()) {
+
+        qDebug() << "Import file: " << fileName;
+        BMPImage *bmp = new BMPImage();
+        this->statusLabel->setText(tr("<b>Status:</b> Image importing ..."));
+
+        int errCode = bmp->importAsBMP24(fileName);
+        if(errCode != STATUS_OK) {
+
+            // nastala chyba pri importu souboru
+            QString errorStr;
+            getErrorCodeInfo(errCode, errorStr);
+            QMessageBox::critical(this, tr("Import Error"), tr("Failed to import BMP image. Error: %1").arg(errorStr));
+            this->statusLabel->setText(tr("<b>Status:</b> Failed to import image"));
+
+        } else {
+            // obrazek uspesne nacten => zobrazeni v editoru
+            this->setImage(bmp);
+            QMessageBox::information(this, tr("Import Image"), tr("Image imported successfully!"));
+
+            // overi zda se v nactenem obrazku nenachazi zprava
+            this->checkForHiddenMessage();
+        }
+
     }
 }
 

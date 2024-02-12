@@ -37,6 +37,7 @@
     </property>
     <addaction name="actionOpen"/>
     <addaction name="actionSave"/>
+    <addaction name="actionImport_as_BMP_24"/>
     <addaction name="actionExit"/>
    </widget>
    <widget class="QMenu" name="menuFilter">
@@ -154,6 +155,9 @@
    <property name="text">
     <string>Rotate +90°</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+R</string>
+   </property>
   </action>
   <action name="actionRotate_90_minus">
    <property name="icon">
@@ -163,6 +167,9 @@
    </property>
    <property name="text">
     <string>Rotate -90°</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+R</string>
    </property>
   </action>
   <action name="actionFlip_horizontally">
@@ -338,6 +345,14 @@ Flip vertically</string>
   <action name="actionApply_Custom_Kernel">
    <property name="text">
     <string>Apply Custom Kernel</string>
+   </property>
+  </action>
+  <action name="actionImport_as_BMP_24">
+   <property name="text">
+    <string>Import as BMP 24</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+I</string>
    </property>
   </action>
  </widget>

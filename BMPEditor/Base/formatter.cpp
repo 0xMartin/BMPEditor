@@ -61,7 +61,7 @@ static int FORMATTER_formatToBMPWithPalette(Image *src, Image **dst, uint8_t bit
     bmpOut->bitDepth = bitCount;
 
     // vypocet stride
-    uint16_t stride = BMP_IO_calculateStride(bmpOut->bitDepth, bmpOut->width);
+    uint32_t stride = BMP_IO_calculateStride(bmpOut->bitDepth, bmpOut->width);
 
     // number of colors
     uint16_t paletteSize = 1 << bitCount;
@@ -150,7 +150,7 @@ int FORMATTER_formatToBMP24(Image *src, Image **dst)
     bmp24->bitDepth = 24;
 
     // vypocet stride
-    uint16_t stride = BMP_IO_calculateStride(bmp24->bitDepth, bmp24->width);
+    uint32_t stride = BMP_IO_calculateStride(bmp24->bitDepth, bmp24->width);
 
     // incializace BMP file header
     bmp24->bmpFileHeader.type = 0x4D42; // 'BM'

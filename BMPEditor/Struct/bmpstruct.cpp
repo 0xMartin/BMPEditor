@@ -33,7 +33,7 @@ int BMP_STRUCT_validate(const BitMapFileHeader_t& fileHeader, const BitMapInfoHe
         return ERR_INVALID_FILE_OFFSET;
     }
 
-    // overeni platnost hlavicky BMP obrazku
+    // overeni platnost info hlavicky BMP obrazku
     if (infoHeader.size != 40) {
         return ERR_INVALID_BMP_HEADER_SIZ;
     }

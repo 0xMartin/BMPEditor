@@ -155,3 +155,42 @@ int BMPImage::isBMPImage(Image *img, int bitDepth) {
     }
     return STATUS_OK;
 }
+
+int BMPImage::importAsBMP24(const QString &path)
+{
+    // nacteni obrazovych dat do rodicovske tridy
+    int errCode = Image::importImage(path);
+    if(errCode != STATUS_OK) {
+        return errCode;
+    }
+
+    // vypocet stride ve finalnim BMP obrazku
+    uint32_t stride = BMP_IO_calculateStride(24, this->width);
+
+    // nastaveni typu obrazku
+    this->type = IMG_BMP;
+
+    // file header
+    this->bmpFileHeader.type = 0x4D42;
+    this->bmpFileHeader.size = sizeof(BitMapFileHeader_t) + sizeof(BitMapInfoHeader_t) + (stride * this->height);
+    this->bmpFileHeader.reserved1 = this->bmpFileHeader.reserved2 = 0;
+    this->bmpFileHeader.offset = sizeof(BitMapFileHeader_t) + sizeof(BitMapInfoHeader_t);
+
+    // info header
+    this->bmpInfoHeader.size = sizeof(BitMapInfoHeader_t);
+    this->bmpInfoHeader.width = this->width;
+    this->bmpInfoHeader.height = this->height;
+    this->bmpInfoHeader.planes = 1;
+    this->bmpInfoHeader.bitCount = 24;
+    this->bmpInfoHeader.compression = 0x0;
+    this->bmpInfoHeader.imageSize = (stride * this->height);
+    this->bmpInfoHeader.xPixelsPerMeter = 0x0;
+    this->bmpInfoHeader.yPixelsPerMeter = 0x0;
+    this->bmpInfoHeader.colorsUsed = 0;
+    this->bmpInfoHeader.colorsImportant = 0;
+
+    // sestaveni nahledu
+    this->buildImagePreview();
+
+    return STATUS_OK;
+}

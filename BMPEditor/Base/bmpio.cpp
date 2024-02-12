@@ -1,7 +1,6 @@
 #include "bmpio.h"
 
-#include <fstream>
-#include <iostream>
+#include <QFile>
 #include <QDebug>
 
 #include "../Base/error.h"
@@ -20,8 +19,9 @@ int BMP_IO_loadBMPImage(const QString &path,
     }
 
     // soubor ze ktereho bude nacitan BMP obrazke (binarni cteni)
-    std::ifstream file(path.toStdString(), std::ios::binary | std::ios::in);
-    if (!file.is_open()) {
+    //std::ifstream file(path.toStdString(), std::ios::binary);
+    QFile file(path);
+    if (!file.open(QIODevice::ReadOnly)) {
         return ERR_FILE_OPEN;
     }
     qDebug() << "BMP LOAD - file opened";
@@ -70,11 +70,11 @@ int BMP_IO_loadBMPImage(const QString &path,
     qDebug() << "BMP LOAD - image pixel array allocated (" << pixArrSiz << ")";
 
     // vypocet stride (musi byt dorovnany na 32b, posledni bity jsou 0)
-    uint16_t stride = BMP_IO_calculateStride(infoHeader.bitCount, infoHeader.width);
+    uint32_t stride = BMP_IO_calculateStride(infoHeader.bitCount, infoHeader.width);
     qDebug() << "BMP LOAD - stride size: " << stride;
 
     // nacteni vsech pixelu obrazku z data bufferu
-    file.seekg(fileHeader.offset);
+    file.seek(fileHeader.offset);
     uint32_t index = 0;
     uint32_t offset = 0;
     RGBQUAD_t color;
@@ -138,8 +138,9 @@ int BMP_IO_saveBMPImage(const QString &path,
     qDebug() << "BMP SAVE - header validated";
 
     // ovevre soubor pro zapis dat
-    std::ofstream file(path.toStdString(), std::ios::binary);
-    if (!file.is_open()) {
+    //std::ofstream file(path.toStdString(), std::ios::binary);
+    QFile file(path);
+    if (!file.open(QIODevice::WriteOnly)) {
         return ERR_FILE_OPEN;
     }
     qDebug() << "BMP SAVE - file opened";
@@ -159,7 +160,7 @@ int BMP_IO_saveBMPImage(const QString &path,
     }
 
     // vypocet stride
-    uint16_t stride = BMP_IO_calculateStride(infoHeader.bitCount, infoHeader.width);
+    uint32_t stride = BMP_IO_calculateStride(infoHeader.bitCount, infoHeader.width);
     qDebug() << "BMP SAVE - stride size: " << stride;
 
     // zapis dat obrazku (inverzni zpusob jak u cteni)
@@ -220,8 +221,13 @@ int BMP_IO_saveBMPImage(const QString &path,
     delete[] buff;
     qDebug() << "BMP image data writing done (" << infoHeader.width << "; " << infoHeader.height << ")";
 
+    // flush
+    file.flush();
+
     // overeni zda data byli spravne zapsany
-    if (!file.good()) {
+    if (file.error() != QFile::NoError) {
+        qDebug() << "BMP write to file error:" << file.errorString();
+        file.close();
         return ERR_FILE_WRITE;
     }
 
@@ -230,9 +236,9 @@ int BMP_IO_saveBMPImage(const QString &path,
     return STATUS_OK;
 }
 
-uint16_t BMP_IO_calculateStride(uint8_t bitCount, uint16_t width)
+uint32_t BMP_IO_calculateStride(uint8_t bitCount, uint16_t width)
 {
-    uint16_t stride = bitCount * width;
+    uint32_t stride = bitCount * width;
     if (stride % 32 != 0)
         stride = (stride | 31) + 1;
     stride /= 8;

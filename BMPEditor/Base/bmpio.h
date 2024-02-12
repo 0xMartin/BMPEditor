@@ -41,6 +41,6 @@ extern int BMP_IO_saveBMPImage(const QString & path,
  * @param width - Sirka obrazku v pixelech
  * @return Velikost stride
  */
-extern uint16_t BMP_IO_calculateStride(uint8_t bitCount, uint16_t width);
+extern uint32_t BMP_IO_calculateStride(uint8_t bitCount, uint16_t width);
 
 #endif // BMPIO_H

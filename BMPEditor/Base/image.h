@@ -98,6 +98,13 @@ public:
      */
     QString getName() const;
 
+    /**
+     * @brief Univerzalni metoda pro import libovolneho typu obrazku
+     * @param filePath - Cesta k obrazku
+     * @return Error code
+     */
+    int importImage(const QString &filePath);
+
 };
 
 #endif // IMAGE_H

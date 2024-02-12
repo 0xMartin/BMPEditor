@@ -104,6 +104,7 @@ void ImageInfoPanel::setImage(Image *img) {
 
         // paleta barev
         this->colorPaletteFrame->getLabel()->setText("Color Palette");
+        int colorsPerRow = std::floor((this->width() - 50) / 32);
         if(bmp->bmpInfoHeader.bitCount <= 8 && bmp->bmpInfoHeader.bitCount > 0) {
             int row = 0;
             int col = 0;
@@ -113,12 +114,12 @@ void ImageInfoPanel::setImage(Image *img) {
                 colorFrame->setFrameShape(QFrame::Box);
                 colorFrame->setFrameShadow(QFrame::Plain);
                 colorFrame->setLineWidth(1);
-                colorFrame->setFixedSize(22, 22);
+                colorFrame->setFixedSize(24, 24);
                 colorFrame->setToolTip(QString("RGB(%1, %2, %3)").arg(color.red).arg(color.green).arg(color.blue));
                 colorFrame->setStyleSheet(QString("background-color: rgb(%1, %2, %3);").arg(color.red).arg(color.green).arg(color.blue));
                 colorPalette->addWidget(colorFrame, row, col);
                 col++;
-                if (col >= 7) {
+                if (col >= colorsPerRow) {
                     col = 0;
                     row++;
                 }

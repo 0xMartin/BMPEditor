@@ -60,10 +60,9 @@ protected:
     KernelInputDialog kernelInputDialog;
 
     void closeEvent(QCloseEvent *event);
-
     void formatBMP(int bitCount);
-
     void appActionActivation();
+    void checkForHiddenMessage();
 
 private slots:
     void imageChanged(const QString &message);
@@ -132,6 +131,8 @@ private slots:
     void on_actionEmboss_triggered();
 
     void on_actionApply_Custom_Kernel_triggered();
+
+    void on_actionImport_as_BMP_24_triggered();
 
 private:
     Ui::MainWindow *ui;
