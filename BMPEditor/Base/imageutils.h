@@ -124,8 +124,32 @@ public:
      */
     void applyColorBalance(float redIntensity, float greenIntensity, float blueIntensity);
 
+    /**
+     * @brief Na obrazek aplikuje sharpen filter
+     */
+    void applySharpen();
+
+    /**
+     * @brief Na obrazek aplikuje edge detection filter
+     */
+    void applyDetectEdges();
+
+    /**
+     * @brief Na obrazek aplikuje emboss filter
+     */
+    void applyEmbossFilter();
+
+    /**
+     * @brief Na obrazek aplikuje libovolny kernel
+     * @param kernel - Vstupni kernel o libovolene liche velikosti
+     */
+    void applyKernel(const std::vector<std::vector<int>>& kernel);
+
 private slots:
     void workerJobFinished();
+
+private:
+    unsigned char* applyKernel(unsigned char* pixels, int width, int height, const std::vector<std::vector<int>>& kernel);
 
 signals:
     void imageChangedSignal(const QString &message);

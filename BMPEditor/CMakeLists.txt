@@ -64,6 +64,8 @@ set(PROJECT_SOURCES
         Dialog/colorbalancedialog.cpp
         Dialog/writemessagedialog.h
         Dialog/writemessagedialog.cpp
+        Dialog/kernelinputdialog.h
+        Dialog/kernelinputdialog.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

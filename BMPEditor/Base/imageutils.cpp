@@ -413,6 +413,96 @@ void ImageUtils::applyColorBalance(float redIntensity, float greenIntensity, flo
     this->refreshImage("Color balance applied", IMG_UPDATE_COLOR);
 }
 
+void ImageUtils::applySharpen() {
+    if (!currentImage) return;
+
+    unsigned char* sharpenedPixels = applyKernel(
+        currentImage->pixels,
+        currentImage->width,
+        currentImage->height,
+        {{-1, -1, -1}, {-1, 9, -1}, {-1, -1, -1}});
+    delete[] currentImage->pixels;
+    currentImage->pixels = sharpenedPixels;
+
+    // refresh obrazku + emitovani signalu o zmene obrazku
+    this->refreshImage("Sharpen applied", IMG_UPDATE_COLOR);
+}
+
+void ImageUtils::applyDetectEdges() {
+    if (!currentImage) return;
+
+    unsigned char* edgesPixels = applyKernel(
+        currentImage->pixels,
+        currentImage->width,
+        currentImage->height,
+        {{-1, -1, -1}, {-1, 8, -1}, {-1, -1, -1}});
+    delete[] currentImage->pixels;
+    currentImage->pixels = edgesPixels;
+
+    // refresh obrazku + emitovani signalu o zmene obrazku
+    this->refreshImage("Detect Edge applied", IMG_UPDATE_COLOR);
+}
+
+void ImageUtils::applyEmbossFilter() {
+    if (!currentImage) return;
+
+    unsigned char* embossedPixels = applyKernel(
+        currentImage->pixels,
+        currentImage->width,
+        currentImage->height,
+        {{-2, -1, 0}, {-1, 1, 1}, {0, 1, 2}});
+    delete[] currentImage->pixels;
+    currentImage->pixels = embossedPixels;
+
+    // refresh obrazku + emitovani signalu o zmene obrazku
+    this->refreshImage("Emboss applied", IMG_UPDATE_COLOR);
+}
+
+void ImageUtils::applyKernel(const std::vector<std::vector<int> > &kernel)
+{
+    if (!currentImage) return;
+
+    unsigned char* embossedPixels = applyKernel(
+        currentImage->pixels,
+        currentImage->width,
+        currentImage->height,
+        kernel);
+    delete[] currentImage->pixels;
+    currentImage->pixels = embossedPixels;
+
+    // refresh obrazku + emitovani signalu o zmene obrazku
+    this->refreshImage("Emboss applied", IMG_UPDATE_COLOR);
+}
+
+unsigned char *ImageUtils::applyKernel(unsigned char *pixels, int width, int height, const std::vector<std::vector<int>> &kernel)
+{
+    int kernelSize = kernel.size();
+    int kernelRadius = kernelSize / 2;
+
+    // inicializace vystupniho pole pixelu
+    unsigned char* resultPixels = new unsigned char[width * height * 3];
+
+    // kernel se aplikuje na vsechny pixely
+    for (int y = kernelRadius; y < height - kernelRadius; ++y) {
+        for (int x = kernelRadius; x < width - kernelRadius; ++x) {
+
+            // kernel se aplikuje pro kazdy kanal obrazku
+            for (int c = 0; c < 3; ++c) {
+                int sum = 0;
+                for (int ky = 0; ky < kernelSize; ++ky) {
+                    for (int kx = 0; kx < kernelSize; ++kx) {
+                        sum += kernel[ky][kx] * pixels[((y - kernelRadius + ky) * width + (x - kernelRadius + kx)) * 3 + c];
+                    }
+                }
+                resultPixels[(y * width + x) * 3 + c] = std::min(std::max(sum, 0), 255);
+            }
+
+        }
+    }
+
+    return resultPixels;
+}
+
 void ImageUtils::workerJobFinished()
 {
     emit this->jobFinished();

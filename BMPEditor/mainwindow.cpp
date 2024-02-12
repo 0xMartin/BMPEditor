@@ -215,6 +215,10 @@ void MainWindow::appActionActivation()
     this->ui->actionGrayscale->setEnabled(enabled);
     this->ui->actionInvert->setEnabled(enabled);
     this->ui->actionSepia->setEnabled(enabled);
+    this->ui->actionInvert->setEnabled(enabled);
+    this->ui->actionSharpen->setEnabled(enabled);
+    this->ui->actionEdge_Detection->setEnabled(enabled);
+    this->ui->actionEmboss->setEnabled(enabled);
     // transformace
     this->ui->actionRotate_90_plus->setEnabled(enabled);
     this->ui->actionRotate_90_minus->setEnabled(enabled);
@@ -610,6 +614,42 @@ void MainWindow::on_actionClear_message_triggered()
             QMessageBox::critical(this, tr("Remove Message Error"), tr("Failed to remove message. Error: %1").arg(errorStr));
             this->statusLabel->setText(tr("<b>Status:</b> Failed to read message"));
         }
+    }
+}
+
+
+void MainWindow::on_actionSharpen_triggered()
+{
+    // image filer: sharpen
+    if(this->image != NULL) {
+        IMG_UTIL_ASYNC(this->imgUtils, this->imgUtils.applySharpen());
+    }
+}
+
+
+void MainWindow::on_actionEdge_Detection_triggered()
+{
+    // image filer: edge detection
+    if(this->image != NULL) {
+        IMG_UTIL_ASYNC(this->imgUtils, this->imgUtils.applyDetectEdges());
+    }
+}
+
+
+void MainWindow::on_actionEmboss_triggered()
+{
+    // image filer: emboss filter
+    if(this->image != NULL) {
+        IMG_UTIL_ASYNC(this->imgUtils, this->imgUtils.applyEmbossFilter());
+    }
+}
+
+
+void MainWindow::on_actionApply_Custom_Kernel_triggered()
+{
+    if(this->kernelInputDialog.exec() == QDialog::Accepted) {
+        const std::vector<std::vector<int>> kernel = this->kernelInputDialog.getKernel();
+        IMG_UTIL_ASYNC_ARG(this->imgUtils, this->imgUtils.applyKernel(kernel), kernel);
     }
 }
 

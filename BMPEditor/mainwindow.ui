@@ -46,10 +46,16 @@
     <addaction name="actionGrayscale"/>
     <addaction name="actionInvert"/>
     <addaction name="actionSepia"/>
-    <addaction name="actionBlur"/>
+    <addaction name="separator"/>
     <addaction name="actionBrightness"/>
     <addaction name="actionContrast"/>
     <addaction name="actionColor_balance"/>
+    <addaction name="separator"/>
+    <addaction name="actionBlur"/>
+    <addaction name="actionSharpen"/>
+    <addaction name="actionEmboss"/>
+    <addaction name="actionEdge_Detection"/>
+    <addaction name="actionApply_Custom_Kernel"/>
    </widget>
    <widget class="QMenu" name="menuTransform">
     <property name="title">
@@ -312,6 +318,26 @@ Flip vertically</string>
   <action name="actionColor_balance">
    <property name="text">
     <string>Color balance</string>
+   </property>
+  </action>
+  <action name="actionSharpen">
+   <property name="text">
+    <string>Sharpen</string>
+   </property>
+  </action>
+  <action name="actionEdge_Detection">
+   <property name="text">
+    <string>Edge Detection</string>
+   </property>
+  </action>
+  <action name="actionEmboss">
+   <property name="text">
+    <string>Emboss</string>
+   </property>
+  </action>
+  <action name="actionApply_Custom_Kernel">
+   <property name="text">
+    <string>Apply Custom Kernel</string>
    </property>
   </action>
  </widget>

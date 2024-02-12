@@ -15,6 +15,7 @@
 #include "Dialog/contrastdialog.h"
 #include "Dialog/colorbalancedialog.h"
 #include "Dialog/writemessagedialog.h"
+#include "Dialog/kernelinputdialog.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -56,6 +57,7 @@ protected:
     ContrastDialog contrastDialog;
     ColorBalanceDialog colorBalanceDialog;
     WriteMessageDialog writeMessageDialog;
+    KernelInputDialog kernelInputDialog;
 
     void closeEvent(QCloseEvent *event);
 
@@ -122,6 +124,14 @@ private slots:
     void on_actionRead_message_triggered();
 
     void on_actionClear_message_triggered();
+
+    void on_actionSharpen_triggered();
+
+    void on_actionEdge_Detection_triggered();
+
+    void on_actionEmboss_triggered();
+
+    void on_actionApply_Custom_Kernel_triggered();
 
 private:
     Ui::MainWindow *ui;
