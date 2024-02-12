@@ -66,7 +66,12 @@ void ImageHistogramWidget::computeHistogram() {
     histogramRed.resize(256, 0);
     histogramGreen.resize(256, 0);
     histogramBlue.resize(256, 0);
+
     maxFrequency = 0;
+
+    int maxR = 0;
+    int maxG = 0;
+    int maxB = 0;
 
     for (size_t i = 0; i < image->dataLen; i += 3) {
         int r = (int)(image->pixels[i]);
@@ -75,10 +80,12 @@ void ImageHistogramWidget::computeHistogram() {
         histogramRed[r]++;
         histogramGreen[g]++;
         histogramBlue[b]++;
-        maxFrequency = std::max(maxFrequency, histogramRed[r]);
-        maxFrequency = std::max(maxFrequency, histogramGreen[g]);
-        maxFrequency = std::max(maxFrequency, histogramBlue[b]);
+        maxR = std::max(maxR, histogramRed[r]);
+        maxG = std::max(maxG, histogramGreen[g]);
+        maxB = std::max(maxB, histogramBlue[b]);
     }
+
+    maxFrequency = (int)((maxR + maxG + maxB) / 3.0);
 }
 
 void ImageHistogramWidget::updateDone()

@@ -255,18 +255,20 @@ void Workspace::paintEvent(QPaintEvent *event) {
 
         /****************************************************************************************************************/
         //-------OBRAZEK-------------------------
-        painter.save();
-        // aplikace offsetu
-        painter.translate(offset);
-        // aplikace scale
-        painter.scale(this->scale, this->scale);
-        // vykresleni obrazku
-        this->image->paintEvent(painter);
-        // vraceni zpet do puvodniho stavu
-        painter.restore();
-        // outline
-        painter.setPen(Qt::black);
-        painter.drawRect(offset.x(), offset.y(), this->image->width * this->scale, this->image->height * this->scale);
+        if(this->isEnabled()) {
+            painter.save();
+            // aplikace offsetu
+            painter.translate(offset);
+            // aplikace scale
+            painter.scale(this->scale, this->scale);
+            // vykresleni obrazku
+            this->image->paintEvent(painter);
+            // vraceni zpet do puvodniho stavu
+            painter.restore();
+            // outline
+            painter.setPen(Qt::black);
+            painter.drawRect(offset.x(), offset.y(), this->image->width * this->scale, this->image->height * this->scale);
+        }
         //-------OBRAZEK-------------------------
 
         /****************************************************************************************************************/
