@@ -76,10 +76,19 @@ int Image::importImage(const QString &filePath)
     }
 
     // kopirovani dat z QImage do Image
-    image = image.mirrored(false, true);
     this->dataLen = this->width * this->height * 3;
     this->pixels = new unsigned char[this->dataLen];
-    memcpy(this->pixels, image.constBits(), this->dataLen);
+    int index, x;
+    QRgb rgb;
+    for (int y = 0; y < this->height; ++y) {
+        for (x = 0; x < this->width; ++x) {
+            rgb = image.pixel(x, y);
+            index = ((this->height - y - 1) * this->width + x) * 3;
+            this->pixels[index] = qRed(rgb);
+            this->pixels[index + 1] = qGreen(rgb);
+            this->pixels[index + 2] = qBlue(rgb);
+        }
+    }
 
     return STATUS_OK;
 }
@@ -94,10 +103,12 @@ int Image::buildImagePreview()
     if(this->imagePreview == NULL) {
         return ERR_ALLOC;
     }
+    QRgb rgb;
+    int index, x;
     for (int y = 0; y < this->height; ++y) {
-        for (int x = 0; x < this->width; ++x) {
-            int index = ((height - y - 1) * width + x) * 3;
-            QRgb rgb = qRgb(pixels[index], pixels[index + 1], pixels[index + 2]);
+        for (x = 0; x < this->width; ++x) {
+            index = ((height - y - 1) * width + x) * 3;
+            rgb = qRgb(pixels[index], pixels[index + 1], pixels[index + 2]);
             this->imagePreview->setPixel(x, y, rgb);
         }
     }
