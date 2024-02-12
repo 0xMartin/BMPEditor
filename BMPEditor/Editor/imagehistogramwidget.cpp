@@ -23,6 +23,9 @@ void ImageHistogramWidget::paintEvent(QPaintEvent *event) {
 
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing, true);
+    painter.setPen(Qt::NoPen);
+    painter.setBrush(QColor(52, 52, 56));
+    painter.drawRect(0, 0, this->width(), this->height());
 
     // vykresli histogram RGB
     float barWidth = (float)width() / histogramRed.size();
@@ -31,7 +34,6 @@ void ImageHistogramWidget::paintEvent(QPaintEvent *event) {
     float x;
     float height;
 
-    painter.setPen(Qt::NoPen);
     painter.setBrush(Qt::red);
     for (size_t i = 0; i < histogramRed.size(); ++i) {
         x = (float)i * barWidth;
