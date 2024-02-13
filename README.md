@@ -54,7 +54,7 @@ __Pixel Grid:__ The pixel grid is automatically displayed in workspace when the 
 
 <img src="./doc/img3.png">
 
-# 🌈 Filters
+## 🌈 Filters
 
 Example showcasing various image filters applied simultaneously in the BMP Editor, including color balance, color inversion, and blur.
 
@@ -64,7 +64,7 @@ Example demonstrating the application of the edge detection filter in the BMP Ed
 
 <img src="./doc/img5.png">
 
-# 🔄 Color Conversion with Median Cut Algorithm Quantization
+## 🔄 Color Conversion with Median Cut Algorithm Quantization
 
 This image illustrates the capability of the BMP Editor to convert images into different formats with varying bit depths. Utilizing the Median Cut algorithm for color quantization, the editor automatically generates a color palette to ensure optimal color representation. Witness seamless conversion with reduced color depth while maintaining visual integrity, allowing for efficient storage and transmission of images.
 
