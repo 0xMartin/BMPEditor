@@ -8,6 +8,9 @@
 #include "../Base/threadrunner.h"
 #include "../Base/image.h"
 
+// preciznost vykreslovani histogramu. Best = 1, Worst = 32
+#define PRECISION 2
+
 class ImageHistogramWidget : public QWidget {
     Q_OBJECT
 
@@ -31,6 +34,7 @@ private:
     std::vector<int> histogramRed;
     std::vector<int> histogramGreen;
     std::vector<int> histogramBlue;
+    int zeroCount;
     int maxFrequency;
 
     void computeHistogram();

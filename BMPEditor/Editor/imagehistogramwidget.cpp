@@ -27,39 +27,65 @@ void ImageHistogramWidget::paintEvent(QPaintEvent *event) {
     painter.setBrush(QColor(52, 52, 56));
     painter.drawRect(0, 0, this->width(), this->height());
 
-    // vykresli histogram RGB
-    float barWidth = (float)width() / histogramRed.size();
+    // vypocet barWidth a maxHeight
+    size_t numColumns = histogramRed.size();
+    float barWidth = (float)width() / numColumns;
     int maxHeight = maxFrequency;
 
-    float x;
-    float height;
+    // vykresli histogram RGB
+    int step = PRECISION;
+    if(this->zeroCount >= 128)
+        // zvyseni presnosti pokud se v histogramu vyskytuje velike mnozstvi 0
+        step = 1;
 
+    // red
+    painter.setCompositionMode(QPainter::CompositionMode_Plus);
+    float x, y;
     painter.setBrush(Qt::red);
-    for (size_t i = 0; i < histogramRed.size(); ++i) {
-        x = (float)i * barWidth;
-        height = histogramRed[i] * this->height() / maxHeight;
-        painter.drawRect(x, this->height() - height, (barWidth < 1 ? 1 : barWidth), height);
+    QPolygonF redCurve;
+    redCurve.append(QPointF(0, this->height() - 1));
+    for (size_t i = 0; i < histogramRed.size(); i += step) {
+        x = (float)i * barWidth + barWidth / 2;
+        y = this->height() - histogramRed[i] * this->height() / maxHeight;
+        if (histogramRed[i] > 0 && x > 0 && x < this->width())
+            redCurve.append(QPointF(x, y));
     }
+    redCurve.append(QPointF(this->width() - 1, this->height() - 1));
+    painter.drawPolygon(redCurve);
 
+    // green
     painter.setBrush(Qt::green);
-    for (size_t i = 0; i < histogramGreen.size(); ++i) {
-        x = (float)i * barWidth;
-        height = histogramGreen[i] * this->height() / maxHeight;
-        painter.drawRect(x, this->height() - height, (barWidth < 1 ? 1 : barWidth), height);
+    QPolygonF greenCurve;
+    greenCurve.append(QPointF(0, this->height() - 1));
+    for (size_t i = 0; i < histogramGreen.size(); i += step) {
+        x = (float)i * barWidth + barWidth / 2;
+        y = this->height() - histogramGreen[i] * this->height() / maxHeight;
+        if (histogramGreen[i] > 0 && x > 0 && x < this->width())
+            greenCurve.append(QPointF(x, y));
     }
+    greenCurve.append(QPointF(this->width() - 1, this->height() - 1));
+    painter.drawPolygon(greenCurve);
 
+    // blue
     painter.setBrush(Qt::blue);
-    for (size_t i = 0; i < histogramBlue.size(); ++i) {
-        x = (float)i * barWidth;
-        height = histogramBlue[i] * this->height() / maxHeight;
-        painter.drawRect(x, this->height() - height, (barWidth < 1 ? 1 : barWidth), height);
+    QPolygonF blueCurve;
+    blueCurve.append(QPointF(0, this->height() - 1));
+    for (size_t i = 0; i < histogramBlue.size(); i += step) {
+        x = (float)i * barWidth + barWidth / 2;
+        y = this->height() - histogramBlue[i] * this->height() / maxHeight;
+        if (histogramBlue[i] > 0 && x > 0 && x < this->width())
+            blueCurve.append(QPointF(x, y));
     }
+    blueCurve.append(QPointF(this->width() - 1, this->height() - 1));
+    painter.drawPolygon(blueCurve);
+
 }
 
 void ImageHistogramWidget::computeHistogram() {
     if (image->pixels == NULL) return;
     if (image->dataLen == 0) return;
 
+    // clear predchoziho histogramu
     histogramRed.clear();
     histogramGreen.clear();
     histogramBlue.clear();
@@ -67,12 +93,11 @@ void ImageHistogramWidget::computeHistogram() {
     histogramGreen.resize(256, 0);
     histogramBlue.resize(256, 0);
 
+    // vypocet RGB histogramu
     maxFrequency = 0;
-
     int maxR = 0;
     int maxG = 0;
     int maxB = 0;
-
     for (size_t i = 0; i < image->dataLen; i += 3) {
         int r = (int)(image->pixels[i]);
         int g = (int)(image->pixels[i + 1]);
@@ -84,8 +109,16 @@ void ImageHistogramWidget::computeHistogram() {
         maxG = std::max(maxG, histogramGreen[g]);
         maxB = std::max(maxB, histogramBlue[b]);
     }
-
     maxFrequency = (int)((maxR + maxG + maxB) / 3.0);
+
+    // spocita prumerny pocet nul v RGB histogramu
+    this->zeroCount = 0;
+    for(int i = 0; i < 256; ++i) {
+        if(histogramRed[i] == 0) zeroCount++;
+        if(histogramGreen[i] == 0) zeroCount++;
+        if(histogramBlue[i] == 0) zeroCount++;
+    }
+    this->zeroCount /= 3;
 }
 
 void ImageHistogramWidget::updateDone()
