@@ -48,14 +48,22 @@ The BMP Editor's intuitive interface is divided into three sections. On the left
 
 <img src="./doc/img1.png">
 
+__Pixel Grid:__ The pixel grid is automatically displayed in workspace when the pixels are already large enough. It is used for easier visual separation of individual pixels.
+
 <img src="./doc/img3.png">
 
 # Filters
 
+Example showcasing various image filters applied simultaneously in the BMP Editor, including color balance, color inversion, and blur.
+
 <img src="./doc/img4.png">
+
+Example demonstrating the application of the edge detection filter in the BMP Editor, highlighting edges and contours in the image.
 
 <img src="./doc/img5.png">
 
-# 
+# Color Conversion with Median Cut Algorithm Quantization
+
+This image illustrates the capability of the BMP Editor to convert images into different formats with varying bit depths. Utilizing the Median Cut algorithm for color quantization, the editor automatically generates a color palette to ensure optimal color representation. Witness seamless conversion with reduced color depth while maintaining visual integrity, allowing for efficient storage and transmission of images.
 
 <img src="./doc/img6.png">
