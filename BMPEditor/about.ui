@@ -57,7 +57,7 @@
        <item>
         <widget class="QLabel" name="label_2">
          <property name="text">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;h1 style=&quot; margin-top:18px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:xx-large; font-weight:700;&quot;&gt;BMP Editor&lt;/span&gt;&lt;/h1&gt;&lt;p&gt;&lt;span style=&quot; font-weight:700;&quot;&gt;Author:&lt;/span&gt; Martin Krčma&lt;br/&gt;&lt;span style=&quot; font-weight:700;&quot;&gt;Last Update:&lt;/span&gt; 12. 2. 2024&lt;br/&gt;&lt;span style=&quot; font-weight:700;&quot;&gt;Version:&lt;/span&gt; 0.2.0&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;h1 style=&quot; margin-top:18px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:xx-large; font-weight:700;&quot;&gt;BMP Editor&lt;/span&gt;&lt;/h1&gt;&lt;p&gt;&lt;span style=&quot; font-weight:700;&quot;&gt;Author:&lt;/span&gt; Martin Krčma&lt;br/&gt;&lt;span style=&quot; font-weight:700;&quot;&gt;Last Update:&lt;/span&gt; 12. 2. 2024&lt;br/&gt;&lt;span style=&quot; font-weight:700;&quot;&gt;Version:&lt;/span&gt; 0.2.1&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
         </widget>
        </item>
