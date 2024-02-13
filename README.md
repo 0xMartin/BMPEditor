@@ -10,11 +10,13 @@
   <i>A simple BMP image viewer, converter and editor</i>
 </div>
 
+## ℹ️ About
+
 The BMP Editor tool for editing BMP images, offering a base range of features to enhance and manipulate images with ease. This application was developed as a student project and primarily focuses on implementing of own solution for working with BMP images.
 
 <img src="./doc/img2.png">
 
-## Features
+## 🎨 Features
 
 1. __Open/Save BMP Image:__ Easily open and save BMP images in various color depths (1b, 4b, 8b, or 24b per pixel).
 
@@ -42,7 +44,7 @@ The BMP Editor tool for editing BMP images, offering a base range of features to
 
 1. __Import Any Image:__ Import images of any type and convert them into BMP format (24b) for seamless integration with your editing workflow.
 
-## Application UI
+## 🖥️ Application UI
 
 The BMP Editor's intuitive interface is divided into three sections. On the left, an informative panel displays details about the loaded image. The central workspace showcases the currently edited image, while the toolbar on the right provides quick access to essential tools such as opening and saving images, undoing and redoing actions, and various transformations
 
@@ -52,7 +54,7 @@ __Pixel Grid:__ The pixel grid is automatically displayed in workspace when the 
 
 <img src="./doc/img3.png">
 
-# Filters
+# 🌈 Filters
 
 Example showcasing various image filters applied simultaneously in the BMP Editor, including color balance, color inversion, and blur.
 
@@ -62,8 +64,12 @@ Example demonstrating the application of the edge detection filter in the BMP Ed
 
 <img src="./doc/img5.png">
 
-# Color Conversion with Median Cut Algorithm Quantization
+# 🔄 Color Conversion with Median Cut Algorithm Quantization
 
 This image illustrates the capability of the BMP Editor to convert images into different formats with varying bit depths. Utilizing the Median Cut algorithm for color quantization, the editor automatically generates a color palette to ensure optimal color representation. Witness seamless conversion with reduced color depth while maintaining visual integrity, allowing for efficient storage and transmission of images.
 
 <img src="./doc/img6.png">
+
+# 👩‍💻 Author
+
+[![0xMartin](https://github.com/0xMartin.png?size=100)](https://github.com/0xMartin)
