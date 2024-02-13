@@ -608,18 +608,24 @@ void MainWindow::on_actionRead_message_triggered()
 
 void MainWindow::on_actionClear_message_triggered()
 {
-    QMessageBox::StandardButton reply;
-    reply = QMessageBox::question(this, tr("Remove Message"),
-                                  tr("Are you sure you want to remove the hidden message from this image?"),
-                                  QMessageBox::Yes|QMessageBox::No);
-    if (reply == QMessageBox::Yes) {
-        int errCode = STEGANOGRAPHY_clearMessage(this->image->pixels, this->image->width, this->image->height);
-        if(errCode != STATUS_OK) {
-            // nastala chyba pri odstraneni zpravy z obrazku
-            QString errorStr;
-            getErrorCodeInfo(errCode, errorStr);
-            QMessageBox::critical(this, tr("Remove Message Error"), tr("Failed to remove message. Error: %1").arg(errorStr));
-            this->statusLabel->setText(tr("<b>Status:</b> Failed to read message"));
+    if(this->image != NULL) {
+        if(this->image->bitDepth <= 8) {
+            QMessageBox::critical(this, tr("Clear Message Error"), tr("You can clear message only from image that does not use color palette!"));
+            return;
+        }
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this, tr("Remove Message"),
+                                      tr("Are you sure you want to remove the hidden message from this image?"),
+                                      QMessageBox::Yes|QMessageBox::No);
+        if (reply == QMessageBox::Yes) {
+            int errCode = STEGANOGRAPHY_clearMessage(this->image->pixels, this->image->width, this->image->height);
+            if(errCode != STATUS_OK) {
+                // nastala chyba pri odstraneni zpravy z obrazku
+                QString errorStr;
+                getErrorCodeInfo(errCode, errorStr);
+                QMessageBox::critical(this, tr("Remove Message Error"), tr("Failed to remove message. Error: %1").arg(errorStr));
+                this->statusLabel->setText(tr("<b>Status:</b> Failed to read message"));
+            }
         }
     }
 }
