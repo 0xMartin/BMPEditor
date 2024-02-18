@@ -150,7 +150,7 @@ int BMPImage::isBMPImage(Image *img, int bitDepth) {
     if (img->type == IMG_BMP) {
         BMPImage *bmp = dynamic_cast<BMPImage *>(img);
         if(bmp != NULL)
-            if(bmp->bmpInfoHeader.bitCount == 1)
+            if(bmp->bmpInfoHeader.bitCount == bitDepth)
                 return ERR_SAME_FORMAT;
     }
     return STATUS_OK;
