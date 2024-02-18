@@ -34,6 +34,7 @@ void ImageHistogramWidget::paintEvent(QPaintEvent *event) {
 
     // vykresli histogram RGB
     int step = PRECISION;
+    qDebug() << this->zeroCount;
     if(this->zeroCount >= 128)
         // zvyseni presnosti pokud se v histogramu vyskytuje velike mnozstvi 0
         step = 1;
