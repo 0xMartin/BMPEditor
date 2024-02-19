@@ -1,9 +1,0 @@
-/home/martin/Downloads/BMPEditor/build-BMPEditor-Desktop_Qt_6_5_1_GCC_64bit-RelWithDebInfo/CMakeFiles/BMPEditor.dir
-/home/martin/Downloads/BMPEditor/build-BMPEditor-Desktop_Qt_6_5_1_GCC_64bit-RelWithDebInfo/CMakeFiles/edit_cache.dir
-/home/martin/Downloads/BMPEditor/build-BMPEditor-Desktop_Qt_6_5_1_GCC_64bit-RelWithDebInfo/CMakeFiles/rebuild_cache.dir
-/home/martin/Downloads/BMPEditor/build-BMPEditor-Desktop_Qt_6_5_1_GCC_64bit-RelWithDebInfo/CMakeFiles/list_install_components.dir
-/home/martin/Downloads/BMPEditor/build-BMPEditor-Desktop_Qt_6_5_1_GCC_64bit-RelWithDebInfo/CMakeFiles/install.dir
-/home/martin/Downloads/BMPEditor/build-BMPEditor-Desktop_Qt_6_5_1_GCC_64bit-RelWithDebInfo/CMakeFiles/install/local.dir
-/home/martin/Downloads/BMPEditor/build-BMPEditor-Desktop_Qt_6_5_1_GCC_64bit-RelWithDebInfo/CMakeFiles/install/strip.dir
-/home/martin/Downloads/BMPEditor/build-BMPEditor-Desktop_Qt_6_5_1_GCC_64bit-RelWithDebInfo/CMakeFiles/BMPEditor_autogen_timestamp_deps.dir
-/home/martin/Downloads/BMPEditor/build-BMPEditor-Desktop_Qt_6_5_1_GCC_64bit-RelWithDebInfo/CMakeFiles/BMPEditor_autogen.dir
