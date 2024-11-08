@@ -1,0 +1,8 @@
+/home/martin/Downloads/BMPEditor/build-BMPEditor-Desktop-Debug/CMakeFiles/BMPEditor.dir
+/home/martin/Downloads/BMPEditor/build-BMPEditor-Desktop-Debug/CMakeFiles/edit_cache.dir
+/home/martin/Downloads/BMPEditor/build-BMPEditor-Desktop-Debug/CMakeFiles/rebuild_cache.dir
+/home/martin/Downloads/BMPEditor/build-BMPEditor-Desktop-Debug/CMakeFiles/list_install_components.dir
+/home/martin/Downloads/BMPEditor/build-BMPEditor-Desktop-Debug/CMakeFiles/install.dir
+/home/martin/Downloads/BMPEditor/build-BMPEditor-Desktop-Debug/CMakeFiles/install/local.dir
+/home/martin/Downloads/BMPEditor/build-BMPEditor-Desktop-Debug/CMakeFiles/install/strip.dir
+/home/martin/Downloads/BMPEditor/build-BMPEditor-Desktop-Debug/CMakeFiles/BMPEditor_autogen.dir

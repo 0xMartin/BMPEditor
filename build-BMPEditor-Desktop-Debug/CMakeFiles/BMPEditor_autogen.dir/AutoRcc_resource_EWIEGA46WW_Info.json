@@ -1,0 +1,36 @@
+{
+	"BUILD_DIR" : "/home/martin/Downloads/BMPEditor/build-BMPEditor-Desktop-Debug/BMPEditor_autogen",
+	"CMAKE_BINARY_DIR" : "/home/martin/Downloads/BMPEditor/build-BMPEditor-Desktop-Debug",
+	"CMAKE_CURRENT_BINARY_DIR" : "/home/martin/Downloads/BMPEditor/build-BMPEditor-Desktop-Debug",
+	"CMAKE_CURRENT_SOURCE_DIR" : "/home/martin/Downloads/BMPEditor/BMPEditor",
+	"CMAKE_SOURCE_DIR" : "/home/martin/Downloads/BMPEditor/BMPEditor",
+	"INCLUDE_DIR" : "/home/martin/Downloads/BMPEditor/build-BMPEditor-Desktop-Debug/BMPEditor_autogen/include",
+	"INPUTS" : 
+	[
+		"/home/martin/Downloads/BMPEditor/BMPEditor/Resources/undo.svg",
+		"/home/martin/Downloads/BMPEditor/BMPEditor/Resources/maximize.svg",
+		"/home/martin/Downloads/BMPEditor/BMPEditor/Resources/file_open.svg",
+		"/home/martin/Downloads/BMPEditor/BMPEditor/Resources/flip_horizontal.svg",
+		"/home/martin/Downloads/BMPEditor/BMPEditor/Resources/rotate_plus.svg",
+		"/home/martin/Downloads/BMPEditor/BMPEditor/Resources/redo.svg",
+		"/home/martin/Downloads/BMPEditor/BMPEditor/Resources/Combinear.qss",
+		"/home/martin/Downloads/BMPEditor/BMPEditor/Resources/zoom_out.svg",
+		"/home/martin/Downloads/BMPEditor/BMPEditor/Resources/rotate_minus.svg",
+		"/home/martin/Downloads/BMPEditor/BMPEditor/Resources/minimize.svg",
+		"/home/martin/Downloads/BMPEditor/BMPEditor/Resources/flip_vertical.svg",
+		"/home/martin/Downloads/BMPEditor/BMPEditor/Resources/reset_scale.svg",
+		"/home/martin/Downloads/BMPEditor/BMPEditor/Resources/icon.png",
+		"/home/martin/Downloads/BMPEditor/BMPEditor/Resources/zoom_in.svg",
+		"/home/martin/Downloads/BMPEditor/BMPEditor/Resources/file_save.svg"
+	],
+	"LOCK_FILE" : "/home/martin/Downloads/BMPEditor/build-BMPEditor-Desktop-Debug/CMakeFiles/BMPEditor_autogen.dir/AutoRcc_resource_EWIEGA46WW_Lock.lock",
+	"MULTI_CONFIG" : false,
+	"OPTIONS" : [ "-name", "resource" ],
+	"OUTPUT_CHECKSUM" : "EWIEGA46WW",
+	"OUTPUT_NAME" : "qrc_resource.cpp",
+	"RCC_EXECUTABLE" : "/usr/lib/qt6/libexec/rcc",
+	"RCC_LIST_OPTIONS" : [ "--list" ],
+	"SETTINGS_FILE" : "/home/martin/Downloads/BMPEditor/build-BMPEditor-Desktop-Debug/CMakeFiles/BMPEditor_autogen.dir/AutoRcc_resource_EWIEGA46WW_Used.txt",
+	"SOURCE" : "/home/martin/Downloads/BMPEditor/BMPEditor/resource.qrc",
+	"VERBOSITY" : 0
+}

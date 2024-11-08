@@ -2,6 +2,7 @@
 #define IMAGEHISTOGRAMWIDGET_H
 
 #include <QWidget>
+#include <QDebug>
 #include <QImage>
 #include <QPainter>
 #include <vector>

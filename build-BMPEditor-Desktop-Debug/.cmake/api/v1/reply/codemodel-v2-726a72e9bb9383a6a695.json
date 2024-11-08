@@ -1,0 +1,70 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-Debug-3b6e17e7b3c106a39644.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.16"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "BMPEditor",
+					"targetIndexes" : 
+					[
+						0,
+						1
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "BMPEditor::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-BMPEditor-Debug-ba14d720ebc870cae5cf.json",
+					"name" : "BMPEditor",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "BMPEditor_autogen::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-BMPEditor_autogen-Debug-8f198ffba1417180941a.json",
+					"name" : "BMPEditor_autogen",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/home/martin/Downloads/BMPEditor/build-BMPEditor-Desktop-Debug",
+		"source" : "/home/martin/Downloads/BMPEditor/BMPEditor"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 3
+	}
+}
