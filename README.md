@@ -16,6 +16,15 @@ The BMP Editor tool for editing BMP images, offering a base range of features to
 
 <img src="./doc/img2.png">
 
+## 🛠️ How to build (Linux / MacOS) ?
+```
+cd BMPEditor
+mkdir build
+cd build
+cmake -S ..
+make
+```
+
 ## 🎨 Features
 
 1. __Open/Save BMP Image:__ Easily open and save BMP images in various color depths (1b, 4b, 8b, or 24b per pixel).
