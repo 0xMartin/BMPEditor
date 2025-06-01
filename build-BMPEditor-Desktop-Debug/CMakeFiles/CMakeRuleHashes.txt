@@ -1,3 +1,0 @@
-# Hashes of file build rules.
-35728747399b3ddd3c978547ca779c9c BMPEditor_autogen/EWIEGA46WW/qrc_resource.cpp
-a4e237e5bc9f01319b68488a44ad4632 CMakeFiles/BMPEditor_autogen
