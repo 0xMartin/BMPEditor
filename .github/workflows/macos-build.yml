@@ -8,7 +8,10 @@ on:
 
 jobs:
   build:
-    runs-on: macos-latest
+    # macos-latest now ships an Xcode/SDK without AGL.framework, which Qt 6.5.0's
+    # CMake package still links against -> "ld: framework 'AGL' not found".
+    # Pin to macos-13 which still has an Xcode version that provides AGL.framework.
+    runs-on: macos-13
 
     steps:
     - name: Checkout repository
