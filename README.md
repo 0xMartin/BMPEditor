@@ -79,6 +79,6 @@ This image illustrates the capability of the BMP Editor to convert images into d
 
 <img src="./doc/img6.png">
 
-# 👩‍💻 Author
+# 👨🏻‍💻 Author
 
 [![0xMartin](https://github.com/0xMartin.png?size=100)](https://github.com/0xMartin)
