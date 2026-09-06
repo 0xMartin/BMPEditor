@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="./BMPEditor/Resources/icon.png" width="21%">
+  <img src="./src/resources/icon.png" width="21%">
   <h1>BMP Editor</h1>
   <div>
     <img alt="Made with QtCreator" src="https://img.shields.io/badge/Made%20with-QtCreator-23217346.svg?style=flat&logo=qt">
