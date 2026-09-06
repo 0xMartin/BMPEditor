@@ -18,6 +18,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     /**********************************************************/
     // toolbar
+    this->ui->toolBar->setIconSize(QSize(20, 20));
+    this->ui->toolBar->setToolButtonStyle(Qt::ToolButtonIconOnly);
+    this->ui->toolBar->setMovable(false);
     this->ui->toolBar->addAction(this->ui->actionOpen);
     this->ui->toolBar->addAction(this->ui->actionSave);
     this->ui->toolBar->addWidget(this->createToolbarSeparator());

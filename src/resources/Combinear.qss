@@ -27,6 +27,51 @@ QWidget
 	color: #fff;
 	selection-background-color: #b78620;
 	selection-color: #000;
+	font-size: 12pt;
+
+}
+
+
+/*-----QMainWindow-----*/
+QMainWindow
+{
+	background-color: #333333;
+
+}
+
+
+/*-----QSplitter-----*/
+QSplitter::handle
+{
+	background-color: #2e2e2e;
+
+}
+
+QSplitter::handle:horizontal
+{
+	width: 2px;
+
+}
+
+QSplitter::handle:vertical
+{
+	height: 2px;
+
+}
+
+QSplitter::handle:hover
+{
+	background-color: #b78620;
+
+}
+
+
+/*-----QStatusBar-----*/
+QStatusBar
+{
+	background-color: #333333;
+	border-top: 1px solid #222;
+	color: #c8c8c8;
 
 }
 
@@ -44,8 +89,10 @@ QLabel
 QMenuBar 
 {
 	background-color: qlineargradient(spread:repeat, x1:1, y1:0, x2:1, y2:1, stop:0 rgba(57, 57, 57, 255),stop:1 rgba(50, 50, 50, 255));
-	border: 1px solid #000;
+	border: none;
+	border-bottom: 1px solid #222;
 	color: #fff;
+	padding: 2px;
 
 }
 
@@ -53,6 +100,8 @@ QMenuBar
 QMenuBar::item 
 {
 	background-color: transparent;
+	padding: 4px 8px;
+	border-radius: 3px;
 
 }
 
@@ -124,10 +173,10 @@ QMenu::item:selected
 QToolBar
 {
 	background-color: qlineargradient(spread:repeat, x1:1, y1:0, x2:1, y2:1, stop:0 rgba(69, 69, 69, 255),stop:1 rgba(58, 58, 58, 255));
-	border-top: none;
-	border-bottom: 1px solid #4f4f4f;
-	border-left: 1px solid #4f4f4f;
-	border-right: 1px solid #4f4f4f;
+	border: none;
+	border-left: 1px solid #222;
+	spacing: 2px;
+	padding: 4px;
 
 }
 
@@ -135,7 +184,8 @@ QToolBar
 QToolBar::separator
 {
 	background-color: #2e2e2e;
-	width: 1px;
+	height: 1px;
+	margin: 4px 6px;
 
 }
 
@@ -145,16 +195,16 @@ QToolButton
 {
 	background-color: transparent;
 	color: #fff;
-	padding: 5px;
-	padding-left: 8px;
-	padding-right: 8px;
-	margin-left: 1px;
+	border: 1px solid transparent;
+	border-radius: 4px;
+	padding: 6px;
+	margin: 0px 2px;
 }
 
 
 QToolButton:hover
 {
-	background-color: rgba(183, 134, 32, 20%);
+	background-color: rgba(183, 134, 32, 25%);
 	border: 1px solid #b78620;
 	color: #fff;
 	
@@ -163,7 +213,7 @@ QToolButton:hover
 
 QToolButton:pressed
 {
-	background-color: qlineargradient(spread:repeat, x1:1, y1:0, x2:1, y2:1, stop:0 rgba(57, 57, 57, 255),stop:1 rgba(50, 50, 50, 255));
+	background-color: #b78620;
 	border: 1px solid #b78620;
 
 }
@@ -171,8 +221,14 @@ QToolButton:pressed
 
 QToolButton:checked
 {
-	background-color: qlineargradient(spread:repeat, x1:1, y1:0, x2:1, y2:1, stop:0 rgba(57, 57, 57, 255),stop:1 rgba(50, 50, 50, 255));
-	border: 1px solid #222;
+	background-color: rgba(183, 134, 32, 40%);
+	border: 1px solid #b78620;
+}
+
+
+QToolButton:disabled
+{
+	color: #6c6c6c;
 }
 
 
