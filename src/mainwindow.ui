@@ -1,0 +1,424 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1274</width>
+    <height>806</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>BMP Editor</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normalon>:/resources/icon.png</normalon>
+   </iconset>
+  </property>
+  <widget class="QWidget" name="centralwidget"/>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1274</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="tearOffEnabled">
+     <bool>false</bool>
+    </property>
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionOpen"/>
+    <addaction name="actionSave"/>
+    <addaction name="actionImport_as_BMP_24"/>
+    <addaction name="actionExportAs"/>
+    <widget class="QMenu" name="menuRecentFiles">
+     <property name="title">
+      <string>Recent Files</string>
+     </property>
+    </widget>
+    <addaction name="menuRecentFiles"/>
+    <addaction name="separator"/>
+    <addaction name="actionExit"/>
+   </widget>
+   <widget class="QMenu" name="menuFilter">
+    <property name="title">
+     <string>Filter</string>
+    </property>
+    <addaction name="actionGrayscale"/>
+    <addaction name="actionInvert"/>
+    <addaction name="actionSepia"/>
+    <addaction name="separator"/>
+    <addaction name="actionBrightness"/>
+    <addaction name="actionContrast"/>
+    <addaction name="actionColor_balance"/>
+    <addaction name="separator"/>
+    <addaction name="actionBlur"/>
+    <addaction name="actionSharpen"/>
+    <addaction name="actionEmboss"/>
+    <addaction name="actionEdge_Detection"/>
+    <addaction name="actionApply_Custom_Kernel"/>
+   </widget>
+   <widget class="QMenu" name="menuTransform">
+    <property name="title">
+     <string>Transform</string>
+    </property>
+    <addaction name="actionRotate_90_plus"/>
+    <addaction name="actionRotate_90_minus"/>
+    <addaction name="actionFlip_horizontally"/>
+    <addaction name="action_Flip_vertically"/>
+    <addaction name="separator"/>
+    <addaction name="actionCrop"/>
+    <addaction name="actionResize"/>
+   </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>View</string>
+    </property>
+    <addaction name="actionZoom_in"/>
+    <addaction name="actionZoom_out"/>
+    <addaction name="actionReset_scale"/>
+    <addaction name="actionUndo"/>
+    <addaction name="actionRedo"/>
+    <addaction name="separator"/>
+    <addaction name="actionColorPicker"/>
+   </widget>
+   <widget class="QMenu" name="menuSteganography">
+    <property name="title">
+     <string>Steganography</string>
+    </property>
+    <addaction name="actionWrite_message"/>
+    <addaction name="actionRead_message"/>
+    <addaction name="actionClear_message"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionAbout"/>
+   </widget>
+   <widget class="QMenu" name="menuFormat">
+    <property name="title">
+     <string>Format</string>
+    </property>
+    <addaction name="actionConvert_to_1b_BMP"/>
+    <addaction name="actionConvert_to_4b_BMP"/>
+    <addaction name="actionConvert_to_8b_BMP"/>
+    <addaction name="actionConvert_to_24b_BMP"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuView"/>
+   <addaction name="menuTransform"/>
+   <addaction name="menuFilter"/>
+   <addaction name="menuFormat"/>
+   <addaction name="menuSteganography"/>
+   <addaction name="menuHelp"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar_2</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>RightToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+  </widget>
+  <action name="actionOpen">
+   <property name="icon">
+    <iconset>
+     <normalon>:/resources/file_open.svg</normalon>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Open</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actionSave">
+   <property name="icon">
+    <iconset>
+     <normalon>:/resources/file_save.svg</normalon>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Save</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionRotate_90_plus">
+   <property name="icon">
+    <iconset>
+     <normalon>:/resources/rotate_plus.svg</normalon>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Rotate +90°</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+R</string>
+   </property>
+  </action>
+  <action name="actionRotate_90_minus">
+   <property name="icon">
+    <iconset>
+     <normalon>:/resources/rotate_minus.svg</normalon>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Rotate -90°</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+R</string>
+   </property>
+  </action>
+  <action name="actionFlip_horizontally">
+   <property name="icon">
+    <iconset>
+     <normalon>:/resources/flip_horizontal.svg</normalon>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Flip horizontally</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+H</string>
+   </property>
+  </action>
+  <action name="action_Flip_vertically">
+   <property name="icon">
+    <iconset>
+     <normalon>:/resources/flip_vertical.svg</normalon>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>
+Flip vertically</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+H</string>
+   </property>
+  </action>
+  <action name="actionZoom_in">
+   <property name="icon">
+    <iconset>
+     <normalon>:/resources/zoom_in.svg</normalon>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Zoom in</string>
+   </property>
+  </action>
+  <action name="actionZoom_out">
+   <property name="icon">
+    <iconset>
+     <normalon>:/resources/zoom_out.svg</normalon>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Zoom out</string>
+   </property>
+  </action>
+  <action name="actionReset_scale">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/resources/reset_scale.svg</normaloff>:/resources/reset_scale.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Reset Scale</string>
+   </property>
+  </action>
+  <action name="actionWrite_message">
+   <property name="text">
+    <string>Write message</string>
+   </property>
+  </action>
+  <action name="actionClear_message">
+   <property name="text">
+    <string>Clear message</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About</string>
+   </property>
+  </action>
+  <action name="actionRead_message">
+   <property name="text">
+    <string>Read message</string>
+   </property>
+  </action>
+  <action name="actionUndo">
+   <property name="icon">
+    <iconset>
+     <normalon>:/resources/undo.svg</normalon>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Undo</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Z</string>
+   </property>
+  </action>
+  <action name="actionRedo">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/resources/redo.svg</normaloff>:/resources/redo.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Redo</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Y</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="text">
+    <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionConvert_to_1b_BMP">
+   <property name="text">
+    <string>Convert to 1b BMP</string>
+   </property>
+  </action>
+  <action name="actionConvert_to_4b_BMP">
+   <property name="text">
+    <string>Convert to 4b BMP</string>
+   </property>
+  </action>
+  <action name="actionConvert_to_8b_BMP">
+   <property name="text">
+    <string>Convert to 8b BMP</string>
+   </property>
+  </action>
+  <action name="actionConvert_to_24b_BMP">
+   <property name="text">
+    <string>Convert to 24b BMP</string>
+   </property>
+  </action>
+  <action name="actionGrayscale">
+   <property name="text">
+    <string>Grayscale</string>
+   </property>
+  </action>
+  <action name="actionInvert">
+   <property name="text">
+    <string>Invert</string>
+   </property>
+  </action>
+  <action name="actionSepia">
+   <property name="text">
+    <string>Sepia</string>
+   </property>
+  </action>
+  <action name="actionBlur">
+   <property name="text">
+    <string>Blur</string>
+   </property>
+  </action>
+  <action name="actionBrightness">
+   <property name="text">
+    <string>Brightness</string>
+   </property>
+  </action>
+  <action name="actionContrast">
+   <property name="text">
+    <string>Contrast</string>
+   </property>
+  </action>
+  <action name="actionColor_balance">
+   <property name="text">
+    <string>Color balance</string>
+   </property>
+  </action>
+  <action name="actionSharpen">
+   <property name="text">
+    <string>Sharpen</string>
+   </property>
+  </action>
+  <action name="actionEdge_Detection">
+   <property name="text">
+    <string>Edge Detection</string>
+   </property>
+  </action>
+  <action name="actionEmboss">
+   <property name="text">
+    <string>Emboss</string>
+   </property>
+  </action>
+  <action name="actionApply_Custom_Kernel">
+   <property name="text">
+    <string>Apply Custom Kernel</string>
+   </property>
+  </action>
+  <action name="actionImport_as_BMP_24">
+   <property name="text">
+    <string>Import as BMP 24</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+I</string>
+   </property>
+  </action>
+  <action name="actionExportAs">
+   <property name="text">
+    <string>Export As...</string>
+   </property>
+  </action>
+  <action name="actionCrop">
+   <property name="icon">
+    <iconset>
+     <normalon>:/resources/crop.svg</normalon>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Crop</string>
+   </property>
+   <property name="toolTip">
+    <string>Select and crop a region of the image</string>
+   </property>
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionColorPicker">
+   <property name="icon">
+    <iconset>
+     <normalon>:/resources/color_picker.svg</normalon>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Pick Color</string>
+   </property>
+   <property name="toolTip">
+    <string>Pick a pixel color from the image</string>
+   </property>
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionResize">
+   <property name="text">
+    <string>Resize...</string>
+   </property>
+  </action>
+ </widget>
+ <resources>
+  <include location="resource.qrc"/>
+ </resources>
+ <connections/>
+</ui>
