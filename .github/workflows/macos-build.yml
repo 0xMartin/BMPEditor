@@ -1,0 +1,54 @@
+name: macOS Build
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Install Qt6
+      uses: jurplel/install-qt-action@v3
+      with:
+        version: 6.5.0
+        host: mac
+        target: desktop
+        arch: clang_64
+
+    - name: Install dependencies
+      run: |
+        brew update
+        brew uninstall --ignore-dependencies cmake || true
+        brew install cmake ninja
+
+    - name: Configure project
+      run: |
+        cmake -B build -S . -G Ninja
+
+    - name: Build
+      run: |
+        cmake --build build
+
+    - name: Create App Bundle
+      run: |
+        $Qt6_DIR/bin/macdeployqt build/BMPEditor.app -dmg
+
+    - name: Prepare release folder
+      run: |
+        mkdir -p release
+        cp build/BMPEditor.dmg release/
+        cp README.md release/
+
+    - name: Upload zipped artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: BMPEditor-macos
+        path: release/
+        retention-days: 5

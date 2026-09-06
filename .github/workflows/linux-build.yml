@@ -1,0 +1,49 @@
+name: Linux Build
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Install Qt6
+      uses: jurplel/install-qt-action@v3
+      with:
+        version: 6.5.0
+        host: linux
+        target: desktop
+        arch: gcc_64
+
+    - name: Install dependencies
+      run: |
+        sudo apt update
+        sudo apt install -y cmake ninja-build g++ libgl1-mesa-dev libxkbcommon-x11-0
+
+    - name: Configure project
+      run: |
+        cmake -B build -S . -G Ninja
+
+    - name: Build
+      run: |
+        cmake --build build
+
+    - name: Prepare release folder
+      run: |
+        mkdir release
+        cp build/BMPEditor release/
+        cp README.md release/
+
+    - name: Upload zipped artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: BMPEditor-linux
+        path: release/
+        retention-days: 5

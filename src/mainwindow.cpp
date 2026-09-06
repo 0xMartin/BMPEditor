@@ -1,0 +1,700 @@
+#include "mainwindow.h"
+#include "./ui_mainwindow.h"
+
+#include <QFileDialog>
+#include <QMessageBox>
+
+#include "image/bmpimage.h"
+#include "base/formatter.h"
+#include "base/steganography.h"
+#include "base/error.h"
+
+
+MainWindow::MainWindow(QWidget *parent)
+    : QMainWindow(parent)
+    , ui(new Ui::MainWindow)
+{
+    ui->setupUi(this);
+
+    /**********************************************************/
+    // toolbar
+    this->ui->toolBar->addAction(this->ui->actionOpen);
+    this->ui->toolBar->addAction(this->ui->actionSave);
+    this->ui->toolBar->addWidget(this->createToolbarSeparator());
+    this->ui->toolBar->addAction(this->ui->actionUndo);
+    this->ui->toolBar->addAction(this->ui->actionRedo);
+    this->ui->toolBar->addWidget(this->createToolbarSeparator());
+    this->ui->toolBar->addAction(this->ui->actionZoom_in);
+    this->ui->toolBar->addAction(this->ui->actionZoom_out);
+    this->ui->toolBar->addAction(this->ui->actionReset_scale);
+    this->ui->toolBar->addWidget(this->createToolbarSeparator());
+    this->ui->toolBar->addAction(this->ui->actionRotate_90_plus);
+    this->ui->toolBar->addAction(this->ui->actionRotate_90_minus);
+    this->ui->toolBar->addAction(this->ui->actionFlip_horizontally);
+    this->ui->toolBar->addAction(this->ui->action_Flip_vertically);
+
+    /**********************************************************/
+    // histori (undo, redo)
+    this->ui->actionUndo->setEnabled(false);
+    this->ui->actionRedo->setEnabled(false);
+
+    /**********************************************************/
+    // status bar
+    QWidget *statusBarWidget = new QWidget(this->ui->statusbar);
+
+    this->statusLabel = new QLabel(statusBarWidget);
+    this->statusLabel->setAlignment(Qt::AlignLeft);
+    this->statusLabel->setText(tr("<b>Status:</b> No image"));
+
+    this->pathLabel = new QLabel(statusBarWidget);
+    this->pathLabel->setAlignment(Qt::AlignLeft);
+    this->pathLabel->setText(tr("<b>Path:</b> None"));
+
+    QHBoxLayout * statusBarLayour = new QHBoxLayout(statusBarWidget);
+    statusBarLayour->setContentsMargins(6, 2, 2, 2);
+    statusBarWidget->setLayout(statusBarLayour);
+    statusBarLayour->addWidget(this->statusLabel);
+    statusBarLayour->addWidget(this->pathLabel);
+    statusBarLayour->addStretch();
+
+    this->statusBar()->addPermanentWidget(statusBarWidget, 1);
+
+    /**********************************************************/
+    // progress dialog
+    progressDialog.cancel();
+    QIcon icon;
+    icon.addFile(QString::fromUtf8(":/resources/icon.png"), QSize(), QIcon::Normal, QIcon::On);
+    progressDialog.setWindowIcon(icon);
+    progressDialog.setLabelText("Loading...");
+    progressDialog.setCancelButton(nullptr); // Bez tlačítka pro zrušení
+    progressDialog.setWindowFlags(progressDialog.windowFlags() & ~Qt::WindowCloseButtonHint | Qt::WindowStaysOnTopHint);
+    progressDialog.setWindowModality(Qt::WindowModal);
+    progressDialog.setRange(0, 0);
+
+    /**********************************************************/
+    // init lokalnich atributu
+    this->image = NULL;
+    connect(&this->worker, &ThreadRunner::jobFinished, this, &MainWindow::asyncJobFinished);
+
+    /**********************************************************/
+    // vytvoreni a konfigurace workspacu
+    Config_Workspace_t cnfg;
+    cnfg.font.setFamily("Monospace");
+    cnfg.font.setPixelSize(11);
+    cnfg.font.setStyle(QFont::StyleNormal);
+    cnfg.fps = 50;
+    cnfg.mouseSensitivity = 1.3;
+    this->workspace = new Workspace(cnfg, this);
+
+    /**********************************************************/
+    // vytvoreni image info panelu
+    this->imageInfoPanel = new ImageInfoPanel(this);
+
+    /**********************************************************/
+    // nastaveni image utils tridy
+    connect(&this->imgUtils, &ImageUtils::imageChangedSignal, this, &MainWindow::imageChanged);
+    connect(&this->imgUtils, &ImageUtils::jobStart, this, &MainWindow::asyncJobStart);
+    connect(&this->imgUtils, &ImageUtils::jobFinished, this, &MainWindow::asyncJobFinished);
+
+    /**********************************************************/
+    // sestaveni celkove pracovni plochy s vyuzitim splitteru
+    this->splitter_horizontal = new QSplitter(Qt::Horizontal);
+    this->splitter_horizontal->setObjectName("bg-widget");
+    // leva strana (info panel)
+    this->splitter_horizontal->addWidget(this->imageInfoPanel);
+    // prava strana (workspace)
+    this->splitter_horizontal->addWidget(this->workspace);
+    this->setCentralWidget(this->splitter_horizontal);
+    this->splitter_horizontal->setStretchFactor(0, 1);
+    this->splitter_horizontal->setStretchFactor(1, 2);
+
+    // deaktivace funkci aklikace
+    this->appActionActivation();
+}
+
+MainWindow::~MainWindow()
+{
+    progressDialog.hide();
+    delete ui;
+}
+
+void MainWindow::setImage(Image *image)
+{
+    // pokud je aktualne otevren nejaky obrazek tak ho odstrani z pameti
+    if(this->image != NULL) {
+        delete this->image;
+        this->image = NULL;
+    }
+
+    // nastaveni pointeru obrazku hlavnim prvkum editoru
+    this->image = image;
+    this->workspace->setImage(this->image);
+    this->workspace->setDefaultScale();
+    this->workspace->setDefaultOffset();
+    this->imageInfoPanel->setImage(this->image);
+    this->imgUtils.setCurrentImage(this->image);
+
+    // status bar
+    this->statusLabel->setText(tr("<b>Status:</b> Image loaded"));
+    this->pathLabel->setText(tr("<b>Path:</b> ") + image->imgPath);
+
+    // aktivace/deaktive funkci aplikace
+    this->appActionActivation();
+}
+
+QFrame *MainWindow::createToolbarSeparator()
+{
+    QFrame *separator = new QFrame();
+    separator->setFrameShape(QFrame::HLine);
+    return separator;
+}
+
+void MainWindow::closeEvent(QCloseEvent *event) {
+    // app: close event dialog
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, tr("Close"), tr("Are you sure you want to exit the application?"),
+                                  QMessageBox::Yes|QMessageBox::No);
+    if (reply == QMessageBox::Yes) {
+        progressDialog.hide();
+        event->accept();
+    } else {
+        event->ignore();
+    }
+}
+
+void MainWindow::formatBMP(int bitCount)
+{
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, tr("Format to BMP %1b").arg(bitCount),
+                                  tr("Are you sure you want to change the image format to BMP %1b? This operation is irreversible.").arg(bitCount),
+                                  QMessageBox::Yes|QMessageBox::No);
+    if (reply == QMessageBox::Yes) {
+        // vyber funkce
+        // zobrazeni progress dialogu
+        this->asyncJobStart();
+        // asynchronni spusteni procesu zmeny formatu
+        worker.runInThread([&, bitCount]() {
+            Image *newImg = NULL;
+            int errCode;
+            switch (bitCount) {
+            case 1:
+                errCode = FORMATTER_formatToBMP1(this->image, &newImg);
+                break;
+            case 4:
+                errCode = FORMATTER_formatToBMP4(this->image, &newImg);
+                break;
+            case 8:
+                errCode = FORMATTER_formatToBMP8(this->image, &newImg);
+                break;
+            default:
+                errCode = FORMATTER_formatToBMP24(this->image, &newImg);
+                break;
+            }
+            if(errCode == STATUS_OK) {
+                // format uspesne zmenen (aplikuje zmeny .. nahrazeni aktualniho obrazku za novy)
+                QMetaObject::invokeMethod(this, "formatDone", Qt::QueuedConnection, Q_ARG(Image*, newImg));
+            } else {
+                // nastala chyba
+                QString errorStr;
+                getErrorCodeInfo(errCode, errorStr);
+                QMessageBox::critical(this, tr("Format Error"),
+                                      QString(tr("Failed to change format. Error: %1")).arg(errorStr));
+            }
+        });
+    }
+}
+
+void MainWindow::appActionActivation()
+{
+    bool enabled = this->image != NULL;
+    // filtry
+    this->ui->actionColor_balance->setEnabled(enabled);
+    this->ui->actionContrast->setEnabled(enabled);
+    this->ui->actionBrightness->setEnabled(enabled);
+    this->ui->actionBlur->setEnabled(enabled);
+    this->ui->actionGrayscale->setEnabled(enabled);
+    this->ui->actionInvert->setEnabled(enabled);
+    this->ui->actionSepia->setEnabled(enabled);
+    this->ui->actionInvert->setEnabled(enabled);
+    this->ui->actionSharpen->setEnabled(enabled);
+    this->ui->actionEdge_Detection->setEnabled(enabled);
+    this->ui->actionEmboss->setEnabled(enabled);
+    this->ui->actionApply_Custom_Kernel->setEnabled(enabled);
+    // transformace
+    this->ui->actionRotate_90_plus->setEnabled(enabled);
+    this->ui->actionRotate_90_minus->setEnabled(enabled);
+    this->ui->actionFlip_horizontally->setEnabled(enabled);
+    this->ui->action_Flip_vertically->setEnabled(enabled);
+    // view funkce
+    this->ui->actionZoom_in->setEnabled(enabled);
+    this->ui->actionZoom_out->setEnabled(enabled);
+    this->ui->actionReset_scale->setEnabled(enabled);
+    // formatovani
+    this->ui->actionConvert_to_1b_BMP->setEnabled(enabled);
+    this->ui->actionConvert_to_4b_BMP->setEnabled(enabled);
+    this->ui->actionConvert_to_8b_BMP->setEnabled(enabled);
+    this->ui->actionConvert_to_24b_BMP->setEnabled(enabled);
+    // steganografie
+    this->ui->actionClear_message->setEnabled(enabled);
+    this->ui->actionWrite_message->setEnabled(enabled);
+    this->ui->actionRead_message->setEnabled(enabled);
+}
+
+void MainWindow::checkForHiddenMessage()
+{
+    // overi zda se v nactenem obrazku nenachazi zprava
+    QString msg = "";
+    int errCode = STEGANOGRAPHY_readMessage(this->image->pixels, this->image->width, this->image->height, msg);
+    if(errCode == STATUS_OK) {
+        QMessageBox::information(this, tr("Hidden message"), tr("The image contains a hidden message!\n\nMessage: %1").arg(msg));
+    }
+}
+
+void MainWindow::imageChanged(const QString &message)
+{
+    // obrazek byl zmenen nejaky zpusobem
+
+    // repaint request
+    this->workspace->repaint();
+    this->imageInfoPanel->refresh();
+
+    // status bar
+    this->statusLabel->setText(tr("<b>Status:</b> ") + message);
+
+    // zmena stavu tlacitek pro rizeni historie (undo, redo)
+    this->ui->actionUndo->setEnabled(this->imgUtils.getHistoryIndex() > 0);
+    this->ui->actionRedo->setEnabled(this->imgUtils.getHistoryIndex() + 1 < this->imgUtils.getImageHistory().size());
+}
+
+void MainWindow::asyncJobStart()
+{
+    this->progressDialog.show();
+    this->setEnabled(false);
+}
+
+void MainWindow::asyncJobFinished()
+{
+    this->progressDialog.hide();
+    this->setEnabled(true);
+}
+
+void MainWindow::formatDone(Image *img)
+{
+    this->statusLabel->setText(tr("<b>Status: </b> Format changed"));
+    this->setImage(img);
+}
+
+void MainWindow::on_actionOpen_triggered()
+{
+    // app: load image
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open Image"), QDir::homePath(), tr("BMP File (*.bmp)"));
+    if (!fileName.isEmpty()) {
+
+        qDebug() << "Open file: " << fileName;
+        BMPImage *bmp = new BMPImage();
+        this->statusLabel->setText(tr("<b>Status:</b> Image loading ..."));
+
+        int errCode = bmp->loadImage(fileName);
+        if(errCode != STATUS_OK) {
+
+            // nastala chyba pri nacteni souboru
+            QString errorStr;
+            getErrorCodeInfo(errCode, errorStr);
+            QMessageBox::critical(this, tr("Open Error"), tr("Failed to open BMP image. Error: %1").arg(errorStr));
+            this->statusLabel->setText(tr("<b>Status:</b> Failed to load image"));
+
+        } else {
+            // obrazek uspesne nacten => zobrazeni v editoru
+            this->setImage(bmp);
+            QMessageBox::information(this, tr("Open Image"), tr("Image opened successfully!"));
+
+            // overi zda se v nactenem obrazku nenachazi zprava
+            this->checkForHiddenMessage();
+        }
+
+    }
+}
+
+
+void MainWindow::on_actionSave_triggered()
+{
+    // app: save image
+    if(this->image == NULL) {
+        QMessageBox::critical(this, tr("Save Error"), tr("It is not possible to save an image because no image is opened!"));
+    } else {
+
+        QString fileName = QFileDialog::getSaveFileName(this, tr("Save Image"), QDir::homePath(), tr("BMP file (*.bmp)"));
+        if (!fileName.isEmpty()) {
+            qDebug() << "Save file: " << fileName;
+            this->statusLabel->setText(tr("<b>Status:</b> Image saving ..."));
+
+            int errCode = this->image->saveImage(fileName);
+            if(errCode != STATUS_OK) {
+
+                // nastala chyba pri nacteni souboru
+                QString errorStr;
+                getErrorCodeInfo(errCode, errorStr);
+                QMessageBox::critical(this, tr("Save Error"), QString(tr("Failed to save BMP image. Error: %1")).arg(errorStr));
+                this->statusLabel->setText(tr("<b>Status:</b> Failed to save image"));
+
+            } else {
+
+                QMessageBox::information(this, tr("Save Image"), tr("Image saved successfully!"));
+                this->statusLabel->setText(tr("<b>Status:</b> Image saved"));
+
+            }
+
+        }
+    }
+}
+
+
+void MainWindow::on_actionAbout_triggered()
+{
+    // app: about section
+    dialog.show();
+}
+
+
+void MainWindow::on_actionExit_triggered()
+{
+    // app: close
+    QCloseEvent *event = new QCloseEvent();
+    closeEvent(event);
+    if(event->isAccepted()) {
+        exit(0);
+    }
+    delete event;
+}
+
+
+void MainWindow::on_actionZoom_in_triggered()
+{
+    // workspace: zoom in
+    if(this->image != NULL && this->workspace != NULL) {
+        this->workspace->zoomIN();
+        this->workspace->repaint();
+    }
+}
+
+
+void MainWindow::on_actionZoom_out_triggered()
+{
+    // workspace: zoom out
+    if(this->image != NULL && this->workspace != NULL) {
+        this->workspace->zoomOUT();
+        this->workspace->repaint();
+    }
+}
+
+
+void MainWindow::on_actionReset_scale_triggered()
+{
+    // workspace: default scale & position
+    if(this->image != NULL && this->workspace != NULL) {
+        this->workspace->setDefaultOffset();
+        this->workspace->setDefaultScale();
+        this->workspace->repaint();
+    }
+}
+
+
+void MainWindow::on_actionUndo_triggered()
+{
+    // undo
+    if(this->image != NULL) {
+        this->imgUtils.undo();
+    }
+}
+
+
+void MainWindow::on_actionRedo_triggered()
+{
+    // redo
+    if(this->image != NULL) {
+        this->imgUtils.redo();
+    }
+}
+
+
+void MainWindow::on_actionRotate_90_plus_triggered()
+{
+    // image traformation : rotate +90
+    if(this->image != NULL) {
+        IMG_UTIL_ASYNC(this->imgUtils, this->imgUtils.rotateClockwise());
+    }
+}
+
+
+void MainWindow::on_actionRotate_90_minus_triggered()
+{
+    // image traformation : rotate -90
+    if(this->image != NULL) {
+        IMG_UTIL_ASYNC(this->imgUtils, this->imgUtils.rotateCounterClockwise());
+    }
+}
+
+void MainWindow::on_actionFlip_horizontally_triggered()
+{
+    // image traformation : flip H
+    if(this->image != NULL) {
+        IMG_UTIL_ASYNC(this->imgUtils, this->imgUtils.flipHorizontally());
+    }
+}
+
+void MainWindow::on_action_Flip_vertically_triggered()
+{
+    // image traformation : flip V
+    if(this->image != NULL) {
+        IMG_UTIL_ASYNC(this->imgUtils, this->imgUtils.flipVertically());
+    }
+}
+
+void MainWindow::on_actionGrayscale_triggered()
+{
+    // image filter : grayscale
+    if(this->image != NULL) {
+        IMG_UTIL_ASYNC(this->imgUtils, this->imgUtils.applyGrayscaleFilter());
+    }
+}
+
+void MainWindow::on_actionInvert_triggered()
+{
+    // image filter : invert
+    if(this->image != NULL) {
+        IMG_UTIL_ASYNC(this->imgUtils, this->imgUtils.applyInvertFilter());
+    }
+}
+
+void MainWindow::on_actionSepia_triggered()
+{
+    // image filter : sepia
+    if(this->image != NULL) {
+        IMG_UTIL_ASYNC(this->imgUtils, this->imgUtils.applySepiaFilter());
+    }
+}
+
+void MainWindow::on_actionBlur_triggered()
+{
+    // image filer: blur
+    if(this->image != NULL) {
+        blurDialog.resetDialog();
+        if (blurDialog.exec() == QDialog::Accepted) {
+            int radius = blurDialog.getBlurRadius();
+            IMG_UTIL_ASYNC_ARG(this->imgUtils, this->imgUtils.applyBlurFilter(radius), radius);
+        }
+    }
+}
+
+void MainWindow::on_actionBrightness_triggered()
+{
+    // image filer: brightness
+    if(this->image != NULL) {
+        brightnessDialog.resetDialog();
+        if (brightnessDialog.exec() == QDialog::Accepted) {
+            int brightness = brightnessDialog.getBrightnessValue();
+            if(brightness == 0.0f) return;
+            IMG_UTIL_ASYNC_ARG(this->imgUtils, this->imgUtils.applyBrightnessAdjustment(brightness), brightness);
+        }
+    }
+}
+
+
+void MainWindow::on_actionContrast_triggered()
+{
+    // image filer: contrast
+    if(this->image != NULL) {
+        contrastDialog.resetDialog();
+        if (contrastDialog.exec() == QDialog::Accepted) {
+            double factor = contrastDialog.getContrastValue();
+            if(factor == 0.0f) return;
+            IMG_UTIL_ASYNC_ARG(this->imgUtils, this->imgUtils.applyContrastAdjustment(factor), factor);
+        }
+    }
+}
+
+void MainWindow::on_actionColor_balance_triggered()
+{
+    // image filer: color balance
+    if(this->image != NULL) {
+        colorBalanceDialog.resetDialog();
+        if (colorBalanceDialog.exec() == QDialog::Accepted) {
+            int r = colorBalanceDialog.getRedIntensity();
+            int g = colorBalanceDialog.getGreenIntensity();
+            int b = colorBalanceDialog.getBlueIntensity();
+            this->imgUtils.runOperationAsync([&, r, g, b]() {
+                this->imgUtils.applyColorBalance(r, g, b);
+            });
+        }
+    }
+}
+
+void MainWindow::on_actionConvert_to_1b_BMP_triggered()
+{
+    this->formatBMP(1);
+}
+
+
+void MainWindow::on_actionConvert_to_4b_BMP_triggered()
+{
+    this->formatBMP(4);
+}
+
+
+void MainWindow::on_actionConvert_to_8b_BMP_triggered()
+{
+    this->formatBMP(8);
+}
+
+
+void MainWindow::on_actionConvert_to_24b_BMP_triggered()
+{
+    this->formatBMP(24);
+}
+
+
+
+void MainWindow::on_actionWrite_message_triggered()
+{
+    // zapis tajne zpravy do obrazku
+    if(this->image != NULL) {
+        if(this->image->bitDepth <= 8) {
+            QMessageBox::critical(this, tr("Write Message Error"), tr("You can write the message only in to image that does not use color palette!"));
+            return;
+        }
+        writeMessageDialog.resetDialog();
+        if (writeMessageDialog.exec() == QDialog::Accepted) {
+            QString msg = writeMessageDialog.getMessage();
+            int errCode = STEGANOGRAPHY_writeMessage(this->image->pixels, this->image->width, this->image->height, msg);
+            if(errCode != STATUS_OK) {
+                // nastala chyba pri zapisu zpravy do obrazku
+                QString errorStr;
+                getErrorCodeInfo(errCode, errorStr);
+                QMessageBox::critical(this, tr("Write Message Error"), tr("Failed to write message. Error: %1").arg(errorStr));
+                this->statusLabel->setText(tr("<b>Status:</b> Failed to write message"));
+            } else {
+                QMessageBox::information(this, tr("Write Message"), tr("Message written successfully!"));
+                this->statusLabel->setText(tr("<b>Status:</b> Message written"));
+            }
+        }
+    }
+}
+
+
+void MainWindow::on_actionRead_message_triggered()
+{
+    // precteni tajne zpravy do obrazku
+    if(this->image != NULL) {
+        if(this->image->bitDepth <= 8) {
+            QMessageBox::critical(this, tr("Read Message Error"), tr("You can read the message only from image that does not use color palette!"));
+            return;
+        }
+        QString msg = "";
+        int errCode = STEGANOGRAPHY_readMessage(this->image->pixels, this->image->width, this->image->height, msg);
+        if(errCode != STATUS_OK) {
+            // nastala chyba pri cteni zpravy z obrazku
+            QString errorStr;
+            getErrorCodeInfo(errCode, errorStr);
+            QMessageBox::critical(this, tr("Read Message Error"), tr("Failed to read message. Error: %1").arg(errorStr));
+            this->statusLabel->setText(tr("<b>Status:</b> Failed to read message"));
+        } else {
+            qDebug() << "MESSAGE=" << msg;
+            QMessageBox::information(this, tr("Read Message"), tr("Message: %1").arg(msg));
+            this->statusLabel->setText(tr("<b>Status:</b> Message read done"));
+        }
+    }
+}
+
+
+void MainWindow::on_actionClear_message_triggered()
+{
+    if(this->image != NULL) {
+        if(this->image->bitDepth <= 8) {
+            QMessageBox::critical(this, tr("Clear Message Error"), tr("You can clear message only from image that does not use color palette!"));
+            return;
+        }
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this, tr("Remove Message"),
+                                      tr("Are you sure you want to remove the hidden message from this image?"),
+                                      QMessageBox::Yes|QMessageBox::No);
+        if (reply == QMessageBox::Yes) {
+            int errCode = STEGANOGRAPHY_clearMessage(this->image->pixels, this->image->width, this->image->height);
+            if(errCode != STATUS_OK) {
+                // nastala chyba pri odstraneni zpravy z obrazku
+                QString errorStr;
+                getErrorCodeInfo(errCode, errorStr);
+                QMessageBox::critical(this, tr("Remove Message Error"), tr("Failed to remove message. Error: %1").arg(errorStr));
+                this->statusLabel->setText(tr("<b>Status:</b> Failed to read message"));
+            }
+        }
+    }
+}
+
+
+void MainWindow::on_actionSharpen_triggered()
+{
+    // image filer: sharpen
+    if(this->image != NULL) {
+        IMG_UTIL_ASYNC(this->imgUtils, this->imgUtils.applySharpen());
+    }
+}
+
+
+void MainWindow::on_actionEdge_Detection_triggered()
+{
+    // image filer: edge detection
+    if(this->image != NULL) {
+        IMG_UTIL_ASYNC(this->imgUtils, this->imgUtils.applyDetectEdges());
+    }
+}
+
+
+void MainWindow::on_actionEmboss_triggered()
+{
+    // image filer: emboss filter
+    if(this->image != NULL) {
+        IMG_UTIL_ASYNC(this->imgUtils, this->imgUtils.applyEmbossFilter());
+    }
+}
+
+
+void MainWindow::on_actionApply_Custom_Kernel_triggered()
+{
+    if(this->kernelInputDialog.exec() == QDialog::Accepted) {
+        const std::vector<std::vector<int>> kernel = this->kernelInputDialog.getKernel();
+        IMG_UTIL_ASYNC_ARG(this->imgUtils, this->imgUtils.applyKernel(kernel), kernel);
+    }
+}
+
+
+void MainWindow::on_actionImport_as_BMP_24_triggered()
+{
+    // app: import image
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Import Image As BMP 24b"), QDir::homePath(), tr("Images (*.bmp *.jpg *.jpeg *.png *.gif *.tiff)"));
+    if (!fileName.isEmpty()) {
+
+        qDebug() << "Import file: " << fileName;
+        BMPImage *bmp = new BMPImage();
+        this->statusLabel->setText(tr("<b>Status:</b> Image importing ..."));
+
+        int errCode = bmp->importAsBMP24(fileName);
+        if(errCode != STATUS_OK) {
+
+            // nastala chyba pri importu souboru
+            QString errorStr;
+            getErrorCodeInfo(errCode, errorStr);
+            QMessageBox::critical(this, tr("Import Error"), tr("Failed to import BMP image. Error: %1").arg(errorStr));
+            this->statusLabel->setText(tr("<b>Status:</b> Failed to import image"));
+
+        } else {
+            // obrazek uspesne nacten => zobrazeni v editoru
+            this->setImage(bmp);
+            QMessageBox::information(this, tr("Import Image"), tr("Image imported successfully!"));
+
+            // overi zda se v nactenem obrazku nenachazi zprava
+            this->checkForHiddenMessage();
+        }
+
+    }
+}
+

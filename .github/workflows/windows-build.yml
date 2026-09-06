@@ -1,0 +1,78 @@
+name: Windows Build
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  QT_VERSION: 6.7.0
+  BUILD_CONFIGURATION: Release
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: (1) Checkout repo
+      uses: actions/checkout@v3
+
+    - name: (2) Install Qt
+      uses: jurplel/install-qt-action@v3
+      with:
+        version: ${{ env.QT_VERSION }}
+        host: windows
+        target: desktop
+        arch: win64_msvc2019_64
+        dir: ${{ runner.temp }}
+        setup-python: false
+
+    - name: Print Qt version information
+      run: |
+        qmake -v
+
+    - name: (3) Add MSBuild to PATH
+      uses: microsoft/setup-msbuild@v1.0.2
+
+    - name: (4) Set Qt Environment Variables and path
+      run: |
+        echo "QTDIR=${{ runner.temp }}/Qt/${{ env.QT_VERSION }}/msvc2019_64" >> $GITHUB_ENV
+        echo "QtToolsPath=${{ runner.temp }}/Qt/${{ env.QT_VERSION }}/msvc2019_64/bin" >> $GITHUB_ENV
+      shell: bash
+
+    - name: (5) Build with CMake
+      working-directory: ${{ github.workspace }}
+      run: |
+        mkdir build
+        cd build
+        cmake -DCMAKE_PREFIX_PATH=${{ runner.temp }}/Qt/${{ env.QT_VERSION }}/msvc2019_64 -DCMAKE_CXX_FLAGS="/DWIN32_LEAN_AND_MEAN /DNOMINMAX /D_USE_MATH_DEFINES /EHsc" ..
+        cmake --build . --config ${{ env.BUILD_CONFIGURATION }}
+
+    - name: (6) List contents of the build directory
+      run: |
+        dir build\${{ env.BUILD_CONFIGURATION }}
+
+    - name: (7) Deploy with windeployqt
+      working-directory: ${{ github.workspace }}
+      run: |
+        ${{ runner.temp }}/Qt/${{ env.QT_VERSION }}/msvc2019_64/bin/windeployqt.exe build/${{ env.BUILD_CONFIGURATION }}/BMPEditor.exe
+
+    - name: (8) Copy additional files
+      working-directory: ${{ github.workspace }}
+      run: |
+        mkdir -p dist
+        Copy-Item -Path "build\${{ env.BUILD_CONFIGURATION }}\*" -Destination dist -Recurse
+        Copy-Item -Path "README.md" -Destination dist -ErrorAction SilentlyContinue
+
+        dir dist
+
+    - name: (9) Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: BMPEditor-windows
+        path: dist/
+        retention-days: 5
