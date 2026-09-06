@@ -49,6 +49,15 @@ int BMP_STRUCT_validate(const BitMapFileHeader_t& fileHeader, const BitMapInfoHe
     if (infoHeader.width <= 0 || infoHeader.height <= 0) {
         return ERR_INVALID_BMP_SIZE;
     }
+    // sanitni limit rozmeru obrazku - zabranuje pretaceni pri vypoctu velikosti pole pixelu (width * height * 3)
+    const uint64_t MAX_BMP_DIMENSION = 30000;
+    const uint64_t MAX_BMP_PIXELS = 100000000ULL;
+    if ((uint64_t)infoHeader.width > MAX_BMP_DIMENSION || (uint64_t)infoHeader.height > MAX_BMP_DIMENSION) {
+        return ERR_INVALID_BMP_SIZE;
+    }
+    if ((uint64_t)infoHeader.width * (uint64_t)infoHeader.height > MAX_BMP_PIXELS) {
+        return ERR_INVALID_BMP_SIZE;
+    }
 
     return STATUS_OK;
 }

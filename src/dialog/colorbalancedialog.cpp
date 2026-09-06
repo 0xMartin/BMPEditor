@@ -4,14 +4,13 @@ ColorBalanceDialog::ColorBalanceDialog(QWidget *parent): QDialog(parent) {
     setWindowTitle(tr("Color Balance"));
 
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
-    this->setLayout(mainLayout);
 
-    this->redSlider = createSlider("Červený", -100, 100, mainLayout);
-    this->greenSlider = createSlider("Zelený", -100, 100, mainLayout);
-    this->blueSlider = createSlider("Modrý", -100, 100, mainLayout);
+    this->redSlider = createSlider(tr("Red"), -100, 100, mainLayout);
+    this->greenSlider = createSlider(tr("Green"), -100, 100, mainLayout);
+    this->blueSlider = createSlider(tr("Blue"), -100, 100, mainLayout);
 
     okButton = new QPushButton(tr("OK"));
-    cancelButton = new QPushButton(tr("Storno"));
+    cancelButton = new QPushButton(tr("Cancel"));
 
     connect(okButton, &QPushButton::clicked, this, &ColorBalanceDialog::accept);
     connect(cancelButton, &QPushButton::clicked, this, &ColorBalanceDialog::reject);

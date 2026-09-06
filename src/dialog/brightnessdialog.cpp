@@ -26,8 +26,6 @@ BrightnessDialog::BrightnessDialog(QWidget *parent) : QDialog(parent)
     buttonLayout->addWidget(cancelButton);
     layout->addLayout(buttonLayout);
 
-    setLayout(layout);
-
     setWindowTitle("Brightness Adjustment");
     setMinimumSize(300, 100);
 }

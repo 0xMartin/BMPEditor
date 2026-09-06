@@ -1,6 +1,7 @@
 #include "steganography.h"
 
 #include "error.h"
+#include <QRandomGenerator>
 
 static uint32_t calculateCRC(const unsigned char *data, int length);
 
@@ -124,12 +125,11 @@ int STEGANOGRAPHY_clearMessage(unsigned char *pixels, uint32_t width, uint32_t h
         return errCode;
 
     // vypocita pocet bitu, ktere je treba odstranit s pixelu obrazku
-    srand(time(0));
     uint32_t bitsToRemove = ((msg.length() + 1) * 8 + 32);
     for(int i = 0; i < bitsToRemove; ++i) {
         // pixel nahradi nahodne generovanym bitem
         pixels[i] &= ~1;
-        pixels[i] |= ((uint8_t)(rand() % 2) & 0x1);
+        pixels[i] |= (QRandomGenerator::global()->bounded(2) & 0x1);
     }
 
     return STATUS_OK;

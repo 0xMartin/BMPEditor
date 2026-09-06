@@ -38,6 +38,14 @@
     <addaction name="actionOpen"/>
     <addaction name="actionSave"/>
     <addaction name="actionImport_as_BMP_24"/>
+    <addaction name="actionExportAs"/>
+    <widget class="QMenu" name="menuRecentFiles">
+     <property name="title">
+      <string>Recent Files</string>
+     </property>
+    </widget>
+    <addaction name="menuRecentFiles"/>
+    <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
    <widget class="QMenu" name="menuFilter">
@@ -66,6 +74,9 @@
     <addaction name="actionRotate_90_minus"/>
     <addaction name="actionFlip_horizontally"/>
     <addaction name="action_Flip_vertically"/>
+    <addaction name="separator"/>
+    <addaction name="actionCrop"/>
+    <addaction name="actionResize"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -76,6 +87,8 @@
     <addaction name="actionReset_scale"/>
     <addaction name="actionUndo"/>
     <addaction name="actionRedo"/>
+    <addaction name="separator"/>
+    <addaction name="actionColorPicker"/>
    </widget>
    <widget class="QMenu" name="menuSteganography">
     <property name="title">
@@ -181,6 +194,9 @@
    <property name="text">
     <string>Flip horizontally</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+H</string>
+   </property>
   </action>
   <action name="action_Flip_vertically">
    <property name="icon">
@@ -191,6 +207,9 @@
    <property name="text">
     <string>
 Flip vertically</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+H</string>
    </property>
   </action>
   <action name="actionZoom_in">
@@ -353,6 +372,48 @@ Flip vertically</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+I</string>
+   </property>
+  </action>
+  <action name="actionExportAs">
+   <property name="text">
+    <string>Export As...</string>
+   </property>
+  </action>
+  <action name="actionCrop">
+   <property name="icon">
+    <iconset>
+     <normalon>:/resources/crop.svg</normalon>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Crop</string>
+   </property>
+   <property name="toolTip">
+    <string>Select and crop a region of the image</string>
+   </property>
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionColorPicker">
+   <property name="icon">
+    <iconset>
+     <normalon>:/resources/color_picker.svg</normalon>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Pick Color</string>
+   </property>
+   <property name="toolTip">
+    <string>Pick a pixel color from the image</string>
+   </property>
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionResize">
+   <property name="text">
+    <string>Resize...</string>
    </property>
   </action>
  </widget>

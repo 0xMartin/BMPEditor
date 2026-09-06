@@ -36,7 +36,7 @@ BlurDialog::BlurDialog(QWidget *parent) : QDialog(parent) {
 
 void BlurDialog::resetDialog()
 {
-    this->radiusSlider->setValue(0);
+    this->radiusSlider->setValue(1);
 }
 
 int BlurDialog::getBlurRadius() const {

@@ -30,7 +30,7 @@ ImageInfoPanel::ImageInfoPanel(QWidget *parent) : QWidget(parent) {
     scrollAreaColors->setWidgetResizable(true);
     QWidget *colorPaletteWidged = new QWidget();
     scrollAreaColors->setWidget(colorPaletteWidged);
-    this->colorPalette = new QGridLayout(this);
+    this->colorPalette = new QGridLayout();
     colorPaletteWidged->setLayout(this->colorPalette);
 
     // UI kontajnery pro aktivni prvky ********************************************
@@ -45,7 +45,6 @@ ImageInfoPanel::ImageInfoPanel(QWidget *parent) : QWidget(parent) {
     layout->addWidget(this->infoTableFrame);
     layout->addWidget(this->colorPaletteFrame);
     layout->addStretch();
-    setLayout(layout);
     this->setMaximumWidth(640);
     this->setMinimumWidth(250);
 

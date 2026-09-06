@@ -15,5 +15,7 @@
         <file>resources/maximize.svg</file>
         <file>resources/flip_horizontal.svg</file>
         <file>resources/flip_vertical.svg</file>
+        <file>resources/color_picker.svg</file>
+        <file>resources/crop.svg</file>
     </qresource>
 </RCC>

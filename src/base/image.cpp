@@ -63,6 +63,16 @@ int Image::importImage(const QString &filePath)
     this->height = imageSize.height();
     this->bitDepth = 24;
 
+    // sanitni limit rozmeru obrazku - zabranuje pretaceni pri vypoctu velikosti pole pixelu (width * height * 3)
+    const uint64_t MAX_IMG_DIMENSION = 30000;
+    const uint64_t MAX_IMG_PIXELS = 100000000ULL;
+    if (this->width == 0 || this->height == 0 ||
+        this->width > MAX_IMG_DIMENSION || this->height > MAX_IMG_DIMENSION ||
+        (uint64_t)this->width * (uint64_t)this->height > MAX_IMG_PIXELS) {
+        qDebug() << "IMAGE import error: image dimensions out of supported range";
+        return ERR_INVALID_BMP_SIZE;
+    }
+
     // nacteni obrazku do pameti
     QImage image = reader.read();
     if (image.isNull()) {

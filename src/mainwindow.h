@@ -4,6 +4,8 @@
 #include <QMainWindow>
 #include <QSplitter>
 #include <QProgressDialog>
+#include <QDragEnterEvent>
+#include <QDropEvent>
 
 #include "base/image.h"
 #include "base/imageutils.h"
@@ -16,6 +18,7 @@
 #include "dialog/colorbalancedialog.h"
 #include "dialog/writemessagedialog.h"
 #include "dialog/kernelinputdialog.h"
+#include "dialog/resizedialog.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -45,6 +48,7 @@ protected:
     ImageInfoPanel *imageInfoPanel;
     QLabel *statusLabel;
     QLabel *pathLabel;
+    QLabel *historyLabel;
 
     // pro asynchronni spousteni
     ThreadRunner worker;
@@ -58,11 +62,18 @@ protected:
     ColorBalanceDialog colorBalanceDialog;
     WriteMessageDialog writeMessageDialog;
     KernelInputDialog kernelInputDialog;
+    ResizeDialog resizeDialog;
 
-    void closeEvent(QCloseEvent *event);
+    void closeEvent(QCloseEvent *event) override;
+    void dragEnterEvent(QDragEnterEvent *event) override;
+    void dropEvent(QDropEvent *event) override;
     void formatBMP(int bitCount);
     void appActionActivation();
     void checkForHiddenMessage();
+    void openImageFile(const QString &fileName);
+    void importImageFile(const QString &fileName);
+    void addRecentFile(const QString &path, bool isImport);
+    void updateRecentFilesMenu();
 
 private slots:
     void imageChanged(const QString &message);
@@ -133,6 +144,14 @@ private slots:
     void on_actionApply_Custom_Kernel_triggered();
 
     void on_actionImport_as_BMP_24_triggered();
+
+    void exportImageAs();
+    void onColorPickerToggled(bool checked);
+    void onCropToggled(bool checked);
+    void onResizeTriggered();
+    void onColorPicked(const QColor &color);
+    void onCropSelected(const QRectF &rect);
+    void onOperationRejected();
 
 private:
     Ui::MainWindow *ui;

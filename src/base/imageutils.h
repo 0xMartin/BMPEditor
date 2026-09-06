@@ -145,6 +145,22 @@ public:
      */
     void applyKernel(const std::vector<std::vector<int>>& kernel);
 
+    /**
+     * @brief Orizne obrazek na definovanou oblast
+     * @param x - X souradnice leveho horniho rohu (v souradnicich zobrazovaneho obrazku)
+     * @param y - Y souradnice leveho horniho rohu (v souradnicich zobrazovaneho obrazku)
+     * @param w - Sirka orezove oblasti
+     * @param h - Vyska orezove oblasti
+     */
+    void cropImage(int x, int y, int w, int h);
+
+    /**
+     * @brief Zmeni rozmery obrazku (nearest-neighbor prevzorkovani)
+     * @param newWidth - Nova sirka obrazku
+     * @param newHeight - Nova vyska obrazku
+     */
+    void resizeImage(int newWidth, int newHeight);
+
 private slots:
     void workerJobFinished();
 
@@ -155,6 +171,8 @@ signals:
     void imageChangedSignal(const QString &message);
     void jobStart();
     void jobFinished();
+    // vyvolano pokud predchozi asynchronni operace jeste bezi a nova byla zamitnuta
+    void operationRejected();
 
 };
 

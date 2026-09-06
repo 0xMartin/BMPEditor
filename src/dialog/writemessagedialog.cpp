@@ -15,8 +15,6 @@ WriteMessageDialog::WriteMessageDialog(QWidget *parent) : QDialog(parent) {
     layout->addWidget(label);
     layout->addWidget(this->messageLineEdit);
     layout->addWidget(buttonBox);
-
-    this->setLayout(layout);
 }
 
 void WriteMessageDialog::resetDialog()

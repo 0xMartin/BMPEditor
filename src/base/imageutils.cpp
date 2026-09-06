@@ -5,6 +5,7 @@
 ImageUtils::ImageUtils(QObject * parrent) : QObject(parrent) {
     this->historyIndex = 0;
     connect(&this->worker, &ThreadRunner::jobFinished, this, &ImageUtils::workerJobFinished);
+    connect(&this->worker, &ThreadRunner::jobRejected, this, &ImageUtils::operationRejected);
 }
 
 ImageUtils::~ImageUtils()
@@ -501,6 +502,70 @@ unsigned char *ImageUtils::applyKernel(unsigned char *pixels, int width, int hei
     }
 
     return resultPixels;
+}
+
+void ImageUtils::cropImage(int x, int y, int w, int h)
+{
+    if (!currentImage) return;
+
+    // omezeni orezove oblasti na hranice obrazku
+    x = std::max(0, std::min(x, (int)currentImage->width - 1));
+    y = std::max(0, std::min(y, (int)currentImage->height - 1));
+    w = std::max(1, std::min(w, (int)currentImage->width - x));
+    h = std::max(1, std::min(h, (int)currentImage->height - y));
+
+    unsigned char *croppedPixels = new unsigned char[(size_t)w * h * 3];
+
+    // pixely jsou v poli ulozeny "odspoda" (radek 0 = spodek zobrazovaneho obrazku),
+    // proto je nutne pozadovanou (shora smerovanou) oblast prepocitat na spravny radek v poli
+    int baseRow = (int)currentImage->height - y - h;
+    for (int r = 0; r < h; ++r) {
+        for (int c = 0; c < w; ++c) {
+            size_t oldIndex = ((size_t)(baseRow + r) * currentImage->width + (x + c)) * 3;
+            size_t newIndex = ((size_t)r * w + c) * 3;
+            std::copy_n(&currentImage->pixels[oldIndex], 3, &croppedPixels[newIndex]);
+        }
+    }
+
+    delete[] currentImage->pixels;
+    currentImage->pixels = croppedPixels;
+    currentImage->width = w;
+    currentImage->height = h;
+    currentImage->dataLen = (size_t)w * h * 3;
+
+    // refresh obrazku + emitovani signalu o zmene obrazku
+    this->refreshImage("Image cropped", IMG_UPDATE_SIZE);
+}
+
+void ImageUtils::resizeImage(int newWidth, int newHeight)
+{
+    if (!currentImage) return;
+
+    newWidth = std::max(1, newWidth);
+    newHeight = std::max(1, newHeight);
+
+    unsigned char *resizedPixels = new unsigned char[(size_t)newWidth * newHeight * 3];
+    double xRatio = (double)currentImage->width / newWidth;
+    double yRatio = (double)currentImage->height / newHeight;
+
+    for (int y = 0; y < newHeight; ++y) {
+        int srcY = std::min((int)(y * yRatio), (int)currentImage->height - 1);
+        for (int x = 0; x < newWidth; ++x) {
+            int srcX = std::min((int)(x * xRatio), (int)currentImage->width - 1);
+            size_t oldIndex = ((size_t)srcY * currentImage->width + srcX) * 3;
+            size_t newIndex = ((size_t)y * newWidth + x) * 3;
+            std::copy_n(&currentImage->pixels[oldIndex], 3, &resizedPixels[newIndex]);
+        }
+    }
+
+    delete[] currentImage->pixels;
+    currentImage->pixels = resizedPixels;
+    currentImage->width = newWidth;
+    currentImage->height = newHeight;
+    currentImage->dataLen = (size_t)newWidth * newHeight * 3;
+
+    // refresh obrazku + emitovani signalu o zmene obrazku
+    this->refreshImage("Image resized", IMG_UPDATE_SIZE);
 }
 
 void ImageUtils::workerJobFinished()

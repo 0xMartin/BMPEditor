@@ -3,11 +3,12 @@
 
 #include <QThread>
 #include <functional>
+#include <atomic>
 
 class ThreadRunner : public QObject {
     Q_OBJECT
 public:
-    bool JobDone;
+    std::atomic<bool> JobDone;
 
     explicit ThreadRunner(QObject *parent = nullptr);
 
@@ -15,5 +16,7 @@ public:
 
 signals:
     void jobFinished();
+    // vyvolano pokud je pozadavek na spusteni operace zamitnut, protoze predchozi jeste bezi
+    void jobRejected();
 };
 #endif // THREADRUNNER_H

@@ -27,16 +27,7 @@ KernelInputDialog::KernelInputDialog(QWidget *parent) : QDialog(parent)
 
 KernelInputDialog::~KernelInputDialog()
 {
-    // Clean up
-    delete layout;
-    delete titleLabel;
-    for (int i = 0; i < 3; ++i) {
-        for (int j = 0; j < 3; ++j) {
-            delete kernelInputs[i][j];
-        }
-    }
-    delete okButton;
-    delete cancelButton;
+    // vsechny widgety jsou vlastneny Qt hierarchii (parent = this / layout), Qt je uvolni automaticky
 }
 
 void KernelInputDialog::onOkClicked()

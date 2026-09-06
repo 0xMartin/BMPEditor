@@ -118,11 +118,62 @@ float Workspace::getScale() const
     return this->scale;
 }
 
+void Workspace::setCropMode(bool enabled)
+{
+    this->cropMode = enabled;
+    this->cropSelecting = false;
+    if(enabled) {
+        this->colorPickMode = false;
+    }
+    this->setCursor(enabled ? Qt::CrossCursor : Qt::ArrowCursor);
+    this->repaint();
+}
+
+void Workspace::setColorPickMode(bool enabled)
+{
+    this->colorPickMode = enabled;
+    if(enabled) {
+        this->cropMode = false;
+    }
+    this->setCursor(enabled ? Qt::CrossCursor : Qt::ArrowCursor);
+}
+
+void Workspace::clampOffset()
+{
+    if(this->image == NULL) return;
+    // omezeni offsetu tak, aby obrazek nesel odscrollovat mimo dohled
+    double maxX = this->image->width;
+    double maxY = this->image->height;
+    this->globalOffset.setX(std::max(-maxX, std::min(maxX, this->globalOffset.x())));
+    this->globalOffset.setY(std::max(-maxY, std::min(maxY, this->globalOffset.y())));
+}
+
 void Workspace::mousePressEvent(QMouseEvent *event)
 {
     if(!this->isEnabled()) return;
 
     this->pressPos = event->pos();
+
+    // odber barvy z obrazku (color picker)
+    if(this->colorPickMode && event->button() == Qt::LeftButton && this->image != NULL) {
+        bool outOfRange;
+        QPointF pos = this->calculateEventOffsetPosition(event->pos(), outOfRange);
+        if(!outOfRange) {
+            int x = std::max(0, std::min((int)pos.x(), (int)this->image->width - 1));
+            int arrayRow = std::max(0, std::min((int)this->image->height - 1 - (int)pos.y(), (int)this->image->height - 1));
+            size_t index = ((size_t)arrayRow * this->image->width + x) * 3;
+            QColor color(this->image->pixels[index], this->image->pixels[index + 1], this->image->pixels[index + 2]);
+            emit colorPicked(color);
+        }
+    }
+
+    // zacatek vyberu orezove oblasti
+    if(this->cropMode && event->button() == Qt::LeftButton && this->image != NULL) {
+        bool outOfRange;
+        this->cropSelectionStart = this->calculateEventOffsetPosition(event->pos(), outOfRange);
+        this->cropSelectionCurrent = this->cropSelectionStart;
+        this->cropSelecting = true;
+    }
 
     switch (event->buttons()) {
     case Qt::MiddleButton:
@@ -139,7 +190,16 @@ void Workspace::mouseReleaseEvent(QMouseEvent *event)
     if(event->buttons() != Qt::MiddleButton) {
         this->mouseHelper.resetMove();
         // nastaveni zakladniho kurzoru
-        this->setCursor(Qt::ArrowCursor);
+        this->setCursor(this->cropMode || this->colorPickMode ? Qt::CrossCursor : Qt::ArrowCursor);
+    }
+
+    // dokonceni vyberu orezove oblasti
+    if(this->cropMode && this->cropSelecting) {
+        this->cropSelecting = false;
+        QRectF rect = QRectF(this->cropSelectionStart, this->cropSelectionCurrent).normalized();
+        if(rect.width() >= 1 && rect.height() >= 1) {
+            emit cropSelected(rect);
+        }
     }
 
     // repaint
@@ -164,8 +224,16 @@ void Workspace::mouseMoveEvent(QMouseEvent *event)
         if(this->mouseHelper.processMoveEvent(event->pos())) {
             QPointF diff = this->mouseHelper.diffFromLastPos();
             this->globalOffset += diff * INV_SCALE(this->scale) * this->config.mouseSensitivity;
+            this->clampOffset();
             paint = true;
         }
+    }
+
+    // aktualizace vyberu orezove oblasti
+    if(this->cropSelecting) {
+        bool outOfRange;
+        this->cropSelectionCurrent = this->calculateEventOffsetPosition(event->pos(), outOfRange);
+        paint = true;
     }
 
     // pozdavek na vykreslovani (limitovano na max 50 fps)
@@ -195,14 +263,14 @@ void Workspace::wheelEvent(QWheelEvent *event)
         // posun v horizontalni ose
         int diff = (event->angleDelta().y() > 0 ? 1 : -1) * this->width() / 14 * INV_SCALE(this->scale);
         int x = this->globalOffset.x() + diff;
-        // TODO ... x limits
         this->globalOffset.setX(x);
+        this->clampOffset();
     } else {
         // posun ve vertikalni ose
         int diff = (event->angleDelta().y() > 0 ? 1 : -1) * this->height() / 14 * INV_SCALE(this->scale);
         int y = this->globalOffset.y() + diff;
-        // TODO ... y limits
         this->globalOffset.setY(y);
+        this->clampOffset();
     }
 
     // jednotne vykreslovani (limitovano na max FPS z nastaveni)
@@ -244,6 +312,29 @@ void Workspace::paintEvent(QPaintEvent *event) {
     // vykresleni celkoveho pozadi wokspacu
     painter.fillRect(this->rect(), QBrush(QColor(37, 37, 37), Qt::SolidPattern));
 
+    if(this->image == NULL) {
+        // vodoznak - zobrazi se uprostred pokud neni otevreny zadny obrazek
+        static QImage watermark = []() {
+            QImage src(":/resources/icon.png");
+            src = src.convertToFormat(QImage::Format_ARGB32);
+            for(int y = 0; y < src.height(); ++y) {
+                QRgb *line = reinterpret_cast<QRgb*>(src.scanLine(y));
+                for(int x = 0; x < src.width(); ++x) {
+                    int gray = qGray(line[x]);
+                    line[x] = qRgba(gray, gray, gray, qAlpha(line[x]));
+                }
+            }
+            return src;
+        }();
+
+        if(!watermark.isNull()) {
+            QImage scaled = watermark.scaledToHeight(this->height() * 0.5, Qt::SmoothTransformation);
+            QPoint pos((this->width() - scaled.width()) / 2, (this->height() - scaled.height()) / 2);
+            painter.setOpacity(0.08);
+            painter.drawImage(pos, scaled);
+            painter.setOpacity(1.0);
+        }
+    }
 
     if(this->image != NULL) {
 
@@ -268,6 +359,20 @@ void Workspace::paintEvent(QPaintEvent *event) {
             // outline
             painter.setPen(Qt::black);
             painter.drawRect(offset.x(), offset.y(), this->image->width * this->scale, this->image->height * this->scale);
+
+            // vykresleni vyberu orezove oblasti (pokud probiha)
+            if(this->cropMode && this->cropSelecting) {
+                QRectF rect = QRectF(this->cropSelectionStart, this->cropSelectionCurrent).normalized();
+                painter.save();
+                painter.translate(offset);
+                painter.scale(this->scale, this->scale);
+                QPen pen(QColor(255, 200, 0));
+                pen.setWidthF(1.5 / this->scale);
+                painter.setPen(pen);
+                painter.setBrush(QBrush(QColor(255, 200, 0, 60)));
+                painter.drawRect(rect);
+                painter.restore();
+            }
         }
         //-------OBRAZEK-------------------------
 

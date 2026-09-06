@@ -8,7 +8,8 @@ ThreadRunner::ThreadRunner(QObject *parent) : QObject(parent) {
 
 void ThreadRunner::runInThread(std::function<void()> func) {
     if(!this->JobDone) {
-        qDebug() << "Faild to start new job in worker (" << this << "). Worker still didn't finish the job!";
+        qDebug() << "Failed to start new job in worker (" << this << "). Worker still didn't finish the job!";
+        emit jobRejected();
         return;
     }
 
@@ -18,5 +19,7 @@ void ThreadRunner::runInThread(std::function<void()> func) {
         this->JobDone = true;
         emit jobFinished();
     });
+    // vlakno se po dokonceni sameuvolni (jinak by kazde spusteni operace unikalo pamet)
+    connect(thread, &QThread::finished, thread, &QThread::deleteLater);
     thread->start();
 }

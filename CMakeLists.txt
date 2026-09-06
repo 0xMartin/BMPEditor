@@ -66,6 +66,8 @@ set(PROJECT_SOURCES
         src/dialog/writemessagedialog.cpp
         src/dialog/kernelinputdialog.h
         src/dialog/kernelinputdialog.cpp
+        src/dialog/resizedialog.h
+        src/dialog/resizedialog.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

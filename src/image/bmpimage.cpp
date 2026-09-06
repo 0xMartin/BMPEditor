@@ -101,7 +101,7 @@ int BMPImage::copyImage(Image * img)
         return ERR_NULL_PTR;
     }
     BMPImage *bmp = dynamic_cast<BMPImage *>(img);
-    if(img == NULL) {
+    if(bmp == NULL) {
         return ERR_TYPE;
     }
 

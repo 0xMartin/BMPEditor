@@ -5,6 +5,8 @@
 #include <QWidget>
 #include <QMouseEvent>
 #include <QScrollArea>
+#include <QColor>
+#include <QRectF>
 
 #include "mouseeventhelper.h"
 #include "../base/image.h"
@@ -87,6 +89,16 @@ public:
      */
     float getScale() const;
 
+    /**
+     * @brief Zapne/vypne rezim vyberu orezove oblasti (tazenim mysi)
+     */
+    void setCropMode(bool enabled);
+
+    /**
+     * @brief Zapne/vypne rezim odberu barvy (color picker)
+     */
+    void setColorPickMode(bool enabled);
+
     // events
     virtual void mousePressEvent(QMouseEvent *event) override;
     virtual void mouseReleaseEvent(QMouseEvent *event) override;
@@ -103,6 +115,16 @@ signals:
      * @brief Signal vyvolan ve chvili zmeny konfiguracni struktury
      */
     void configChanged();
+
+    /**
+     * @brief Signal vyvolan po dokonceni vyberu orezove oblasti (souradnice v prostoru obrazku)
+     */
+    void cropSelected(const QRectF &rect);
+
+    /**
+     * @brief Signal vyvolan po odebrani barvy z obrazku
+     */
+    void colorPicked(const QColor &color);
 
 protected:
     // nastaveni workspace
@@ -124,6 +146,20 @@ protected:
 
     // helper pro mouse eventy
     MouseEventHelper mouseHelper;
+
+    // rezim vyberu orezove oblasti
+    bool cropMode = false;
+    bool cropSelecting = false;
+    QPointF cropSelectionStart;
+    QPointF cropSelectionCurrent;
+
+    // rezim odberu barvy
+    bool colorPickMode = false;
+
+    /**
+     * @brief Omezi globalni offset tak, aby nebylo mozne odscrollovat obrazek mimo dohled
+     */
+    void clampOffset();
 
     /**
      * @brief [[[ Hlavni paint event ]]]

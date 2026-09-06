@@ -88,6 +88,12 @@ public:
     int buildImagePreview();
 
     /**
+     * @brief Navrati aktualne sestaveny nahled obrazku (pro export do jinych formatu)
+     * @return Pointer na QImage nahled, nebo nullptr pokud jeste nebyl sestaven
+     */
+    QImage * getPreview() const { return imagePreview; }
+
+    /**
      * @brief Univerzalni metoda update. Vyuziti pro prepocitani internich atributu tridy.
      */
     virtual void update(ImageUpdateMode mode) = 0;

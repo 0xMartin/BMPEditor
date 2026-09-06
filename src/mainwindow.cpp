@@ -3,6 +3,12 @@
 
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QSettings>
+#include <QFileInfo>
+#include <QMimeData>
+#include <QUrl>
+#include <QClipboard>
+#include <QApplication>
 
 #include "image/bmpimage.h"
 #include "base/formatter.h"
@@ -35,6 +41,18 @@ MainWindow::MainWindow(QWidget *parent)
     this->ui->toolBar->addAction(this->ui->actionRotate_90_minus);
     this->ui->toolBar->addAction(this->ui->actionFlip_horizontally);
     this->ui->toolBar->addAction(this->ui->action_Flip_vertically);
+    this->ui->toolBar->addWidget(this->createToolbarSeparator());
+    this->ui->toolBar->addAction(this->ui->actionCrop);
+    this->ui->toolBar->addAction(this->ui->actionColorPicker);
+
+    connect(this->ui->actionCrop, &QAction::toggled, this, &MainWindow::onCropToggled);
+    connect(this->ui->actionColorPicker, &QAction::toggled, this, &MainWindow::onColorPickerToggled);
+    connect(this->ui->actionResize, &QAction::triggered, this, &MainWindow::onResizeTriggered);
+    connect(this->ui->actionExportAs, &QAction::triggered, this, &MainWindow::exportImageAs);
+
+    // otevreni souboru pretazenim (drag & drop)
+    this->setAcceptDrops(true);
+    this->updateRecentFilesMenu();
 
     /**********************************************************/
     // histori (undo, redo)
@@ -53,11 +71,15 @@ MainWindow::MainWindow(QWidget *parent)
     this->pathLabel->setAlignment(Qt::AlignLeft);
     this->pathLabel->setText(tr("<b>Path:</b> None"));
 
+    this->historyLabel = new QLabel(statusBarWidget);
+    this->historyLabel->setAlignment(Qt::AlignLeft);
+    this->historyLabel->setText(tr("<b>History:</b> 0/%1").arg(MAX_HISTORY_SIZE));
+
     QHBoxLayout * statusBarLayour = new QHBoxLayout(statusBarWidget);
     statusBarLayour->setContentsMargins(6, 2, 2, 2);
-    statusBarWidget->setLayout(statusBarLayour);
     statusBarLayour->addWidget(this->statusLabel);
     statusBarLayour->addWidget(this->pathLabel);
+    statusBarLayour->addWidget(this->historyLabel);
     statusBarLayour->addStretch();
 
     this->statusBar()->addPermanentWidget(statusBarWidget, 1);
@@ -78,6 +100,7 @@ MainWindow::MainWindow(QWidget *parent)
     // init lokalnich atributu
     this->image = NULL;
     connect(&this->worker, &ThreadRunner::jobFinished, this, &MainWindow::asyncJobFinished);
+    connect(&this->worker, &ThreadRunner::jobRejected, this, &MainWindow::onOperationRejected);
 
     /**********************************************************/
     // vytvoreni a konfigurace workspacu
@@ -88,6 +111,8 @@ MainWindow::MainWindow(QWidget *parent)
     cnfg.fps = 50;
     cnfg.mouseSensitivity = 1.3;
     this->workspace = new Workspace(cnfg, this);
+    connect(this->workspace, &Workspace::colorPicked, this, &MainWindow::onColorPicked);
+    connect(this->workspace, &Workspace::cropSelected, this, &MainWindow::onCropSelected);
 
     /**********************************************************/
     // vytvoreni image info panelu
@@ -98,6 +123,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(&this->imgUtils, &ImageUtils::imageChangedSignal, this, &MainWindow::imageChanged);
     connect(&this->imgUtils, &ImageUtils::jobStart, this, &MainWindow::asyncJobStart);
     connect(&this->imgUtils, &ImageUtils::jobFinished, this, &MainWindow::asyncJobFinished);
+    connect(&this->imgUtils, &ImageUtils::operationRejected, this, &MainWindow::onOperationRejected);
 
     /**********************************************************/
     // sestaveni celkove pracovni plochy s vyuzitim splitteru
@@ -241,6 +267,11 @@ void MainWindow::appActionActivation()
     this->ui->actionClear_message->setEnabled(enabled);
     this->ui->actionWrite_message->setEnabled(enabled);
     this->ui->actionRead_message->setEnabled(enabled);
+    // nove nastroje
+    this->ui->actionCrop->setEnabled(enabled);
+    this->ui->actionColorPicker->setEnabled(enabled);
+    this->ui->actionResize->setEnabled(enabled);
+    this->ui->actionExportAs->setEnabled(enabled);
 }
 
 void MainWindow::checkForHiddenMessage()
@@ -267,6 +298,9 @@ void MainWindow::imageChanged(const QString &message)
     // zmena stavu tlacitek pro rizeni historie (undo, redo)
     this->ui->actionUndo->setEnabled(this->imgUtils.getHistoryIndex() > 0);
     this->ui->actionRedo->setEnabled(this->imgUtils.getHistoryIndex() + 1 < this->imgUtils.getImageHistory().size());
+
+    // aktualizace ukazatele limitu historie
+    this->historyLabel->setText(tr("<b>History:</b> %1/%2").arg(this->imgUtils.getImageHistory().size()).arg(MAX_HISTORY_SIZE));
 }
 
 void MainWindow::asyncJobStart()
@@ -291,30 +325,139 @@ void MainWindow::on_actionOpen_triggered()
 {
     // app: load image
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open Image"), QDir::homePath(), tr("BMP File (*.bmp)"));
-    if (!fileName.isEmpty()) {
+    this->openImageFile(fileName);
+}
 
-        qDebug() << "Open file: " << fileName;
-        BMPImage *bmp = new BMPImage();
-        this->statusLabel->setText(tr("<b>Status:</b> Image loading ..."));
+void MainWindow::openImageFile(const QString &fileName)
+{
+    if (fileName.isEmpty()) return;
 
-        int errCode = bmp->loadImage(fileName);
-        if(errCode != STATUS_OK) {
+    qDebug() << "Open file: " << fileName;
+    BMPImage *bmp = new BMPImage();
+    this->statusLabel->setText(tr("<b>Status:</b> Image loading ..."));
 
-            // nastala chyba pri nacteni souboru
-            QString errorStr;
-            getErrorCodeInfo(errCode, errorStr);
-            QMessageBox::critical(this, tr("Open Error"), tr("Failed to open BMP image. Error: %1").arg(errorStr));
-            this->statusLabel->setText(tr("<b>Status:</b> Failed to load image"));
+    int errCode = bmp->loadImage(fileName);
+    if(errCode != STATUS_OK) {
 
-        } else {
-            // obrazek uspesne nacten => zobrazeni v editoru
-            this->setImage(bmp);
-            QMessageBox::information(this, tr("Open Image"), tr("Image opened successfully!"));
+        // nastala chyba pri nacteni souboru
+        delete bmp;
+        QString errorStr;
+        getErrorCodeInfo(errCode, errorStr);
+        QMessageBox::critical(this, tr("Open Error"), tr("Failed to open BMP image. Error: %1").arg(errorStr));
+        this->statusLabel->setText(tr("<b>Status:</b> Failed to load image"));
 
-            // overi zda se v nactenem obrazku nenachazi zprava
-            this->checkForHiddenMessage();
-        }
+    } else {
+        // obrazek uspesne nacten => zobrazeni v editoru
+        this->setImage(bmp);
+        this->addRecentFile(fileName, false);
 
+        // overi zda se v nactenem obrazku nenachazi zprava
+        this->checkForHiddenMessage();
+    }
+}
+
+void MainWindow::importImageFile(const QString &fileName)
+{
+    if (fileName.isEmpty()) return;
+
+    qDebug() << "Import file: " << fileName;
+    BMPImage *bmp = new BMPImage();
+    this->statusLabel->setText(tr("<b>Status:</b> Image importing ..."));
+
+    int errCode = bmp->importAsBMP24(fileName);
+    if(errCode != STATUS_OK) {
+
+        // nastala chyba pri importu souboru
+        delete bmp;
+        QString errorStr;
+        getErrorCodeInfo(errCode, errorStr);
+        QMessageBox::critical(this, tr("Import Error"), tr("Failed to import BMP image. Error: %1").arg(errorStr));
+        this->statusLabel->setText(tr("<b>Status:</b> Failed to import image"));
+
+    } else {
+        // obrazek uspesne nacten => zobrazeni v editoru
+        this->setImage(bmp);
+        this->addRecentFile(fileName, true);
+
+        // overi zda se v nactenem obrazku nenachazi zprava
+        this->checkForHiddenMessage();
+    }
+}
+
+void MainWindow::addRecentFile(const QString &path, bool isImport)
+{
+    QSettings settings("BMPEditor", "BMPEditor");
+    QStringList files = settings.value("recentFiles").toStringList();
+    QStringList types = settings.value("recentFilesType").toStringList();
+    while(types.size() < files.size()) {
+        types.append("open");
+    }
+
+    int existingIndex = files.indexOf(path);
+    if(existingIndex >= 0) {
+        files.removeAt(existingIndex);
+        types.removeAt(existingIndex);
+    }
+    files.prepend(path);
+    types.prepend(isImport ? "import" : "open");
+    while(files.size() > 8) {
+        files.removeLast();
+        types.removeLast();
+    }
+    settings.setValue("recentFiles", files);
+    settings.setValue("recentFilesType", types);
+    this->updateRecentFilesMenu();
+}
+
+void MainWindow::updateRecentFilesMenu()
+{
+    this->ui->menuRecentFiles->clear();
+
+    QSettings settings("BMPEditor", "BMPEditor");
+    QStringList files = settings.value("recentFiles").toStringList();
+    QStringList types = settings.value("recentFilesType").toStringList();
+
+    if(files.isEmpty()) {
+        QAction *empty = this->ui->menuRecentFiles->addAction(tr("No Recent Files"));
+        empty->setEnabled(false);
+        return;
+    }
+
+    for(int i = 0; i < files.size(); ++i) {
+        const QString path = files.at(i);
+        const bool isImport = i < types.size() && types.at(i) == "import";
+        QAction *action = this->ui->menuRecentFiles->addAction(QFileInfo(path).fileName());
+        connect(action, &QAction::triggered, this, [this, path, isImport]() {
+            if(isImport) {
+                this->importImageFile(path);
+            } else {
+                this->openImageFile(path);
+            }
+        });
+    }
+
+    this->ui->menuRecentFiles->addSeparator();
+    QAction *clearAction = this->ui->menuRecentFiles->addAction(tr("Clear Recent Files"));
+    connect(clearAction, &QAction::triggered, this, [this]() {
+        QSettings settings("BMPEditor", "BMPEditor");
+        settings.remove("recentFiles");
+        settings.remove("recentFilesType");
+        this->updateRecentFilesMenu();
+    });
+}
+
+void MainWindow::dragEnterEvent(QDragEnterEvent *event)
+{
+    if(event->mimeData()->hasUrls()) {
+        event->acceptProposedAction();
+    }
+}
+
+void MainWindow::dropEvent(QDropEvent *event)
+{
+    const QList<QUrl> urls = event->mimeData()->urls();
+    if(!urls.isEmpty()) {
+        this->openImageFile(urls.first().toLocalFile());
     }
 }
 
@@ -674,30 +817,90 @@ void MainWindow::on_actionImport_as_BMP_24_triggered()
 {
     // app: import image
     QString fileName = QFileDialog::getOpenFileName(this, tr("Import Image As BMP 24b"), QDir::homePath(), tr("Images (*.bmp *.jpg *.jpeg *.png *.gif *.tiff)"));
-    if (!fileName.isEmpty()) {
+    this->importImageFile(fileName);
+}
 
-        qDebug() << "Import file: " << fileName;
-        BMPImage *bmp = new BMPImage();
-        this->statusLabel->setText(tr("<b>Status:</b> Image importing ..."));
+void MainWindow::exportImageAs()
+{
+    // app: export image to a different format (PNG/JPEG)
+    if(this->image == NULL) return;
 
-        int errCode = bmp->importAsBMP24(fileName);
-        if(errCode != STATUS_OK) {
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Export Image"), QDir::homePath(),
+                                                      tr("PNG Image (*.png);;JPEG Image (*.jpg *.jpeg)"));
+    if(fileName.isEmpty()) return;
 
-            // nastala chyba pri importu souboru
-            QString errorStr;
-            getErrorCodeInfo(errCode, errorStr);
-            QMessageBox::critical(this, tr("Import Error"), tr("Failed to import BMP image. Error: %1").arg(errorStr));
-            this->statusLabel->setText(tr("<b>Status:</b> Failed to import image"));
-
-        } else {
-            // obrazek uspesne nacten => zobrazeni v editoru
-            this->setImage(bmp);
-            QMessageBox::information(this, tr("Import Image"), tr("Image imported successfully!"));
-
-            // overi zda se v nactenem obrazku nenachazi zprava
-            this->checkForHiddenMessage();
-        }
-
+    this->image->buildImagePreview();
+    QImage *preview = this->image->getPreview();
+    if(preview == NULL || preview->isNull() || !preview->save(fileName)) {
+        QMessageBox::critical(this, tr("Export Error"), tr("Failed to export image."));
+        this->statusLabel->setText(tr("<b>Status:</b> Failed to export image"));
+    } else {
+        QMessageBox::information(this, tr("Export Image"), tr("Image exported successfully!"));
+        this->statusLabel->setText(tr("<b>Status:</b> Image exported"));
     }
+}
+
+void MainWindow::onColorPickerToggled(bool checked)
+{
+    if(checked) {
+        this->ui->actionCrop->setChecked(false);
+    }
+    this->workspace->setColorPickMode(checked);
+}
+
+void MainWindow::onCropToggled(bool checked)
+{
+    if(checked) {
+        this->ui->actionColorPicker->setChecked(false);
+    }
+    this->workspace->setCropMode(checked);
+}
+
+void MainWindow::onResizeTriggered()
+{
+    if(this->image == NULL) return;
+
+    this->resizeDialog.setCurrentSize(this->image->width, this->image->height);
+    if(this->resizeDialog.exec() == QDialog::Accepted) {
+        int w = this->resizeDialog.getWidth();
+        int h = this->resizeDialog.getHeight();
+        this->imgUtils.runOperationAsync([&, w, h]() {
+            this->imgUtils.resizeImage(w, h);
+        });
+    }
+}
+
+void MainWindow::onColorPicked(const QColor &color)
+{
+    QString hex = color.name(QColor::HexRgb).toUpper();
+    QApplication::clipboard()->setText(hex);
+    this->statusLabel->setText(tr("<b>Status:</b> Picked color %1 (copied to clipboard)").arg(hex));
+    this->ui->actionColorPicker->setChecked(false);
+}
+
+void MainWindow::onCropSelected(const QRectF &rect)
+{
+    this->ui->actionCrop->setChecked(false);
+    if(this->image == NULL) return;
+
+    int x = (int)rect.x();
+    int y = (int)rect.y();
+    int w = (int)rect.width();
+    int h = (int)rect.height();
+
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, tr("Crop Image"),
+                                  tr("Crop image to the selected region (%1x%2)?").arg(w).arg(h),
+                                  QMessageBox::Yes|QMessageBox::No);
+    if(reply == QMessageBox::Yes) {
+        this->imgUtils.runOperationAsync([&, x, y, w, h]() {
+            this->imgUtils.cropImage(x, y, w, h);
+        });
+    }
+}
+
+void MainWindow::onOperationRejected()
+{
+    this->statusLabel->setText(tr("<b>Status:</b> Please wait, another operation is still running..."));
 }
 

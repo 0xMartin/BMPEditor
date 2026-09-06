@@ -41,7 +41,6 @@ FrameWidget::FrameWidget(const QString &name, QWidget *content, QWidget *parent)
     tabHeader->setMaximumSize(QSize(9999, 40));
     tabHeader->setStyleSheet("background-color: rgb(39, 39, 41); padding: 3px");
     QHBoxLayout *layout = new QHBoxLayout(tabHeader);
-    tabHeader->setLayout(layout);
     layout->setContentsMargins(0, 0, 0, 0);
     layout->addWidget(this->label);
     layout->addStretch();
@@ -54,7 +53,6 @@ FrameWidget::FrameWidget(const QString &name, QWidget *content, QWidget *parent)
     layoutMain->setSpacing(0);
     layoutMain->addWidget(tabHeader);
     layoutMain->addWidget(this->content);
-    this->setLayout(layoutMain);
 
     // maximize
     this->maximize();
